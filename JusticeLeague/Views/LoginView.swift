@@ -11,13 +11,7 @@ struct LoginView: View {
             VStack(spacing: 22) {
                 Spacer()
 
-                VStack(spacing: 10) {
-                    JoeWordmark(size: 38)
-                    Text("OKLAHOMA  •  EST. 2026")
-                        .font(Theme.label(11, weight: .bold))
-                        .tracking(3)
-                        .foregroundStyle(Theme.tan)
-                }
+                JoeWordmark(size: 38)
 
                 FieldPanel {
                     VStack(alignment: .leading, spacing: 14) {
