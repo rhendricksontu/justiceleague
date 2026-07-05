@@ -161,7 +161,7 @@ struct AddMemberView: View {
                                 working = false
                             }
                         } label: {
-                            if working { ProgressView().tint(Theme.onPrimary) } else { Text("ADD TO ROSTER") }
+                            if working { ProgressView().tint(.black) } else { Text("ADD TO ROSTER") }
                         }
                         .buttonStyle(JoeButtonStyle())
                         .disabled(working || name.trimmed.isEmpty || phone.trimmed.isEmpty)
@@ -210,7 +210,7 @@ struct EditMemberView: View {
                         working = true
                         Task { await model.save(member); working = false; dismiss() }
                     } label: {
-                        if working { ProgressView().tint(Theme.onPrimary) } else { Text("SAVE CHANGES") }
+                        if working { ProgressView().tint(.black) } else { Text("SAVE CHANGES") }
                     }
                     .buttonStyle(JoeButtonStyle())
                     .disabled(working || member.displayName.trimmed.isEmpty)

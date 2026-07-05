@@ -159,7 +159,7 @@ struct PostQuestionForm: View {
                         working = false
                     }
                 } label: {
-                    if working { ProgressView().tint(Theme.onPrimary) } else { Text("POST QUESTION") }
+                    if working { ProgressView().tint(.black) } else { Text("POST QUESTION") }
                 }
                 .buttonStyle(JoeButtonStyle())
                 .disabled(working || prompt.trimmed.isEmpty || answer.trimmed.isEmpty)
@@ -233,7 +233,7 @@ struct AnswerForm: View {
                     working = true
                     Task { _ = await model.submit(answer: answer.trimmed, member: member); working = false }
                 } label: {
-                    if working { ProgressView().tint(Theme.onPrimary) } else { Text("LOCK IN ANSWER") }
+                    if working { ProgressView().tint(.black) } else { Text("LOCK IN ANSWER") }
                 }
                 .buttonStyle(JoeButtonStyle())
                 .disabled(working || answer.trimmed.isEmpty)
