@@ -32,7 +32,6 @@ struct MainTabView: View {
 struct ProfileView: View {
     @Environment(AppState.self) private var app
     @State private var showEdit = false
-    @State private var showAvatar = false
 
     var body: some View {
         NavigationStack {
@@ -45,7 +44,7 @@ struct ProfileView: View {
                     if let m = app.currentMember {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
-                                HStack(spacing: 14) {
+                                HStack(alignment: .top, spacing: 14) {
                                     AvatarBadge(avatar: Avatars.find(m.avatar), size: 64)
                                     VStack(alignment: .leading, spacing: 6) {
                                         StencilTitle(m.displayName, size: 20, solid: true)
@@ -53,6 +52,13 @@ struct ProfileView: View {
                                             .font(Theme.label(15))
                                             .foregroundStyle(.black)
                                     }
+                                    Spacer()
+                                    Button { showEdit = true } label: {
+                                        Image(systemName: "pencil")
+                                            .font(.system(size: 20, weight: .bold))
+                                            .foregroundStyle(.black)
+                                    }
+                                    .accessibilityLabel("Edit profile")
                                 }
                                 HStack(spacing: 8) {
                                     if m.isAdmin { RoleTag(text: "ADMIN") }
@@ -60,12 +66,6 @@ struct ProfileView: View {
                                     if !m.isAdmin && !m.isTriviaMaster { RoleTag(text: "MEMBER") }
                                 }
                             }
-                        }
-                        HStack(spacing: 12) {
-                            Button("CHOOSE AVATAR") { showAvatar = true }
-                                .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
-                            Button("EDIT PROFILE") { showEdit = true }
-                                .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
                         }
                     }
 
@@ -77,9 +77,8 @@ struct ProfileView: View {
                 .padding(.bottom, 30)
             }
             .sheet(isPresented: $showEdit) { EditProfileView() }
-            .sheet(isPresented: $showAvatar) { AvatarPickerView() }
             #if DEBUG
-            .task { if ProcessInfo.processInfo.environment["OPEN_AVATAR"] != nil { showAvatar = true } }
+            .task { if ProcessInfo.processInfo.environment["OPEN_EDIT"] != nil { showEdit = true } }
             #endif
             .navigationTitle("")
         }
@@ -94,6 +93,7 @@ struct EditProfileView: View {
     @State private var phoneText = ""
     @State private var working = false
     @State private var errorText: String?
+    @State private var showAvatar = false
 
     var body: some View {
         NavigationStack {
@@ -103,6 +103,22 @@ struct EditProfileView: View {
                     VStack(spacing: 16) {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
+                                Button { showAvatar = true } label: {
+                                    HStack(spacing: 14) {
+                                        AvatarBadge(avatar: Avatars.find(app.currentMember?.avatar), size: 56)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(Avatars.find(app.currentMember?.avatar)?.name ?? "Choose Avatar")
+                                                .font(Theme.label(16, weight: .bold))
+                                                .foregroundStyle(.black)
+                                            Text("Tap to change your G.I. Joe")
+                                                .font(Theme.label(12))
+                                                .foregroundStyle(Theme.textDim)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right").foregroundStyle(.black)
+                                    }
+                                }
+                                Divider().overlay(Theme.oliveDrab)
                                 fieldLabel("NAME")
                                 inputField($name, placeholder: "John Smith")
                                 fieldLabel("PHONE")
@@ -148,6 +164,10 @@ struct EditProfileView: View {
                     phoneText = PhoneUtil.pretty(m.phone)
                 }
             }
+            .sheet(isPresented: $showAvatar) { AvatarPickerView() }
+            #if DEBUG
+            .task { if ProcessInfo.processInfo.environment["OPEN_AVATAR"] != nil { showAvatar = true } }
+            #endif
         }
     }
 }
