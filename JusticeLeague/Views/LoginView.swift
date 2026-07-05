@@ -15,7 +15,7 @@ struct LoginView: View {
 
                 FieldPanel {
                     VStack(alignment: .leading, spacing: 14) {
-                        StencilTitle("REPORT FOR DUTY", size: 20)
+                        StencilTitle("REPORT FOR DUTY", size: 20, solid: true)
                         Text("Enter your phone number to sign in.")
                             .font(Theme.label(14, weight: .regular))
                             .foregroundStyle(Theme.textDim)

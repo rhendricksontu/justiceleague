@@ -41,17 +41,27 @@ extension Color {
     }
 }
 
-// Section header / title in the logo style: blocked font, white fill, black
-// outline — same treatment as the JUSTICE LEAGUE wordmark.
+// Section header / title in the logo style. Default is the wordmark treatment
+// (white fill, black outline) for titles on the sand background; `solid: true`
+// renders plain black for headers sitting on white cards.
 struct StencilTitle: View {
     let text: String
     var size: CGFloat = 30
-    init(_ text: String, size: CGFloat = 30) {
-        self.text = text; self.size = size
+    var solid: Bool = false
+    init(_ text: String, size: CGFloat = 30, solid: Bool = false) {
+        self.text = text; self.size = size; self.solid = solid
     }
     var body: some View {
-        OutlinedText(text: text.uppercased(), font: Theme.block(size),
-                     width: max(1, size * 0.05))
+        let tracking = size * 0.10
+        if solid {
+            Text(text.uppercased())
+                .font(Theme.block(size))
+                .tracking(tracking)
+                .foregroundStyle(Theme.ink)
+        } else {
+            OutlinedText(text: text.uppercased(), font: Theme.block(size),
+                         width: max(1, size * 0.05), tracking: tracking)
+        }
     }
 }
 
@@ -77,6 +87,7 @@ struct OutlinedText: View {
     var fill: Color = .white
     var stroke: Color = .black
     var width: CGFloat = 2
+    var tracking: CGFloat = 0
 
     private var offsets: [CGSize] {
         let w = width
@@ -91,10 +102,44 @@ struct OutlinedText: View {
     var body: some View {
         ZStack {
             ForEach(Array(offsets.enumerated()), id: \.offset) { _, o in
-                Text(text).font(font).foregroundStyle(stroke).offset(o)
+                Text(text).font(font).tracking(tracking).foregroundStyle(stroke).offset(o)
             }
-            Text(text).font(font).foregroundStyle(fill)
+            Text(text).font(font).tracking(tracking).foregroundStyle(fill)
         }
+    }
+}
+
+// A sharp 5-point star (miter joins keep the points crisp).
+struct StarShape: Shape {
+    var pointsCount: Int = 5
+    var innerRatio: CGFloat = 0.40
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let c = CGPoint(x: rect.midX, y: rect.midY)
+        let outer = min(rect.width, rect.height) / 2
+        let inner = outer * innerRatio
+        let step = CGFloat.pi / CGFloat(pointsCount)
+        var angle = -CGFloat.pi / 2 // first point straight up
+        for i in 0 ..< pointsCount * 2 {
+            let r = i.isMultiple(of: 2) ? outer : inner
+            let p = CGPoint(x: c.x + cos(angle) * r, y: c.y + sin(angle) * r)
+            i == 0 ? path.move(to: p) : path.addLine(to: p)
+            angle += step
+        }
+        path.closeSubpath()
+        return path
+    }
+}
+
+// Cyan star with a solid black outline, matching the logo.
+struct JoeStar: View {
+    var size: CGFloat
+    var body: some View {
+        ZStack {
+            StarShape().fill(Theme.cyan)
+            StarShape().stroke(.black, style: StrokeStyle(lineWidth: size * 0.09, lineJoin: .miter))
+        }
+        .frame(width: size, height: size)
     }
 }
 
@@ -112,13 +157,12 @@ struct JoeWordmark: View {
     var size: CGFloat = 40
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: size * 0.14) {
-                OutlinedText(text: "JUSTICE", font: Theme.block(size), width: size * 0.05)
-                Image(systemName: "star.fill")
-                    .font(.system(size: size * 0.62, weight: .black))
-                    .foregroundStyle(Theme.cyan)
-                    .shadow(color: .black, radius: 0, x: size * 0.03, y: 0)
-                OutlinedText(text: "LEAGUE", font: Theme.block(size), width: size * 0.05)
+            HStack(spacing: size * 0.16) {
+                OutlinedText(text: "JUSTICE", font: Theme.block(size),
+                             width: size * 0.05, tracking: size * 0.10)
+                JoeStar(size: size * 0.92)
+                OutlinedText(text: "LEAGUE", font: Theme.block(size),
+                             width: size * 0.05, tracking: size * 0.10)
             }
             .modifier(Skew(k: 0.18))
             HStack(spacing: 8) {

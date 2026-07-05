@@ -47,7 +47,7 @@ struct TodayView: View {
             // Question prompt panel — shown to everyone.
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
-                    StencilTitle("MISSION BRIEFING", size: 15)
+                    StencilTitle("MISSION BRIEFING", size: 15, solid: true)
                     Text(q.prompt)
                         .font(Theme.label(19, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
@@ -79,7 +79,7 @@ struct TodayView: View {
         } else {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 8) {
-                    StencilTitle("STAND BY", size: 18)
+                    StencilTitle("STAND BY", size: 18, solid: true)
                     Text("No trivia has been posted yet today. Check back soon, soldier.")
                         .font(Theme.label(15, weight: .regular)).foregroundStyle(Theme.textDim)
                 }
@@ -134,7 +134,7 @@ struct PostQuestionForm: View {
     var body: some View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
-                StencilTitle("POST TODAY'S TRIVIA", size: 17)
+                StencilTitle("POST TODAY'S TRIVIA", size: 17, solid: true)
 
                 fieldLabel("QUESTION")
                 TextEditor(text: $prompt)
@@ -220,7 +220,7 @@ struct AnswerForm: View {
     var body: some View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
-                StencilTitle("YOUR ANSWER", size: 17)
+                StencilTitle("YOUR ANSWER", size: 17, solid: true)
                 Text("No one sees your answer until the trivia master reveals.")
                     .font(Theme.label(13, weight: .regular)).foregroundStyle(Theme.textDim)
                 TextField("", text: $answer, prompt: Text("Type your answer…").foregroundColor(Theme.textDim))
@@ -255,7 +255,7 @@ struct AnsweredPanel: View {
         VStack(alignment: .leading, spacing: 12) {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
-                    StencilTitle("ANSWER LOCKED IN", size: 16)
+                    StencilTitle("ANSWER LOCKED IN", size: 16, solid: true)
                     if editing {
                         TextField("", text: $draft)
                             .padding(12).background(Theme.surfaceHi)
@@ -299,7 +299,7 @@ struct ResultsPanel: View {
                 FieldPanel {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            StencilTitle("YOUR RESULT", size: 15)
+                            StencilTitle("YOUR RESULT", size: 15, solid: true)
                             Text(mine.answer).font(Theme.label(18, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                         }
                         Spacer()
@@ -331,7 +331,7 @@ struct ParticipationPanel: View {
     var body: some View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 8) {
-                StencilTitle("ROLL CALL  \(model.answeredCount)/\(model.totalCount)", size: 15)
+                StencilTitle("ROLL CALL  \(model.answeredCount)/\(model.totalCount)", size: 15, solid: true)
                 FlowRow(items: model.participation) { p in
                     HStack(spacing: 5) {
                         Image(systemName: p.hasAnswered ? "checkmark.circle.fill" : "circle")
