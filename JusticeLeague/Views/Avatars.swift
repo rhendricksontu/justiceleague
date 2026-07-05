@@ -15,9 +15,9 @@ enum Avatars {
         JoeAvatar(id: "duke",        name: "Duke",         symbol: "star.fill",                                hex: 0xC79A3B),
         JoeAvatar(id: "snake_eyes",  name: "Snake Eyes",   symbol: "eye.slash.fill",                           hex: 0x26262B),
         JoeAvatar(id: "roadblock",   name: "Roadblock",    symbol: "dumbbell.fill",                            hex: 0xC0651D),
-        JoeAvatar(id: "gung_ho",     name: "Gung-Ho",      symbol: "flag.fill",                                hex: 0xB03A2E),
+        JoeAvatar(id: "gung_ho",     name: "Gung-Ho",      symbol: "megaphone.fill",                           hex: 0xB03A2E),
         JoeAvatar(id: "stalker",     name: "Stalker",      symbol: "binoculars.fill",                          hex: 0x4E6B2F),
-        JoeAvatar(id: "doc",         name: "Doc",          symbol: "cross.fill",                               hex: 0x2AA198),
+        JoeAvatar(id: "doc",         name: "Doc",          symbol: "cross.case.fill",                          hex: 0x2AA198),
         JoeAvatar(id: "wild_bill",   name: "Wild Bill",    symbol: "airplane",                                 hex: 0x8E6B3A),
         JoeAvatar(id: "breaker",     name: "Breaker",      symbol: "antenna.radiowaves.left.and.right",        hex: 0x2E6DA4),
         JoeAvatar(id: "clutch",      name: "Clutch",       symbol: "car.fill",                                 hex: 0x5D6D7E),
@@ -25,7 +25,7 @@ enum Avatars {
         JoeAvatar(id: "steeler",     name: "Steeler",      symbol: "shield.fill",                              hex: 0x34495E),
         JoeAvatar(id: "flash",       name: "Flash",        symbol: "bolt.fill",                                hex: 0xC79A00),
         JoeAvatar(id: "zap",         name: "Zap",          symbol: "flame.fill",                               hex: 0xD35400),
-        JoeAvatar(id: "torpedo",     name: "Torpedo",      symbol: "drop.fill",                                hex: 0x196F8C),
+        JoeAvatar(id: "torpedo",     name: "Torpedo",      symbol: "water.waves",                              hex: 0x196F8C),
     ]
     static func find(_ id: String?) -> JoeAvatar? {
         guard let id else { return nil }
