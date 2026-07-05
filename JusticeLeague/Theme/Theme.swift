@@ -65,13 +65,23 @@ struct StencilTitle: View {
         }
     }
 
-    @ViewBuilder private var label: some View {
+    // Words separated by a cyan star, like the JUSTICE ★ LEAGUE wordmark.
+    private var label: some View {
         let tracking = size * 0.10
+        let words = text.uppercased().split(separator: " ").map(String.init)
+        return HStack(spacing: size * 0.22) {
+            ForEach(Array(words.enumerated()), id: \.offset) { i, w in
+                if i > 0 { JoeStar(size: size * 0.82) }
+                wordView(w, tracking: tracking)
+            }
+        }
+    }
+
+    @ViewBuilder private func wordView(_ text: String, tracking: CGFloat) -> some View {
         if solid {
-            Text(text.uppercased())
-                .font(Theme.block(size)).tracking(tracking).foregroundStyle(Theme.ink)
+            Text(text).font(Theme.block(size)).tracking(tracking).foregroundStyle(Theme.ink)
         } else {
-            OutlinedText(text: text.uppercased(), font: Theme.block(size),
+            OutlinedText(text: text, font: Theme.block(size),
                          width: max(1, size * 0.05), tracking: tracking)
         }
     }
