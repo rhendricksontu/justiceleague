@@ -77,9 +77,6 @@ struct ProfileView: View {
                 .padding(.bottom, 30)
             }
             .sheet(isPresented: $showEdit) { EditProfileView() }
-            #if DEBUG
-            .task { if ProcessInfo.processInfo.environment["OPEN_EDIT"] != nil { showEdit = true } }
-            #endif
             .navigationTitle("")
         }
     }
@@ -103,6 +100,14 @@ struct EditProfileView: View {
                     VStack(spacing: 16) {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
+                                fieldLabel("NAME")
+                                inputField($name, placeholder: "John Smith")
+                                fieldLabel("PHONE")
+                                inputField($phoneText, placeholder: "(405) 555-0123", keyboard: .phonePad)
+                                    .onChange(of: phoneText) { _, v in
+                                        let f = PhoneUtil.format(v); if f != v { phoneText = f }
+                                    }
+                                Divider().overlay(Theme.oliveDrab)
                                 Button { showAvatar = true } label: {
                                     HStack(spacing: 14) {
                                         AvatarBadge(avatar: Avatars.find(app.currentMember?.avatar), size: 56)
@@ -118,14 +123,6 @@ struct EditProfileView: View {
                                         Image(systemName: "chevron.right").foregroundStyle(.black)
                                     }
                                 }
-                                Divider().overlay(Theme.oliveDrab)
-                                fieldLabel("NAME")
-                                inputField($name, placeholder: "John Smith")
-                                fieldLabel("PHONE")
-                                inputField($phoneText, placeholder: "(405) 555-0123", keyboard: .phonePad)
-                                    .onChange(of: phoneText) { _, v in
-                                        let f = PhoneUtil.format(v); if f != v { phoneText = f }
-                                    }
                             }
                         }
                         if let e = errorText {
@@ -165,9 +162,6 @@ struct EditProfileView: View {
                 }
             }
             .sheet(isPresented: $showAvatar) { AvatarPickerView() }
-            #if DEBUG
-            .task { if ProcessInfo.processInfo.environment["OPEN_AVATAR"] != nil { showAvatar = true } }
-            #endif
         }
     }
 }
