@@ -157,12 +157,16 @@ struct JoeWordmark: View {
     var size: CGFloat = 40
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: -size * 0.04) {
+            // Star gaps equal the intra-word letter spacing. "JUSTICE" already
+            // carries a trailing tracking unit; "LEAGUE" has no leading one, so we
+            // add matching leading padding before it.
+            HStack(spacing: 0) {
                 OutlinedText(text: "JUSTICE", font: Theme.block(size),
                              width: size * 0.05, tracking: size * 0.10)
                 JoeStar(size: size * 0.92)
                 OutlinedText(text: "LEAGUE", font: Theme.block(size),
                              width: size * 0.05, tracking: size * 0.10)
+                    .padding(.leading, size * 0.10)
             }
             .modifier(Skew(k: 0.18))
             HStack(spacing: 8) {
