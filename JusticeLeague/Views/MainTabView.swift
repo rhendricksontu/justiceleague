@@ -40,7 +40,7 @@ struct ProfileView: View {
                     if let m = app.currentMember {
                         VStack(spacing: 6) {
                             StencilTitle(m.displayName, size: 26)
-                            Text(m.phone)
+                            Text(PhoneUtil.pretty(m.phone))
                                 .font(Theme.label(14))
                                 .foregroundStyle(Theme.textDim)
                         }
