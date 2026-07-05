@@ -2,6 +2,7 @@ import SwiftUI
 
 @main
 struct JusticeLeagueApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var app = AppState()
 
     var body: some Scene {

@@ -41,6 +41,7 @@ final class AppState {
             if let member = try await loadMember(for: session) {
                 currentMember = member
                 phase = .signedIn
+                await PushManager.shared.onSignIn()
                 return
             }
         } catch {
@@ -78,6 +79,7 @@ final class AppState {
             )
             currentMember = resp.member
             phase = .signedIn
+            await PushManager.shared.onSignIn()
         } catch let e as LoginError {
             loginError = e.userMessage
         } catch {
@@ -89,6 +91,7 @@ final class AppState {
         try? await client.auth.signOut()
         currentMember = nil
         phase = .signedOut
+        PushManager.shared.onSignOut()
     }
 
     // A member editing their own name + phone.
