@@ -90,6 +90,17 @@ final class AppState {
         phase = .signedOut
     }
 
+    // A member editing their own name + phone.
+    func updateMyProfile(name: String, phone: String) async -> Bool {
+        do {
+            try await TriviaService.updateMyProfile(name: name, phone: phone)
+            await refreshMember()
+            return true
+        } catch {
+            return false
+        }
+    }
+
     // Re-fetch the current member (roles may have changed).
     func refreshMember() async {
         guard let id = currentMember?.id else { return }

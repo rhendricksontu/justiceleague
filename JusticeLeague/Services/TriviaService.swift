@@ -194,6 +194,12 @@ enum TriviaService {
     static func deleteMember(id: UUID) async throws {
         try await db.from("members").delete().eq("id", value: id).execute()
     }
+
+    // A member updating their own name + phone (via the security-definer RPC).
+    static func updateMyProfile(name: String, phone: String) async throws {
+        try await db.rpc("update_my_profile",
+                         params: ["new_name": name, "new_phone": phone]).execute()
+    }
 }
 
 // Formatting helpers used by the leaderboard views.

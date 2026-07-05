@@ -31,6 +31,7 @@ struct MainTabView: View {
 
 struct ProfileView: View {
     @Environment(AppState.self) private var app
+    @State private var showEdit = false
 
     var body: some View {
         NavigationStack {
@@ -54,6 +55,8 @@ struct ProfileView: View {
                                 }
                             }
                         }
+                        Button("EDIT PROFILE") { showEdit = true }
+                            .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
                     }
 
                     Spacer()
@@ -63,7 +66,74 @@ struct ProfileView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 30)
             }
+            .sheet(isPresented: $showEdit) { EditProfileView() }
             .navigationTitle("")
+        }
+    }
+}
+
+// Lets a member edit their own name + phone.
+struct EditProfileView: View {
+    @Environment(AppState.self) private var app
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var phoneText = ""
+    @State private var working = false
+    @State private var errorText: String?
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 16) {
+                        FieldPanel {
+                            VStack(alignment: .leading, spacing: 12) {
+                                fieldLabel("NAME")
+                                inputField($name, placeholder: "John Smith")
+                                fieldLabel("PHONE")
+                                inputField($phoneText, placeholder: "(405) 555-0123", keyboard: .phonePad)
+                                    .onChange(of: phoneText) { _, v in
+                                        let f = PhoneUtil.format(v); if f != v { phoneText = f }
+                                    }
+                            }
+                        }
+                        if let e = errorText {
+                            Text(e).font(Theme.label(13)).foregroundStyle(Theme.red)
+                        }
+                        Button {
+                            errorText = nil
+                            guard let e164 = PhoneUtil.normalize(phoneText) else {
+                                errorText = "Enter a valid 10-digit phone number."; return
+                            }
+                            working = true
+                            Task {
+                                if await app.updateMyProfile(name: name.trimmed, phone: e164) { dismiss() }
+                                else { errorText = "Couldn't save — is that phone number already used?" }
+                                working = false
+                            }
+                        } label: {
+                            if working { ProgressView().tint(.black) } else { Text("SAVE") }
+                        }
+                        .buttonStyle(JoeButtonStyle())
+                        .disabled(working || name.trimmed.isEmpty || phoneText.trimmed.isEmpty)
+                    }
+                    .padding(20)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) { StencilTitle("Edit Profile", size: 20) }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { dismiss() }.foregroundStyle(.black)
+                }
+            }
+            .onAppear {
+                if let m = app.currentMember {
+                    name = m.displayName
+                    phoneText = PhoneUtil.pretty(m.phone)
+                }
+            }
         }
     }
 }
