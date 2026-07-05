@@ -85,14 +85,14 @@ struct LeaderboardView: View {
                     HStack(alignment: .center, spacing: 12) {
                         Image(systemName: "trophy.fill").font(.title2).foregroundStyle(Theme.gold)
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(MonthFmt.label(entry.month)).font(Theme.label(13, weight: .bold)).foregroundStyle(Theme.tan)
+                            Text(MonthFmt.label(entry.month)).font(Theme.label(13, weight: .bold)).foregroundStyle(.black)
                             Text(entry.names.joined(separator: " & "))
-                                .font(Theme.label(18, weight: .heavy)).foregroundStyle(Theme.textPrimary)
+                                .font(Theme.label(18, weight: .heavy)).foregroundStyle(.black)
                         }
                         Spacer()
                         VStack {
-                            Text("\(entry.count)").font(Theme.stencil(24)).foregroundStyle(Theme.gold)
-                            Text("CORRECT").font(Theme.label(9, weight: .bold)).foregroundStyle(Theme.textDim)
+                            Text("\(entry.count)").font(Theme.stencil(24)).foregroundStyle(.black)
+                            Text("CORRECT").font(Theme.label(9, weight: .bold)).foregroundStyle(.black)
                         }
                     }
                 }
@@ -123,10 +123,10 @@ struct RankRow: View {
                 .foregroundStyle(rank <= 3 ? Theme.onPrimary : Theme.textPrimary)
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(rank <= 3 ? rankColor : Theme.surfaceHi))
-            Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(Theme.textPrimary)
+            Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
             Spacer()
-            Text("\(count)").font(Theme.stencil(22)).foregroundStyle(Theme.gold)
-            Text("pts").font(Theme.label(12)).foregroundStyle(Theme.textDim)
+            Text("\(count)").font(Theme.stencil(22)).foregroundStyle(.black)
+            Text("pts").font(Theme.label(12)).foregroundStyle(.black)
         }
         .padding(.horizontal, 14).padding(.vertical, 10)
         .background(Theme.surface)

@@ -107,8 +107,8 @@ struct MemberRow: View {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(member.displayName).font(Theme.label(17, weight: .bold))
-                        .foregroundStyle(member.isActive ? Theme.textPrimary : Theme.textDim)
-                    Text(PhoneUtil.pretty(member.phone)).font(Theme.label(13)).foregroundStyle(Theme.textDim)
+                        .foregroundStyle(.black)
+                    Text(PhoneUtil.pretty(member.phone)).font(Theme.label(13)).foregroundStyle(.black)
                     HStack(spacing: 6) {
                         if member.isAdmin { RoleTag(text: "ADMIN", color: Theme.red) }
                         if member.isTriviaMaster { RoleTag(text: "MASTER", color: Theme.cyan) }
@@ -196,7 +196,7 @@ struct EditMemberView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             fieldLabel("NAME")
                             inputField($member.displayName, placeholder: "Name")
-                            Text(PhoneUtil.pretty(member.phone)).font(Theme.label(14)).foregroundStyle(Theme.textDim)
+                            Text(PhoneUtil.pretty(member.phone)).font(Theme.label(14)).foregroundStyle(.black)
                             Divider().overlay(Theme.oliveDrab)
                             Toggle("Admin", isOn: $member.isAdmin).tint(Theme.red)
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)

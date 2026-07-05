@@ -55,7 +55,7 @@ struct TodayView: View {
                         Divider().overlay(Theme.oliveDrab)
                         Label("Answer: \(key.correctAnswer)", systemImage: "checkmark.seal.fill")
                             .font(Theme.label(16, weight: .bold))
-                            .foregroundStyle(Theme.oliveDrab)
+                            .foregroundStyle(.black)
                     }
                 }
             }
@@ -187,7 +187,7 @@ struct GradingPanel: View {
                 FieldPanel {
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
-                            Text(r.name).font(Theme.label(15, weight: .bold)).foregroundStyle(Theme.tan)
+                            Text(r.name).font(Theme.label(15, weight: .bold)).foregroundStyle(.black)
                             Spacer()
                             gradeBadge(r.isCorrect)
                         }
@@ -312,7 +312,7 @@ struct ResultsPanel: View {
                 FieldPanel {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(r.name).font(Theme.label(14, weight: .bold)).foregroundStyle(Theme.tan)
+                            Text(r.name).font(Theme.label(14, weight: .bold)).foregroundStyle(.black)
                             Text(r.answer).font(Theme.label(16, weight: .medium)).foregroundStyle(Theme.textPrimary)
                         }
                         Spacer()
