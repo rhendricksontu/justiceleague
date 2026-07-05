@@ -83,7 +83,7 @@ struct LeaderboardView: View {
             ForEach(model.winnersByMonth, id: \.month) { entry in
                 FieldPanel {
                     HStack(alignment: .center, spacing: 12) {
-                        Image(systemName: "trophy.fill").font(.title2).foregroundStyle(Theme.gold)
+                        Image(systemName: "trophy.fill").font(.title2).foregroundStyle(.black)
                         VStack(alignment: .leading, spacing: 3) {
                             Text(MonthFmt.label(entry.month)).font(Theme.label(13, weight: .bold)).foregroundStyle(.black)
                             Text(entry.names.joined(separator: " & "))

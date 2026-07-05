@@ -91,7 +91,7 @@ struct AdminView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("Group Roster", size: 20) }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(Theme.cyan) }
+                    Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(.black) }
                 }
             }
             .sheet(isPresented: $showAdd) { AddMemberView(model: model) }
@@ -116,7 +116,7 @@ struct MemberRow: View {
                     }
                 }
                 Spacer()
-                Image(systemName: "chevron.right").foregroundStyle(Theme.textDim)
+                Image(systemName: "chevron.right").foregroundStyle(.black)
             }
         }
     }

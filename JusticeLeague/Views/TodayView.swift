@@ -335,7 +335,7 @@ struct ParticipationPanel: View {
                 FlowRow(items: model.participation) { p in
                     HStack(spacing: 5) {
                         Image(systemName: p.hasAnswered ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(p.hasAnswered ? Theme.oliveDrab : Theme.textDim)
+                            .foregroundStyle(.black)
                         Text(p.displayName).font(Theme.label(13, weight: .medium))
                             .foregroundStyle(p.hasAnswered ? Theme.textPrimary : Theme.textDim)
                     }
