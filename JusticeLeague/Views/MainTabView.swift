@@ -14,7 +14,7 @@ struct MainTabView: View {
                 .tabItem { Label("Leaderboard", systemImage: "medal.fill") }.tag(1)
 
             ChatView()
-                .tabItem { Label("Comms", systemImage: "bubble.left.and.bubble.right.fill") }.tag(4)
+                .tabItem { Label("Command Center", systemImage: "bubble.left.and.bubble.right.fill") }.tag(4)
                 .badge(app.chatUnread)
 
             if app.currentMember?.isAdmin == true {

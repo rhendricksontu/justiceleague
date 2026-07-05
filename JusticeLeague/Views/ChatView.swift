@@ -110,7 +110,7 @@ struct ChatView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Comms", size: 20) } }
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Command Center", size: 20) } }
             .task {
                 await model.start()
                 await markRead()
