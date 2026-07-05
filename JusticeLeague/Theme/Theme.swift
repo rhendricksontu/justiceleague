@@ -52,16 +52,27 @@ struct StencilTitle: View {
         self.text = text; self.size = size; self.solid = solid
     }
     var body: some View {
+        HStack(spacing: size * 0.35) {
+            headerBar
+            label.modifier(Skew(k: 0.18))
+            headerBar
+        }
+    }
+
+    @ViewBuilder private var label: some View {
         let tracking = size * 0.10
         if solid {
             Text(text.uppercased())
-                .font(Theme.block(size))
-                .tracking(tracking)
-                .foregroundStyle(Theme.ink)
+                .font(Theme.block(size)).tracking(tracking).foregroundStyle(Theme.ink)
         } else {
             OutlinedText(text: text.uppercased(), font: Theme.block(size),
                          width: max(1, size * 0.05), tracking: tracking)
         }
+    }
+
+    private var headerBar: some View {
+        Rectangle().fill(Theme.red)
+            .frame(width: size * 1.3, height: max(2, size * 0.09))
     }
 }
 
