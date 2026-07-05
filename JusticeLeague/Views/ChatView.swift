@@ -155,16 +155,16 @@ struct ChatView: View {
     private var emptyState: some View {
         VStack(spacing: 6) {
             Image(systemName: "bubble.left.and.bubble.right.fill")
-                .font(.system(size: 34)).foregroundStyle(Theme.textDim)
+                .font(.system(size: 34)).foregroundStyle(.black)
             Text("No messages yet. Break the silence, soldier.")
-                .font(Theme.label(14)).foregroundStyle(Theme.textDim)
+                .font(Theme.label(14)).foregroundStyle(.black)
         }
         .frame(maxWidth: .infinity).padding(.top, 60)
     }
 
     private var inputBar: some View {
         HStack(spacing: 10) {
-            TextField("", text: $draft, prompt: Text("Message the League…").foregroundColor(Theme.textDim), axis: .vertical)
+            TextField("", text: $draft, prompt: Text("Message the League…").foregroundColor(.black), axis: .vertical)
                 .lineLimit(1...5)
                 .focused($inputFocused)
                 .padding(.horizontal, 14).padding(.vertical, 10)
@@ -181,7 +181,7 @@ struct ChatView: View {
             } label: {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 32))
-                    .foregroundStyle(draft.trimmed.isEmpty ? Theme.textDim : Theme.cyan)
+                    .foregroundStyle(draft.trimmed.isEmpty ? .black : Theme.cyan)
             }
             .disabled(draft.trimmed.isEmpty)
         }

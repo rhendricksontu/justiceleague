@@ -293,7 +293,7 @@ struct EditMemberView: View {
 
 // Shared styled text field.
 func inputField(_ text: Binding<String>, placeholder: String, keyboard: UIKeyboardType = .default) -> some View {
-    TextField("", text: text, prompt: Text(placeholder).foregroundColor(Theme.textDim))
+    TextField("", text: text, prompt: Text(placeholder).foregroundColor(.black))
         .keyboardType(keyboard)
         .padding(12).background(Theme.surfaceHi)
         .foregroundStyle(Theme.textPrimary)

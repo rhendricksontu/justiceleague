@@ -33,7 +33,7 @@ struct LoginView: View {
                             .font(Theme.label(14, weight: .regular))
                             .foregroundStyle(.black)
 
-                        TextField("", text: $phone, prompt: Text("(405) 555-0123").foregroundColor(Theme.textDim))
+                        TextField("", text: $phone, prompt: Text("(405) 555-0123").foregroundColor(.black))
                             .keyboardType(.phonePad)
                             .textContentType(.telephoneNumber)
                             .focused($focused)
