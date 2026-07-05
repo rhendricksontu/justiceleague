@@ -107,9 +107,9 @@ struct FieldPanel<Content: View>: View {
     }
 }
 
-// Primary action button — Joe red, white italic type.
+// Primary action button — Joe blue, white italic type.
 struct JoeButtonStyle: ButtonStyle {
-    var tint: Color = Theme.red
+    var tint: Color = Theme.cyan
     var fg: Color = Theme.onPrimary
     func makeBody(configuration: Configuration) -> some View {
         configuration.label

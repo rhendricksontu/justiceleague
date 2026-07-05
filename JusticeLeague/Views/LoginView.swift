@@ -18,7 +18,7 @@ struct LoginView: View {
                         Text("REPORT FOR DUTY")
                             .font(Theme.stencil(20))
                             .tracking(0.5)
-                            .foregroundStyle(Theme.red)
+                            .foregroundStyle(Theme.cyan)
                         Text("Enter your phone number to sign in.")
                             .font(Theme.label(14, weight: .regular))
                             .foregroundStyle(Theme.textDim)

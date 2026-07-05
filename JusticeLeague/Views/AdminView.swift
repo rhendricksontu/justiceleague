@@ -70,7 +70,7 @@ struct AdminView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
                         if model.loading {
-                            ProgressView().tint(Theme.red).frame(maxWidth: .infinity).padding(.top, 40)
+                            ProgressView().tint(Theme.cyan).frame(maxWidth: .infinity).padding(.top, 40)
                         } else {
                             ForEach(model.members) { m in
                                 NavigationLink { EditMemberView(model: model, member: m) } label: {
@@ -91,7 +91,7 @@ struct AdminView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("Roster", size: 22) }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(Theme.red) }
+                    Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(Theme.cyan) }
                 }
             }
             .sheet(isPresented: $showAdd) { AddMemberView(model: model) }

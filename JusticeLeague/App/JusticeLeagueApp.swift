@@ -9,7 +9,7 @@ struct JusticeLeagueApp: App {
             RootView()
                 .environment(app)
                 .preferredColorScheme(.light)
-                .tint(Theme.red)
+                .tint(Theme.cyan)
                 .task { await app.bootstrap() }
         }
     }
@@ -36,7 +36,7 @@ struct SplashView: View {
             Theme.background.ignoresSafeArea()
             VStack(spacing: 18) {
                 JoeWordmark(size: 34)
-                ProgressView().tint(Theme.red).padding(.top, 8)
+                ProgressView().tint(Theme.cyan).padding(.top, 8)
             }
         }
     }

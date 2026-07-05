@@ -15,7 +15,7 @@ struct TodayView: View {
                         header
 
                         if model.loading {
-                            ProgressView().tint(Theme.red).frame(maxWidth: .infinity).padding(.top, 40)
+                            ProgressView().tint(Theme.cyan).frame(maxWidth: .infinity).padding(.top, 40)
                         } else if let m = member {
                             content(for: m)
                         }
@@ -48,7 +48,7 @@ struct TodayView: View {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("MISSION BRIEFING")
-                        .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.red)
+                        .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.cyan)
                     Text(q.prompt)
                         .font(Theme.label(19, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
@@ -81,7 +81,7 @@ struct TodayView: View {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("STAND BY")
-                        .font(Theme.stencil(18)).foregroundStyle(Theme.red)
+                        .font(Theme.stencil(18)).foregroundStyle(Theme.cyan)
                     Text("No trivia has been posted yet today. Check back soon, soldier.")
                         .font(Theme.label(15, weight: .regular)).foregroundStyle(Theme.textDim)
                 }
@@ -137,7 +137,7 @@ struct PostQuestionForm: View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
                 Text("POST TODAY'S TRIVIA")
-                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.red)
+                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.cyan)
 
                 fieldLabel("QUESTION")
                 TextEditor(text: $prompt)
@@ -181,7 +181,7 @@ struct GradingPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("GRADE RESPONSES")
-                .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.red)
+                .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.cyan)
 
             if model.responses.isEmpty {
                 Text("No one answered today.").font(Theme.label(14)).foregroundStyle(Theme.textDim)
@@ -225,7 +225,7 @@ struct AnswerForm: View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
                 Text("YOUR ANSWER")
-                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.red)
+                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.cyan)
                 Text("No one sees your answer until the trivia master reveals.")
                     .font(Theme.label(13, weight: .regular)).foregroundStyle(Theme.textDim)
                 TextField("", text: $answer, prompt: Text("Type your answer…").foregroundColor(Theme.textDim))
@@ -261,7 +261,7 @@ struct AnsweredPanel: View {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
                     Label("ANSWER LOCKED IN", systemImage: "lock.fill")
-                        .font(Theme.stencil(16)).foregroundStyle(Theme.red)
+                        .font(Theme.stencil(16)).foregroundStyle(Theme.cyan)
                     if editing {
                         TextField("", text: $draft)
                             .padding(12).background(Theme.surfaceHi)
@@ -305,7 +305,7 @@ struct ResultsPanel: View {
                 FieldPanel {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("YOUR RESULT").font(Theme.stencil(15)).foregroundStyle(Theme.red)
+                            Text("YOUR RESULT").font(Theme.stencil(15)).foregroundStyle(Theme.cyan)
                             Text(mine.answer).font(Theme.label(18, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                         }
                         Spacer()
@@ -313,7 +313,7 @@ struct ResultsPanel: View {
                     }
                 }
             }
-            Text("ALL ANSWERS").font(Theme.stencil(16)).tracking(1).foregroundStyle(Theme.red)
+            Text("ALL ANSWERS").font(Theme.stencil(16)).tracking(1).foregroundStyle(Theme.cyan)
             ForEach(model.responses) { r in
                 FieldPanel {
                     HStack {
@@ -338,7 +338,7 @@ struct ParticipationPanel: View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 8) {
                 Text("ROLL CALL  \(model.answeredCount)/\(model.totalCount)")
-                    .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.red)
+                    .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.cyan)
                 FlowRow(items: model.participation) { p in
                     HStack(spacing: 5) {
                         Image(systemName: p.hasAnswered ? "checkmark.circle.fill" : "circle")

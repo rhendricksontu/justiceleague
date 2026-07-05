@@ -42,7 +42,7 @@ struct LeaderboardView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 12) {
                             if model.loading {
-                                ProgressView().tint(Theme.red).frame(maxWidth: .infinity).padding(.top, 40)
+                                ProgressView().tint(Theme.cyan).frame(maxWidth: .infinity).padding(.top, 40)
                             } else if tab == 0 {
                                 monthlyBoard
                             } else {
