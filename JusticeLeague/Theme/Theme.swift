@@ -20,14 +20,12 @@ enum Theme {
     static let tan          = Color(hex: 0x7C6F4E) // khaki secondary labels
     static let onPrimary    = Color(hex: 0xFFFFFF) // text/spinner on red buttons
 
-    // Heavy italic condensed — the G.I. Joe wordmark treatment.
+    // Blocked display face (Anton, OFL) — the G.I. Joe logo lettering. Used for
+    // every header, title and button label across the app.
     static func stencil(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .black, design: .default).width(.condensed).italic()
-    }
-    // Blocked display face (Anton, OFL) — the G.I. Joe logo lettering.
-    static func block(_ size: CGFloat) -> Font {
         .custom("Anton-Regular", size: size)
     }
+    static func block(_ size: CGFloat) -> Font { stencil(size) }
     static func label(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
         .system(size: size, weight: weight, design: .rounded)
     }
