@@ -160,7 +160,7 @@ struct AddMemberView: View {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
                                 fieldLabel("NAME")
-                                inputField($name, placeholder: "Duke")
+                                inputField($name, placeholder: "John Smith")
                                 fieldLabel("PHONE")
                                 inputField($phone, placeholder: "(405) 555-0123", keyboard: .phonePad)
                                     .onChange(of: phone) { _, v in
