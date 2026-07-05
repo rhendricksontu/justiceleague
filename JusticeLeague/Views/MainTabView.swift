@@ -36,28 +36,31 @@ struct ProfileView: View {
         NavigationStack {
             ZStack {
                 Theme.background.ignoresSafeArea()
-                VStack(spacing: 18) {
+                VStack(spacing: 24) {
+                    JoeWordmark(size: 34, tagline: "FOUNDING FATHER")
+                        .padding(.top, 16)
+
                     if let m = app.currentMember {
-                        VStack(spacing: 6) {
-                            StencilTitle(m.displayName, size: 26)
-                            Text(PhoneUtil.pretty(m.phone))
-                                .font(Theme.label(14))
-                                .foregroundStyle(.black)
-                        }
-                        HStack(spacing: 8) {
-                            if m.isAdmin { RoleTag(text: "ADMIN", color: Theme.cyan) }
-                            if m.isTriviaMaster { RoleTag(text: "TRIVIA MASTER", color: Theme.cyan) }
-                            if !m.isAdmin && !m.isTriviaMaster { RoleTag(text: "MEMBER", color: Theme.oliveDrab) }
+                        FieldPanel {
+                            VStack(alignment: .leading, spacing: 12) {
+                                StencilTitle(m.displayName, size: 22, solid: true)
+                                Text(PhoneUtil.pretty(m.phone))
+                                    .font(Theme.label(15))
+                                    .foregroundStyle(.black)
+                                HStack(spacing: 8) {
+                                    if m.isAdmin { RoleTag(text: "ADMIN") }
+                                    if m.isTriviaMaster { RoleTag(text: "TRIVIA MASTER") }
+                                    if !m.isAdmin && !m.isTriviaMaster { RoleTag(text: "MEMBER") }
+                                }
+                            }
                         }
                     }
-                    Spacer()
-                    JoeWordmark(size: 34, tagline: "FOUNDING FATHER")
+
                     Spacer()
                     Button("SIGN OUT") { Task { await app.signOut() } }
                         .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
-                        .padding(.horizontal, 40)
                 }
-                .padding(.top, 40)
+                .padding(.horizontal, 20)
                 .padding(.bottom, 30)
             }
             .navigationTitle("")
