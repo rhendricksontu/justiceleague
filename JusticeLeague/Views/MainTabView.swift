@@ -51,10 +51,10 @@ struct ProfileView: View {
                         }
                     }
                     Spacer()
-                    JoeWordmark(size: 34)
+                    JoeWordmark(size: 34, tagline: "FOUNDING FATHER")
                     Spacer()
                     Button("SIGN OUT") { Task { await app.signOut() } }
-                        .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: .black))
+                        .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
                         .padding(.horizontal, 40)
                 }
                 .padding(.top, 40)

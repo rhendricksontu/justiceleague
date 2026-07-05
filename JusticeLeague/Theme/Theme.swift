@@ -189,6 +189,7 @@ struct Skew: GeometryEffect {
 // The big brand lockup used on login / splash: "JUSTICE ★ LEAGUE".
 struct JoeWordmark: View {
     var size: CGFloat = 40
+    var tagline: String = "REAL AMERICAN MEN"
     var body: some View {
         VStack(spacing: 8) {
             // Star gaps equal the intra-word letter spacing. "JUSTICE" already
@@ -205,7 +206,7 @@ struct JoeWordmark: View {
             .modifier(Skew(k: 0.18))
             HStack(spacing: 8) {
                 Rectangle().fill(Theme.red).frame(width: 28, height: 3)
-                Text("REAL AMERICAN MEN")
+                Text(tagline)
                     .font(Theme.label(11, weight: .heavy)).tracking(2).foregroundStyle(.black)
                     .modifier(Skew(k: 0.16))
                 Rectangle().fill(Theme.red).frame(width: 28, height: 3)
