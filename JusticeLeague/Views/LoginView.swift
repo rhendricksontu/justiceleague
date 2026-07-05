@@ -42,12 +42,12 @@ struct LoginView: View {
                             Task { await app.signIn(phone: phone) }
                         } label: {
                             if app.isWorkingOnLogin {
-                                ProgressView().tint(Theme.onPrimary)
+                                ProgressView().tint(.black)
                             } else {
                                 Text("SIGN IN")
                             }
                         }
-                        .buttonStyle(JoeButtonStyle())
+                        .buttonStyle(JoeButtonStyle(fg: .black))
                         .disabled(app.isWorkingOnLogin || phone.filter(\.isNumber).count < 10)
                         .opacity(phone.filter(\.isNumber).count < 10 ? 0.5 : 1)
                     }
