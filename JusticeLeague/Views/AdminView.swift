@@ -89,7 +89,7 @@ struct AdminView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) { StencilTitle("Roster", size: 22) }
+                ToolbarItem(placement: .principal) { StencilTitle("Group Roster", size: 20) }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(Theme.cyan) }
                 }
