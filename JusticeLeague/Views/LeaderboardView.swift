@@ -55,7 +55,7 @@ struct LeaderboardView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Current Leaderboard", size: 19) } }
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Current Leaderboard", size: 20) } }
             .task { await model.load() }
         }
     }

@@ -29,7 +29,7 @@ struct TodayView: View {
                 .refreshable { if let m = member { await model.load(member: m) } }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Daily Intel", size: 22) } }
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Daily Intel", size: 20) } }
             .task { if let m = member { await model.load(member: m) } }
         }
     }
