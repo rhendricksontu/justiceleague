@@ -31,7 +31,7 @@ struct LoginView: View {
                         StencilTitle("REPORT FOR DUTY", size: 20, solid: true)
                         Text("Enter your phone number to sign in.")
                             .font(Theme.label(14, weight: .regular))
-                            .foregroundStyle(Theme.textDim)
+                            .foregroundStyle(.black)
 
                         TextField("", text: $phone, prompt: Text("(405) 555-0123").foregroundColor(Theme.textDim))
                             .keyboardType(.phonePad)
