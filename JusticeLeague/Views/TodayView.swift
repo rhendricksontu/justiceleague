@@ -3,6 +3,7 @@ import SwiftUI
 struct TodayView: View {
     @Environment(AppState.self) private var app
     @State private var model = TodayModel()
+    @State private var lbModel = LeaderboardModel()
 
     private var member: Member? { app.currentMember }
 
@@ -23,15 +24,23 @@ struct TodayView: View {
                         if let err = model.errorText {
                             Text(err).font(Theme.label(13)).foregroundStyle(Theme.red)
                         }
+
+                        Divider().overlay(Theme.line).padding(.vertical, 4)
+                        LeaderboardSection(model: lbModel)
                     }
                     .padding(20)
                 }
-                .refreshable { if let m = member { await model.load(member: m) } }
+                .refreshable { await refreshAll() }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Daily Intel", size: 20) } }
-            .task { if let m = member { await model.load(member: m) } }
+            .task { await refreshAll() }
         }
+    }
+
+    private func refreshAll() async {
+        if let m = member { await model.load(member: m) }
+        await lbModel.load()
     }
 
     private var header: some View {

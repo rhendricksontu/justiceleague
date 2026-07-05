@@ -23,40 +23,29 @@ final class LeaderboardModel {
     }
 }
 
-struct LeaderboardView: View {
-    @State private var model = LeaderboardModel()
+// Leaderboard shown as a section beneath the daily trivia. Owns no nav bar of
+// its own; the parent (TodayView) supplies the model and pull-to-refresh.
+struct LeaderboardSection: View {
+    let model: LeaderboardModel
     @State private var tab = 0
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Theme.background.ignoresSafeArea()
-                VStack(spacing: 0) {
-                    Picker("", selection: $tab) {
-                        Text("THIS MONTH").tag(0)
-                        Text("HALL OF FAME").tag(1)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(16)
+        VStack(alignment: .leading, spacing: 12) {
+            StencilTitle("Leaderboard", size: 18)
 
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 12) {
-                            if model.loading {
-                                ProgressView().tint(Theme.cyan).frame(maxWidth: .infinity).padding(.top, 40)
-                            } else if tab == 0 {
-                                monthlyBoard
-                            } else {
-                                hallOfFame
-                            }
-                        }
-                        .padding(20)
-                    }
-                    .refreshable { await model.load() }
-                }
+            Picker("", selection: $tab) {
+                Text("THIS MONTH").tag(0)
+                Text("HALL OF FAME").tag(1)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Current Leaderboard", size: 20) } }
-            .task { await model.load() }
+            .pickerStyle(.segmented)
+
+            if model.loading {
+                ProgressView().tint(Theme.cyan).frame(maxWidth: .infinity).padding(.top, 20)
+            } else if tab == 0 {
+                monthlyBoard
+            } else {
+                hallOfFame
+            }
         }
     }
 

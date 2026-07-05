@@ -10,9 +10,6 @@ struct MainTabView: View {
             TodayView()
                 .tabItem { Label("Trivia", systemImage: "target") }.tag(0)
 
-            LeaderboardView()
-                .tabItem { Label("Leaderboard", systemImage: "medal.fill") }.tag(1)
-
             ChatView()
                 .tabItem { Label("Command Center", systemImage: "bubble.left.and.bubble.right.fill") }.tag(4)
                 .badge(app.chatUnread)
