@@ -47,8 +47,7 @@ struct TodayView: View {
             // Question prompt panel — shown to everyone.
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("MISSION BRIEFING")
-                        .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.cyan)
+                    StencilTitle("MISSION BRIEFING", size: 15)
                     Text(q.prompt)
                         .font(Theme.label(19, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
@@ -80,8 +79,7 @@ struct TodayView: View {
         } else {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("STAND BY")
-                        .font(Theme.stencil(18)).foregroundStyle(Theme.cyan)
+                    StencilTitle("STAND BY", size: 18)
                     Text("No trivia has been posted yet today. Check back soon, soldier.")
                         .font(Theme.label(15, weight: .regular)).foregroundStyle(Theme.textDim)
                 }
@@ -136,8 +134,7 @@ struct PostQuestionForm: View {
     var body: some View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
-                Text("POST TODAY'S TRIVIA")
-                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.cyan)
+                StencilTitle("POST TODAY'S TRIVIA", size: 17)
 
                 fieldLabel("QUESTION")
                 TextEditor(text: $prompt)
@@ -180,8 +177,7 @@ struct GradingPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("GRADE RESPONSES")
-                .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.cyan)
+            StencilTitle("GRADE RESPONSES", size: 17)
 
             if model.responses.isEmpty {
                 Text("No one answered today.").font(Theme.label(14)).foregroundStyle(Theme.textDim)
@@ -224,8 +220,7 @@ struct AnswerForm: View {
     var body: some View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
-                Text("YOUR ANSWER")
-                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.cyan)
+                StencilTitle("YOUR ANSWER", size: 17)
                 Text("No one sees your answer until the trivia master reveals.")
                     .font(Theme.label(13, weight: .regular)).foregroundStyle(Theme.textDim)
                 TextField("", text: $answer, prompt: Text("Type your answer…").foregroundColor(Theme.textDim))
@@ -260,8 +255,7 @@ struct AnsweredPanel: View {
         VStack(alignment: .leading, spacing: 12) {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
-                    Label("ANSWER LOCKED IN", systemImage: "lock.fill")
-                        .font(Theme.stencil(16)).foregroundStyle(Theme.cyan)
+                    StencilTitle("ANSWER LOCKED IN", size: 16)
                     if editing {
                         TextField("", text: $draft)
                             .padding(12).background(Theme.surfaceHi)
@@ -305,7 +299,7 @@ struct ResultsPanel: View {
                 FieldPanel {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("YOUR RESULT").font(Theme.stencil(15)).foregroundStyle(Theme.cyan)
+                            StencilTitle("YOUR RESULT", size: 15)
                             Text(mine.answer).font(Theme.label(18, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                         }
                         Spacer()
@@ -313,7 +307,7 @@ struct ResultsPanel: View {
                     }
                 }
             }
-            Text("ALL ANSWERS").font(Theme.stencil(16)).tracking(1).foregroundStyle(Theme.cyan)
+            StencilTitle("ALL ANSWERS", size: 16)
             ForEach(model.responses) { r in
                 FieldPanel {
                     HStack {
@@ -337,8 +331,7 @@ struct ParticipationPanel: View {
     var body: some View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 8) {
-                Text("ROLL CALL  \(model.answeredCount)/\(model.totalCount)")
-                    .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.cyan)
+                StencilTitle("ROLL CALL  \(model.answeredCount)/\(model.totalCount)", size: 15)
                 FlowRow(items: model.participation) { p in
                     HStack(spacing: 5) {
                         Image(systemName: p.hasAnswered ? "checkmark.circle.fill" : "circle")

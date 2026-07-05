@@ -41,19 +41,17 @@ extension Color {
     }
 }
 
-// Section header in the logo type (dark ink, italic, condensed).
+// Section header / title in the logo style: blocked font, white fill, black
+// outline — same treatment as the JUSTICE LEAGUE wordmark.
 struct StencilTitle: View {
     let text: String
     var size: CGFloat = 30
-    var color: Color = Theme.ink
-    init(_ text: String, size: CGFloat = 30, color: Color = Theme.ink) {
-        self.text = text; self.size = size; self.color = color
+    init(_ text: String, size: CGFloat = 30) {
+        self.text = text; self.size = size
     }
     var body: some View {
-        Text(text.uppercased())
-            .font(Theme.stencil(size))
-            .tracking(0.5)
-            .foregroundStyle(color)
+        OutlinedText(text: text.uppercased(), font: Theme.block(size),
+                     width: max(1, size * 0.05))
     }
 }
 
