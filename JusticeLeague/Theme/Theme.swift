@@ -69,17 +69,47 @@ struct TricolorBar: View {
     }
 }
 
+// White text with a black outline (Text has no native stroke, so we layer
+// offset black copies behind a white fill).
+struct OutlinedText: View {
+    let text: String
+    let font: Font
+    var fill: Color = .white
+    var stroke: Color = .black
+    var width: CGFloat = 2
+
+    private var offsets: [CGSize] {
+        let w = width
+        return [
+            CGSize(width:  w, height: 0), CGSize(width: -w, height: 0),
+            CGSize(width: 0, height:  w), CGSize(width: 0, height: -w),
+            CGSize(width:  w, height:  w), CGSize(width: -w, height: -w),
+            CGSize(width:  w, height: -w), CGSize(width: -w, height:  w),
+        ]
+    }
+
+    var body: some View {
+        ZStack {
+            ForEach(Array(offsets.enumerated()), id: \.offset) { _, o in
+                Text(text).font(font).foregroundStyle(stroke).offset(o)
+            }
+            Text(text).font(font).foregroundStyle(fill)
+        }
+    }
+}
+
 // The big brand lockup used on login / splash: "JUSTICE ★ LEAGUE".
 struct JoeWordmark: View {
     var size: CGFloat = 40
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 6) {
-                Text("JUSTICE").font(Theme.stencil(size)).foregroundStyle(Theme.ink)
+                OutlinedText(text: "JUSTICE", font: Theme.stencil(size), width: size * 0.055)
                 Image(systemName: "star.fill")
                     .font(.system(size: size * 0.5, weight: .black))
                     .foregroundStyle(Theme.cyan)
-                Text("LEAGUE").font(Theme.stencil(size)).foregroundStyle(Theme.ink)
+                    .shadow(color: .black, radius: 0, x: size * 0.03, y: 0)
+                OutlinedText(text: "LEAGUE", font: Theme.stencil(size), width: size * 0.055)
             }
             HStack(spacing: 8) {
                 Rectangle().fill(Theme.red).frame(width: 28, height: 3)
