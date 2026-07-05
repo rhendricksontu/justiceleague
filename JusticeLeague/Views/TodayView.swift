@@ -15,7 +15,7 @@ struct TodayView: View {
                         header
 
                         if model.loading {
-                            ProgressView().tint(Theme.gold).frame(maxWidth: .infinity).padding(.top, 40)
+                            ProgressView().tint(Theme.red).frame(maxWidth: .infinity).padding(.top, 40)
                         } else if let m = member {
                             content(for: m)
                         }
@@ -48,7 +48,7 @@ struct TodayView: View {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("MISSION BRIEFING")
-                        .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.gold)
+                        .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.red)
                     Text(q.prompt)
                         .font(Theme.label(19, weight: .semibold))
                         .foregroundStyle(Theme.textPrimary)
@@ -56,7 +56,7 @@ struct TodayView: View {
                         Divider().overlay(Theme.oliveDrab)
                         Label("Answer: \(key.correctAnswer)", systemImage: "checkmark.seal.fill")
                             .font(Theme.label(16, weight: .bold))
-                            .foregroundStyle(Theme.gold)
+                            .foregroundStyle(Theme.oliveDrab)
                     }
                 }
             }
@@ -81,7 +81,7 @@ struct TodayView: View {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("STAND BY")
-                        .font(Theme.stencil(18)).foregroundStyle(Theme.gold)
+                        .font(Theme.stencil(18)).foregroundStyle(Theme.red)
                     Text("No trivia has been posted yet today. Check back soon, soldier.")
                         .font(Theme.label(15, weight: .regular)).foregroundStyle(Theme.textDim)
                 }
@@ -137,23 +137,23 @@ struct PostQuestionForm: View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
                 Text("POST TODAY'S TRIVIA")
-                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.gold)
+                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.red)
 
                 fieldLabel("QUESTION")
                 TextEditor(text: $prompt)
                     .frame(minHeight: 90)
                     .scrollContentBackground(.hidden)
-                    .padding(8).background(Theme.background)
+                    .padding(8).background(Theme.surfaceHi)
                     .foregroundStyle(Theme.textPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.oliveDrab))
+                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
 
                 fieldLabel("CORRECT ANSWER (only you see this)")
                 TextField("", text: $answer, prompt: Text("e.g. Conrad Hauser").foregroundColor(Theme.textDim))
-                    .padding(10).background(Theme.background)
+                    .padding(10).background(Theme.surfaceHi)
                     .foregroundStyle(Theme.textPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.oliveDrab))
+                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
 
                 Button {
                     working = true
@@ -162,7 +162,7 @@ struct PostQuestionForm: View {
                         working = false
                     }
                 } label: {
-                    if working { ProgressView().tint(Color(hex: 0x1C2118)) } else { Text("POST QUESTION") }
+                    if working { ProgressView().tint(Theme.onPrimary) } else { Text("POST QUESTION") }
                 }
                 .buttonStyle(JoeButtonStyle())
                 .disabled(working || prompt.trimmed.isEmpty || answer.trimmed.isEmpty)
@@ -181,7 +181,7 @@ struct GradingPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("GRADE RESPONSES")
-                .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.gold)
+                .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.red)
 
             if model.responses.isEmpty {
                 Text("No one answered today.").font(Theme.label(14)).foregroundStyle(Theme.textDim)
@@ -225,20 +225,20 @@ struct AnswerForm: View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
                 Text("YOUR ANSWER")
-                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.gold)
+                    .font(Theme.stencil(17)).tracking(1).foregroundStyle(Theme.red)
                 Text("No one sees your answer until the trivia master reveals.")
                     .font(Theme.label(13, weight: .regular)).foregroundStyle(Theme.textDim)
                 TextField("", text: $answer, prompt: Text("Type your answer…").foregroundColor(Theme.textDim))
-                    .padding(12).background(Theme.background)
+                    .padding(12).background(Theme.surfaceHi)
                     .foregroundStyle(Theme.textPrimary)
                     .font(Theme.label(18, weight: .medium))
                     .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.oliveDrab))
+                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
                 Button {
                     working = true
                     Task { _ = await model.submit(answer: answer.trimmed, member: member); working = false }
                 } label: {
-                    if working { ProgressView().tint(Color(hex: 0x1C2118)) } else { Text("LOCK IN ANSWER") }
+                    if working { ProgressView().tint(Theme.onPrimary) } else { Text("LOCK IN ANSWER") }
                 }
                 .buttonStyle(JoeButtonStyle())
                 .disabled(working || answer.trimmed.isEmpty)
@@ -261,13 +261,13 @@ struct AnsweredPanel: View {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
                     Label("ANSWER LOCKED IN", systemImage: "lock.fill")
-                        .font(Theme.stencil(16)).foregroundStyle(Theme.gold)
+                        .font(Theme.stencil(16)).foregroundStyle(Theme.red)
                     if editing {
                         TextField("", text: $draft)
-                            .padding(12).background(Theme.background)
+                            .padding(12).background(Theme.surfaceHi)
                             .foregroundStyle(Theme.textPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.oliveDrab))
+                            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
                         HStack {
                             Button("SAVE") {
                                 working = true
@@ -305,7 +305,7 @@ struct ResultsPanel: View {
                 FieldPanel {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("YOUR RESULT").font(Theme.stencil(15)).foregroundStyle(Theme.gold)
+                            Text("YOUR RESULT").font(Theme.stencil(15)).foregroundStyle(Theme.red)
                             Text(mine.answer).font(Theme.label(18, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                         }
                         Spacer()
@@ -313,7 +313,7 @@ struct ResultsPanel: View {
                     }
                 }
             }
-            Text("ALL ANSWERS").font(Theme.stencil(16)).tracking(1).foregroundStyle(Theme.gold)
+            Text("ALL ANSWERS").font(Theme.stencil(16)).tracking(1).foregroundStyle(Theme.red)
             ForEach(model.responses) { r in
                 FieldPanel {
                     HStack {
@@ -338,7 +338,7 @@ struct ParticipationPanel: View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 8) {
                 Text("ROLL CALL  \(model.answeredCount)/\(model.totalCount)")
-                    .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.gold)
+                    .font(Theme.stencil(15)).tracking(1).foregroundStyle(Theme.red)
                 FlowRow(items: model.participation) { p in
                     HStack(spacing: 5) {
                         Image(systemName: p.hasAnswered ? "checkmark.circle.fill" : "circle")
@@ -347,7 +347,7 @@ struct ParticipationPanel: View {
                             .foregroundStyle(p.hasAnswered ? Theme.textPrimary : Theme.textDim)
                     }
                     .padding(.horizontal, 9).padding(.vertical, 5)
-                    .background(Theme.background).clipShape(Capsule())
+                    .background(Theme.surfaceHi).clipShape(Capsule())
                 }
             }
         }

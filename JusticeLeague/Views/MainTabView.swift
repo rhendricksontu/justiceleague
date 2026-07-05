@@ -46,13 +46,13 @@ struct ProfileView: View {
                         }
                         HStack(spacing: 8) {
                             if m.isAdmin { RoleTag(text: "ADMIN", color: Theme.red) }
-                            if m.isTriviaMaster { RoleTag(text: "TRIVIA MASTER", color: Theme.gold) }
+                            if m.isTriviaMaster { RoleTag(text: "TRIVIA MASTER", color: Theme.cyan) }
                             if !m.isAdmin && !m.isTriviaMaster { RoleTag(text: "MEMBER", color: Theme.oliveDrab) }
                         }
                     }
                     Spacer()
                     Button("SIGN OUT") { Task { await app.signOut() } }
-                        .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.textPrimary))
+                        .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
                         .padding(.horizontal, 40)
                 }
                 .padding(.top, 40)

@@ -8,8 +8,8 @@ struct JusticeLeagueApp: App {
         WindowGroup {
             RootView()
                 .environment(app)
-                .preferredColorScheme(.dark)
-                .tint(Theme.gold)
+                .preferredColorScheme(.light)
+                .tint(Theme.red)
                 .task { await app.bootstrap() }
         }
     }
@@ -34,13 +34,9 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             Theme.background.ignoresSafeArea()
-            VStack(spacing: 14) {
-                StencilTitle("Justice League", size: 34)
-                Text("A REAL AMERICAN HERO")
-                    .font(Theme.label(12, weight: .bold))
-                    .tracking(3)
-                    .foregroundStyle(Theme.tan)
-                ProgressView().tint(Theme.gold).padding(.top, 8)
+            VStack(spacing: 18) {
+                JoeWordmark(size: 34)
+                ProgressView().tint(Theme.red).padding(.top, 8)
             }
         }
     }

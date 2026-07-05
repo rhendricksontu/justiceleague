@@ -1,23 +1,28 @@
 import SwiftUI
 
-// G.I. Joe (1983) inspired theme: olive drab, field tan, klaxon red and gold,
-// stencil-style headers. Colors defined in code so no asset round-trips are needed
-// (a few are also mirrored in Assets.xcassets for launch screen / accent).
+// G.I. Joe (1983) inspired LIGHT theme. Pulls straight from the classic logo:
+// bold italic condensed wordmark in near-black ink, a cyan star, the red/white/cyan
+// tricolor block, and Joe red for action. Set on a light "field ops" sand background.
 enum Theme {
-    static let background   = Color(hex: 0x1C2118) // dark olive field
-    static let surface      = Color(hex: 0x2A3122) // raised panel
-    static let surfaceHi    = Color(hex: 0x3A4230) // lighter panel
-    static let oliveDrab    = Color(hex: 0x556B2F)
-    static let tan          = Color(hex: 0xC9B27A) // field tan
-    static let gold         = Color(hex: 0xE0A526) // Joe gold
-    static let red          = Color(hex: 0xB4271F) // Cobra / klaxon red
-    static let textPrimary  = Color(hex: 0xF2EFE4)
-    static let textDim      = Color(hex: 0x9AA383)
-    static let stencilStroke = Color(hex: 0x0F120B)
+    static let background   = Color(hex: 0xECE7DA) // light sand field
+    static let surface      = Color(hex: 0xFFFFFF) // white cards
+    static let surfaceHi    = Color(hex: 0xF1ECDF) // subtle raised panel
+    static let line         = Color(hex: 0xD6CFBE) // hairline borders
 
-    // Condensed, heavy system font approximates a military stencil without shipping fonts.
+    static let ink          = Color(hex: 0x17181C) // logo/heading near-black
+    static let red          = Color(hex: 0xE4002B) // Joe red — primary action
+    static let cyan         = Color(hex: 0x009FCB) // Joe star blue
+    static let gold         = Color(hex: 0xC1912E) // medals only
+    static let oliveDrab    = Color(hex: 0x4E5C2A) // military green accent
+
+    static let textPrimary  = Color(hex: 0x17181C)
+    static let textDim      = Color(hex: 0x6F6A5C)
+    static let tan          = Color(hex: 0x7C6F4E) // khaki secondary labels
+    static let onPrimary    = Color(hex: 0xFFFFFF) // text/spinner on red buttons
+
+    // Heavy italic condensed — the G.I. Joe wordmark treatment.
     static func stencil(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .heavy, design: .default).width(.condensed)
+        .system(size: size, weight: .black, design: .default).width(.condensed).italic()
     }
     static func label(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
         .system(size: size, weight: weight, design: .rounded)
@@ -34,21 +39,59 @@ extension Color {
     }
 }
 
-// Stencil-style screen title, e.g. "DAILY INTEL".
+// Section header in the logo type (dark ink, italic, condensed).
 struct StencilTitle: View {
     let text: String
     var size: CGFloat = 30
-    init(_ text: String, size: CGFloat = 30) { self.text = text; self.size = size }
+    var color: Color = Theme.ink
+    init(_ text: String, size: CGFloat = 30, color: Color = Theme.ink) {
+        self.text = text; self.size = size; self.color = color
+    }
     var body: some View {
         Text(text.uppercased())
             .font(Theme.stencil(size))
-            .tracking(2)
-            .foregroundStyle(Theme.gold)
-            .shadow(color: Theme.stencilStroke, radius: 0, x: 1.5, y: 1.5)
+            .tracking(0.5)
+            .foregroundStyle(color)
     }
 }
 
-// Olive panel with a stitched border used across the app.
+// The red / white / cyan tricolor block from the logo.
+struct TricolorBar: View {
+    var width: CGFloat = 34
+    var height: CGFloat = 8
+    var body: some View {
+        VStack(spacing: 2) {
+            Capsule().fill(Theme.red)
+            Capsule().fill(Color.white).overlay(Capsule().strokeBorder(Theme.line, lineWidth: 0.5))
+            Capsule().fill(Theme.cyan)
+        }
+        .frame(width: width, height: height)
+    }
+}
+
+// The big brand lockup used on login / splash: "JUSTICE ★ LEAGUE".
+struct JoeWordmark: View {
+    var size: CGFloat = 40
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Text("JUSTICE").font(Theme.stencil(size)).foregroundStyle(Theme.ink)
+                Image(systemName: "star.fill")
+                    .font(.system(size: size * 0.5, weight: .black))
+                    .foregroundStyle(Theme.cyan)
+                Text("LEAGUE").font(Theme.stencil(size)).foregroundStyle(Theme.ink)
+            }
+            HStack(spacing: 8) {
+                Rectangle().fill(Theme.red).frame(width: 28, height: 3)
+                Text("A REAL AMERICAN HERO")
+                    .font(Theme.label(11, weight: .heavy)).tracking(2).foregroundStyle(Theme.tan)
+                Rectangle().fill(Theme.cyan).frame(width: 28, height: 3)
+            }
+        }
+    }
+}
+
+// White card with a hairline border and soft shadow on the light field.
 struct FieldPanel<Content: View>: View {
     @ViewBuilder var content: Content
     var body: some View {
@@ -56,32 +99,31 @@ struct FieldPanel<Content: View>: View {
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(Theme.oliveDrab, lineWidth: 1.5)
+                RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line, lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: Theme.ink.opacity(0.06), radius: 8, x: 0, y: 3)
     }
 }
 
-// Primary action button (gold, dog-tag styling).
+// Primary action button — Joe red, white italic type.
 struct JoeButtonStyle: ButtonStyle {
-    var tint: Color = Theme.gold
-    var fg: Color = Color(hex: 0x1C2118)
+    var tint: Color = Theme.red
+    var fg: Color = Theme.onPrimary
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(Theme.label(17, weight: .bold))
-            .tracking(1)
+            .font(Theme.stencil(19))
+            .tracking(0.5)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
-            .background(tint.opacity(configuration.isPressed ? 0.75 : 1))
+            .background(tint.opacity(configuration.isPressed ? 0.8 : 1))
             .foregroundStyle(fg)
             .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 
 extension View {
-    // Fills the screen with the field background.
     func joeBackground() -> some View {
         self.background(Theme.background.ignoresSafeArea())
     }

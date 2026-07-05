@@ -11,8 +11,8 @@ struct LoginView: View {
             VStack(spacing: 22) {
                 Spacer()
 
-                VStack(spacing: 8) {
-                    StencilTitle("Justice League", size: 36)
+                VStack(spacing: 10) {
+                    JoeWordmark(size: 38)
                     Text("OKLAHOMA  •  EST. 2026")
                         .font(Theme.label(11, weight: .bold))
                         .tracking(3)
@@ -22,9 +22,9 @@ struct LoginView: View {
                 FieldPanel {
                     VStack(alignment: .leading, spacing: 14) {
                         Text("REPORT FOR DUTY")
-                            .font(Theme.stencil(18))
-                            .tracking(1.5)
-                            .foregroundStyle(Theme.gold)
+                            .font(Theme.stencil(20))
+                            .tracking(0.5)
+                            .foregroundStyle(Theme.red)
                         Text("Enter your phone number to sign in.")
                             .font(Theme.label(14, weight: .regular))
                             .foregroundStyle(Theme.textDim)
@@ -36,9 +36,9 @@ struct LoginView: View {
                             .font(Theme.label(20, weight: .semibold))
                             .foregroundStyle(Theme.textPrimary)
                             .padding(12)
-                            .background(Theme.background)
+                            .background(Theme.surfaceHi)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.oliveDrab))
+                            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
 
                         if let err = app.loginError {
                             Text(err)
@@ -51,7 +51,7 @@ struct LoginView: View {
                             Task { await app.signIn(phone: phone) }
                         } label: {
                             if app.isWorkingOnLogin {
-                                ProgressView().tint(Color(hex: 0x1C2118))
+                                ProgressView().tint(Theme.onPrimary)
                             } else {
                                 Text("SIGN IN")
                             }

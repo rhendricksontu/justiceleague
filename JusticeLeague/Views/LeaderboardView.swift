@@ -42,7 +42,7 @@ struct LeaderboardView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 12) {
                             if model.loading {
-                                ProgressView().tint(Theme.gold).frame(maxWidth: .infinity).padding(.top, 40)
+                                ProgressView().tint(Theme.red).frame(maxWidth: .infinity).padding(.top, 40)
                             } else if tab == 0 {
                                 monthlyBoard
                             } else {
@@ -120,7 +120,7 @@ struct RankRow: View {
         HStack(spacing: 14) {
             Text("\(rank)")
                 .font(Theme.stencil(22))
-                .foregroundStyle(rank <= 3 ? Color(hex: 0x1C2118) : Theme.textPrimary)
+                .foregroundStyle(rank <= 3 ? Theme.onPrimary : Theme.textPrimary)
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(rank <= 3 ? rankColor : Theme.surfaceHi))
             Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(Theme.textPrimary)
@@ -131,7 +131,7 @@ struct RankRow: View {
         .padding(.horizontal, 14).padding(.vertical, 10)
         .background(Theme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Theme.oliveDrab, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Theme.line, lineWidth: 1))
     }
 }
 

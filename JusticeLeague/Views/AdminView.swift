@@ -70,7 +70,7 @@ struct AdminView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
                         if model.loading {
-                            ProgressView().tint(Theme.gold).frame(maxWidth: .infinity).padding(.top, 40)
+                            ProgressView().tint(Theme.red).frame(maxWidth: .infinity).padding(.top, 40)
                         } else {
                             ForEach(model.members) { m in
                                 NavigationLink { EditMemberView(model: model, member: m) } label: {
@@ -91,7 +91,7 @@ struct AdminView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("Roster", size: 22) }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(Theme.gold) }
+                    Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(Theme.red) }
                 }
             }
             .sheet(isPresented: $showAdd) { AddMemberView(model: model) }
@@ -111,7 +111,7 @@ struct MemberRow: View {
                     Text(PhoneUtil.pretty(member.phone)).font(Theme.label(13)).foregroundStyle(Theme.textDim)
                     HStack(spacing: 6) {
                         if member.isAdmin { RoleTag(text: "ADMIN", color: Theme.red) }
-                        if member.isTriviaMaster { RoleTag(text: "MASTER", color: Theme.gold) }
+                        if member.isTriviaMaster { RoleTag(text: "MASTER", color: Theme.cyan) }
                         if !member.isActive { RoleTag(text: "INACTIVE", color: Theme.surfaceHi) }
                     }
                 }
@@ -145,7 +145,7 @@ struct AddMemberView: View {
                                 inputField($phone, placeholder: "(405) 555-0123", keyboard: .phonePad)
                                 Toggle("Admin (manages roster)", isOn: $admin).tint(Theme.red)
                                     .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
-                                Toggle("Trivia Master", isOn: $master).tint(Theme.gold)
+                                Toggle("Trivia Master", isOn: $master).tint(Theme.cyan)
                                     .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
                             }
                         }
@@ -161,7 +161,7 @@ struct AddMemberView: View {
                                 working = false
                             }
                         } label: {
-                            if working { ProgressView().tint(Color(hex: 0x1C2118)) } else { Text("ADD TO ROSTER") }
+                            if working { ProgressView().tint(Theme.onPrimary) } else { Text("ADD TO ROSTER") }
                         }
                         .buttonStyle(JoeButtonStyle())
                         .disabled(working || name.trimmed.isEmpty || phone.trimmed.isEmpty)
@@ -200,7 +200,7 @@ struct EditMemberView: View {
                             Divider().overlay(Theme.oliveDrab)
                             Toggle("Admin", isOn: $member.isAdmin).tint(Theme.red)
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
-                            Toggle("Trivia Master", isOn: $member.isTriviaMaster).tint(Theme.gold)
+                            Toggle("Trivia Master", isOn: $member.isTriviaMaster).tint(Theme.cyan)
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
                             Toggle("Active (can sign in)", isOn: $member.isActive).tint(Theme.oliveDrab)
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
@@ -210,7 +210,7 @@ struct EditMemberView: View {
                         working = true
                         Task { await model.save(member); working = false; dismiss() }
                     } label: {
-                        if working { ProgressView().tint(Color(hex: 0x1C2118)) } else { Text("SAVE CHANGES") }
+                        if working { ProgressView().tint(Theme.onPrimary) } else { Text("SAVE CHANGES") }
                     }
                     .buttonStyle(JoeButtonStyle())
                     .disabled(working || member.displayName.trimmed.isEmpty)
@@ -227,9 +227,9 @@ struct EditMemberView: View {
 func inputField(_ text: Binding<String>, placeholder: String, keyboard: UIKeyboardType = .default) -> some View {
     TextField("", text: text, prompt: Text(placeholder).foregroundColor(Theme.textDim))
         .keyboardType(keyboard)
-        .padding(12).background(Theme.background)
+        .padding(12).background(Theme.surfaceHi)
         .foregroundStyle(Theme.textPrimary)
         .font(Theme.label(17, weight: .medium))
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.oliveDrab))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
 }
