@@ -65,17 +65,21 @@ struct StencilTitle: View {
         }
     }
 
-    // Words separated by a cyan star, like the JUSTICE ★ LEAGUE wordmark.
-    private var label: some View {
+    // Outlined headers get a cyan star between words (wordmark style); white-card
+    // headers (solid) render plain text with no stars.
+    @ViewBuilder private var label: some View {
         let tracking = size * 0.10
-        let words = text.uppercased().split(separator: " ").map(String.init)
-        // spacing 0 + trailing tracking (left of star) balanced by leading padding
-        // (right of star) => gaps equal the letter spacing, like the wordmark.
-        return HStack(spacing: 0) {
-            ForEach(Array(words.enumerated()), id: \.offset) { i, w in
-                if i > 0 { JoeStar(size: size * 0.82) }
-                wordView(w, tracking: tracking)
-                    .padding(.leading, i > 0 ? size * 0.10 : 0)
+        if solid {
+            Text(text.uppercased())
+                .font(Theme.block(size)).tracking(tracking).foregroundStyle(Theme.ink)
+        } else {
+            let words = text.uppercased().split(separator: " ").map(String.init)
+            HStack(spacing: 0) {
+                ForEach(Array(words.enumerated()), id: \.offset) { i, w in
+                    if i > 0 { JoeStar(size: size * 0.82) }
+                    wordView(w, tracking: tracking)
+                        .padding(.leading, i > 0 ? size * 0.10 : 0)
+                }
             }
         }
     }
