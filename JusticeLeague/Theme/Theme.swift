@@ -165,10 +165,12 @@ struct JoeWordmark: View {
                              width: size * 0.05, tracking: size * 0.10)
             }
             .modifier(Skew(k: 0.18))
-            Text("REAL AMERICAN MEN")
-                .font(.system(size: size * 0.34, weight: .bold, design: .serif).italic())
-                .tracking(size * 0.07)
-                .foregroundStyle(Theme.ink)
+            HStack(spacing: 8) {
+                Rectangle().fill(Theme.red).frame(width: 28, height: 3)
+                Text("REAL AMERICAN MEN")
+                    .font(Theme.label(11, weight: .heavy)).tracking(2).foregroundStyle(Theme.tan)
+                Rectangle().fill(Theme.cyan).frame(width: 28, height: 3)
+            }
         }
     }
 }
