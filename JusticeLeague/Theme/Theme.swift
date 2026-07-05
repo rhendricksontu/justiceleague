@@ -69,10 +69,13 @@ struct StencilTitle: View {
     private var label: some View {
         let tracking = size * 0.10
         let words = text.uppercased().split(separator: " ").map(String.init)
-        return HStack(spacing: size * 0.22) {
+        // spacing 0 + trailing tracking (left of star) balanced by leading padding
+        // (right of star) => gaps equal the letter spacing, like the wordmark.
+        return HStack(spacing: 0) {
             ForEach(Array(words.enumerated()), id: \.offset) { i, w in
                 if i > 0 { JoeStar(size: size * 0.82) }
                 wordView(w, tracking: tracking)
+                    .padding(.leading, i > 0 ? size * 0.10 : 0)
             }
         }
     }
