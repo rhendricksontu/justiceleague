@@ -99,6 +99,40 @@ struct Participation: Codable, Identifiable, Hashable {
     }
 }
 
+// A group-chat message, joined with the sender's name + avatar.
+struct ChatMessage: Codable, Identifiable, Hashable {
+    let id: UUID
+    let memberId: UUID
+    var body: String
+    var createdAt: Date
+    var member: Sender?
+
+    struct Sender: Codable, Hashable {
+        let displayName: String
+        let avatar: String?
+        enum CodingKeys: String, CodingKey {
+            case displayName = "display_name"
+            case avatar
+        }
+    }
+
+    var senderName: String { member?.displayName ?? "Unknown" }
+
+    enum CodingKeys: String, CodingKey {
+        case id, body, member
+        case memberId = "member_id"
+        case createdAt = "created_at"
+    }
+}
+
+// Raw shape of a realtime INSERT payload (no joined sender columns).
+struct RealtimeMessageRow: Decodable {
+    let id: UUID
+    let member_id: UUID
+    let body: String
+    let created_at: String
+}
+
 struct MonthlyScore: Codable, Identifiable, Hashable {
     let memberId: UUID
     let displayName: String

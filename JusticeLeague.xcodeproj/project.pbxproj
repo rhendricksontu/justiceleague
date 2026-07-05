@@ -15,6 +15,7 @@
 		47AE8E75908EA1815FDBFD41 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 789C448ADCEBE8E0858D53CB /* Theme.swift */; };
 		6F12572585A4BA08FC0255EF /* TodayModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F4DE8780321056AC60F9FBB /* TodayModel.swift */; };
 		782D83D54C61DE8188B34F36 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA19FC4049A19571C1190FB /* TodayView.swift */; };
+		8BF5C517142DDBE634CF21FB /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD0AAD07E19A5A428EADF0E1 /* ChatView.swift */; };
 		A535335A9AAA52F04A9C1F91 /* TriviaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A24768EA70AAECC9156AA2 /* TriviaService.swift */; };
 		B04F2B034C68EDEAD33A3580 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 878F4BE1CC297E414DB14004 /* Assets.xcassets */; };
 		B0C9DC6AF257823046DD725C /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9700054F74FBBE38EC29A7 /* Config.swift */; };
@@ -44,6 +45,7 @@
 		91A24768EA70AAECC9156AA2 /* TriviaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaService.swift; sourceTree = "<group>"; };
 		A8DC00ED3F70BE9F40A1B29E /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		B3BA7D46CC8EBBADF630CF12 /* JusticeLeague.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JusticeLeague.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD0AAD07E19A5A428EADF0E1 /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		C39B918CA25042AF31BC665C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D4E9767F13E51151C28929AD /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		DB491B33BB1F1CB400EA6232 /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
@@ -143,6 +145,7 @@
 			children = (
 				0CCAD4B88E640F9824B4064D /* AdminView.swift */,
 				0B3036ADCE3D376F3C13143F /* Avatars.swift */,
+				BD0AAD07E19A5A428EADF0E1 /* ChatView.swift */,
 				A8DC00ED3F70BE9F40A1B29E /* Components.swift */,
 				DB491B33BB1F1CB400EA6232 /* LeaderboardView.swift */,
 				760719996BFC647E5C926F38 /* LoginView.swift */,
@@ -230,6 +233,7 @@
 				3C3506BD04053D58231EFBB6 /* AdminView.swift in Sources */,
 				38599BDFBCCF56652B42FDF0 /* AppState.swift in Sources */,
 				B9F09484CADEAFA33DCF5692 /* Avatars.swift in Sources */,
+				8BF5C517142DDBE634CF21FB /* ChatView.swift in Sources */,
 				CE404E85FC62DE0E5416CCC1 /* Components.swift in Sources */,
 				B0C9DC6AF257823046DD725C /* Config.swift in Sources */,
 				27B183D628284BB5E64D572D /* JusticeLeagueApp.swift in Sources */,

@@ -1,4 +1,5 @@
 import SwiftUI
+import Supabase
 
 struct MainTabView: View {
     @Environment(AppState.self) private var app
@@ -12,6 +13,10 @@ struct MainTabView: View {
             LeaderboardView()
                 .tabItem { Label("Leaderboard", systemImage: "medal.fill") }.tag(1)
 
+            ChatView()
+                .tabItem { Label("Comms", systemImage: "bubble.left.and.bubble.right.fill") }.tag(4)
+                .badge(app.chatUnread)
+
             if app.currentMember?.isAdmin == true {
                 AdminView()
                     .tabItem { Label("Roster", systemImage: "person.3.fill") }.tag(2)
@@ -21,11 +26,29 @@ struct MainTabView: View {
                 .tabItem { Label("Me", systemImage: "person.crop.circle") }.tag(3)
         }
         .task { await app.refreshMember() }
+        .task { await app.refreshChatUnread() }
+        .task { await watchChatBadge() }
         #if DEBUG
         .onAppear {
             if let t = ProcessInfo.processInfo.environment["START_TAB"], let i = Int(t) { selection = i }
         }
         #endif
+    }
+
+    // Keep the unread badge live even when the Comms tab isn't open.
+    private func watchChatBadge() async {
+        let client = SupabaseManager.client
+        let channel = client.channel("badge:messages")
+        let inserts = channel.postgresChange(InsertAction.self, schema: "public", table: "messages")
+        await channel.subscribe()
+        for await change in inserts {
+            guard let row = try? change.decodeRecord(as: RealtimeMessageRow.self, decoder: JSONDecoder())
+            else { continue }
+            // Ignore my own messages and anything while I'm reading the channel.
+            if row.member_id != app.currentMember?.id && selection != 4 {
+                app.chatUnread += 1
+            }
+        }
     }
 }
 

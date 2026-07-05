@@ -205,6 +205,51 @@ enum TriviaService {
     static func setMyAvatar(_ id: String?) async throws {
         try await db.rpc("set_my_avatar", params: AvatarParam(new_avatar: id)).execute()
     }
+
+    // MARK: Group chat
+
+    // Most recent messages (joined with sender name + avatar), oldest-first for display.
+    static func messages(limit: Int = 200) async throws -> [ChatMessage] {
+        let rows: [ChatMessage] = try await db
+            .from("messages")
+            .select("id, member_id, body, created_at, member:members(display_name, avatar)")
+            .order("created_at", ascending: false)
+            .limit(limit)
+            .execute().value
+        return rows.reversed()
+    }
+
+    struct NewChatMessage: Encodable { let member_id: UUID; let body: String }
+
+    @discardableResult
+    static func sendMessage(memberId: UUID, body: String) async throws -> ChatMessage {
+        try await db
+            .from("messages")
+            .insert(NewChatMessage(member_id: memberId, body: body))
+            .select("id, member_id, body, created_at, member:members(display_name, avatar)")
+            .single()
+            .execute().value
+    }
+
+    static func deleteMessage(id: UUID) async throws {
+        try await db.from("messages").delete().eq("id", value: id).execute()
+    }
+
+    static func markChatRead() async throws {
+        try await db.rpc("mark_chat_read").execute()
+    }
+
+    static func chatUnreadCount() async throws -> Int {
+        try await db.rpc("chat_unread_count").execute().value
+    }
+
+    // MARK: Push tokens
+
+    struct DeviceTokenParam: Encodable { let p_token: String; let p_platform: String }
+    static func registerDeviceToken(_ token: String, platform: String = "ios") async throws {
+        try await db.rpc("register_device_token",
+                         params: DeviceTokenParam(p_token: token, p_platform: platform)).execute()
+    }
 }
 
 // Formatting helpers used by the leaderboard views.

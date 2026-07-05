@@ -11,6 +11,7 @@ final class AppState {
     var currentMember: Member?
     var loginError: String?
     var isWorkingOnLogin = false
+    var chatUnread = 0
 
     private var client: SupabaseClient { SupabaseManager.client }
 
@@ -110,6 +111,11 @@ final class AppState {
         } catch {
             return false
         }
+    }
+
+    // Refresh the unread chat badge count.
+    func refreshChatUnread() async {
+        chatUnread = (try? await TriviaService.chatUnreadCount()) ?? chatUnread
     }
 
     // Re-fetch the current member (roles may have changed).
