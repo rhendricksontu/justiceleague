@@ -58,12 +58,6 @@ struct LoginView: View {
                 .padding(.horizontal, 20)
 
                 Spacer()
-                Text("Not on the roster? Ask your admin to add your number.")
-                    .font(Theme.label(12, weight: .regular))
-                    .foregroundStyle(Theme.textDim)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
-                    .padding(.bottom, 20)
             }
         }
         .onAppear { focused = true }
