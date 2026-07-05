@@ -7,9 +7,10 @@ struct Member: Codable, Identifiable, Hashable {
     var isAdmin: Bool
     var isTriviaMaster: Bool
     var isActive: Bool
+    var avatar: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, phone
+        case id, phone, avatar
         case displayName = "display_name"
         case isAdmin = "is_admin"
         case isTriviaMaster = "is_trivia_master"

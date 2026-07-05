@@ -200,6 +200,11 @@ enum TriviaService {
         try await db.rpc("update_my_profile",
                          params: ["new_name": name, "new_phone": phone]).execute()
     }
+
+    struct AvatarParam: Encodable { let new_avatar: String? }
+    static func setMyAvatar(_ id: String?) async throws {
+        try await db.rpc("set_my_avatar", params: AvatarParam(new_avatar: id)).execute()
+    }
 }
 
 // Formatting helpers used by the leaderboard views.

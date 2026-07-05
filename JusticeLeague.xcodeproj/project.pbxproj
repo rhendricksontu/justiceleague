@@ -18,6 +18,7 @@
 		A535335A9AAA52F04A9C1F91 /* TriviaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A24768EA70AAECC9156AA2 /* TriviaService.swift */; };
 		B04F2B034C68EDEAD33A3580 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 878F4BE1CC297E414DB14004 /* Assets.xcassets */; };
 		B0C9DC6AF257823046DD725C /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9700054F74FBBE38EC29A7 /* Config.swift */; };
+		B9F09484CADEAFA33DCF5692 /* Avatars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B3036ADCE3D376F3C13143F /* Avatars.swift */; };
 		BAA769C40F6E741BE2989CE6 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760719996BFC647E5C926F38 /* LoginView.swift */; };
 		BD3A00B2DC74B39F77E25479 /* Anton-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DC2ED64F344FAA9696200720 /* Anton-Regular.ttf */; };
 		C6711C8E09D66BACCE951285 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E9767F13E51151C28929AD /* MainTabView.swift */; };
@@ -28,6 +29,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B3036ADCE3D376F3C13143F /* Avatars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Avatars.swift; sourceTree = "<group>"; };
 		0CCAD4B88E640F9824B4064D /* AdminView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminView.swift; sourceTree = "<group>"; };
 		13308E8C9C4C3847C47977CC /* JusticeLeagueApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JusticeLeagueApp.swift; sourceTree = "<group>"; };
 		1CE82526BF1C2F444D769649 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 			isa = PBXGroup;
 			children = (
 				0CCAD4B88E640F9824B4064D /* AdminView.swift */,
+				0B3036ADCE3D376F3C13143F /* Avatars.swift */,
 				A8DC00ED3F70BE9F40A1B29E /* Components.swift */,
 				DB491B33BB1F1CB400EA6232 /* LeaderboardView.swift */,
 				760719996BFC647E5C926F38 /* LoginView.swift */,
@@ -226,6 +229,7 @@
 			files = (
 				3C3506BD04053D58231EFBB6 /* AdminView.swift in Sources */,
 				38599BDFBCCF56652B42FDF0 /* AppState.swift in Sources */,
+				B9F09484CADEAFA33DCF5692 /* Avatars.swift in Sources */,
 				CE404E85FC62DE0E5416CCC1 /* Components.swift in Sources */,
 				B0C9DC6AF257823046DD725C /* Config.swift in Sources */,
 				27B183D628284BB5E64D572D /* JusticeLeagueApp.swift in Sources */,

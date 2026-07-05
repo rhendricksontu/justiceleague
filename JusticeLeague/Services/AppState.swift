@@ -101,6 +101,17 @@ final class AppState {
         }
     }
 
+    // A member choosing their G.I. Joe avatar (fails if already taken).
+    func setMyAvatar(_ id: String?) async -> Bool {
+        do {
+            try await TriviaService.setMyAvatar(id)
+            await refreshMember()
+            return true
+        } catch {
+            return false
+        }
+    }
+
     // Re-fetch the current member (roles may have changed).
     func refreshMember() async {
         guard let id = currentMember?.id else { return }

@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
   // 1. Find the member on the roster.
   const { data: member, error: memberErr } = await admin
     .from("members")
-    .select("id, phone, display_name, is_admin, is_trivia_master, is_active, auth_user_id")
+    .select("id, phone, display_name, is_admin, is_trivia_master, is_active, avatar, auth_user_id")
     .eq("phone", phone)
     .maybeSingle();
 
@@ -122,6 +122,7 @@ Deno.serve(async (req) => {
       is_admin: member.is_admin,
       is_trivia_master: member.is_trivia_master,
       is_active: member.is_active,
+      avatar: member.avatar,
     },
   });
 });

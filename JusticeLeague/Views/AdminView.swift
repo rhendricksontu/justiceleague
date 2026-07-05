@@ -124,7 +124,8 @@ struct MemberRow: View {
     let member: Member
     var body: some View {
         FieldPanel {
-            HStack {
+            HStack(spacing: 12) {
+                AvatarBadge(avatar: Avatars.find(member.avatar), size: 44)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(member.displayName).font(Theme.label(17, weight: .bold))
                         .foregroundStyle(.black)

@@ -32,6 +32,7 @@ struct MainTabView: View {
 struct ProfileView: View {
     @Environment(AppState.self) private var app
     @State private var showEdit = false
+    @State private var showAvatar = false
 
     var body: some View {
         NavigationStack {
@@ -44,10 +45,15 @@ struct ProfileView: View {
                     if let m = app.currentMember {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
-                                StencilTitle(m.displayName, size: 22, solid: true)
-                                Text(PhoneUtil.pretty(m.phone))
-                                    .font(Theme.label(15))
-                                    .foregroundStyle(.black)
+                                HStack(spacing: 14) {
+                                    AvatarBadge(avatar: Avatars.find(m.avatar), size: 64)
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        StencilTitle(m.displayName, size: 20, solid: true)
+                                        Text(PhoneUtil.pretty(m.phone))
+                                            .font(Theme.label(15))
+                                            .foregroundStyle(.black)
+                                    }
+                                }
                                 HStack(spacing: 8) {
                                     if m.isAdmin { RoleTag(text: "ADMIN") }
                                     if m.isTriviaMaster { RoleTag(text: "TRIVIA MASTER") }
@@ -55,8 +61,12 @@ struct ProfileView: View {
                                 }
                             }
                         }
-                        Button("EDIT PROFILE") { showEdit = true }
-                            .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
+                        HStack(spacing: 12) {
+                            Button("CHOOSE AVATAR") { showAvatar = true }
+                                .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
+                            Button("EDIT PROFILE") { showEdit = true }
+                                .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
+                        }
                     }
 
                     Spacer()
@@ -67,6 +77,10 @@ struct ProfileView: View {
                 .padding(.bottom, 30)
             }
             .sheet(isPresented: $showEdit) { EditProfileView() }
+            .sheet(isPresented: $showAvatar) { AvatarPickerView() }
+            #if DEBUG
+            .task { if ProcessInfo.processInfo.environment["OPEN_AVATAR"] != nil { showAvatar = true } }
+            #endif
             .navigationTitle("")
         }
     }
