@@ -51,6 +51,8 @@ struct ProfileView: View {
                         }
                     }
                     Spacer()
+                    JoeWordmark(size: 34)
+                    Spacer()
                     Button("SIGN OUT") { Task { await app.signOut() } }
                         .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
                         .padding(.horizontal, 40)
