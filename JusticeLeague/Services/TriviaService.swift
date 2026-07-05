@@ -177,6 +177,7 @@ enum TriviaService {
     }
 
     struct MemberPatch: Encodable {
+        let phone: String
         let display_name: String
         let is_admin: Bool
         let is_trivia_master: Bool
@@ -185,9 +186,13 @@ enum TriviaService {
 
     static func updateMember(_ m: Member) async throws {
         try await db.from("members").update(
-            MemberPatch(display_name: m.displayName, is_admin: m.isAdmin,
+            MemberPatch(phone: m.phone, display_name: m.displayName, is_admin: m.isAdmin,
                         is_trivia_master: m.isTriviaMaster, is_active: m.isActive)
         ).eq("id", value: m.id).execute()
+    }
+
+    static func deleteMember(id: UUID) async throws {
+        try await db.from("members").delete().eq("id", value: id).execute()
     }
 }
 

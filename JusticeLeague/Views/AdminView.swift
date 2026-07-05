@@ -22,6 +22,17 @@ enum PhoneUtil {
         }
         return e164
     }
+
+    // Progressive live formatting as (XXX) XXX-XXXX. Idempotent.
+    static func format(_ raw: String) -> String {
+        let digits = String(raw.filter(\.isNumber).prefix(10))
+        var out = ""
+        for (i, ch) in digits.enumerated() {
+            if i == 0 { out += "(" } else if i == 3 { out += ") " } else if i == 6 { out += "-" }
+            out.append(ch)
+        }
+        return out
+    }
 }
 
 @MainActor
@@ -53,9 +64,18 @@ final class AdminModel {
         }
     }
 
-    func save(_ m: Member) async {
-        do { try await TriviaService.updateMember(m); await load() }
-        catch { errorText = "Couldn't save changes." }
+    @discardableResult
+    func save(_ m: Member) async -> Bool {
+        errorText = nil
+        do { try await TriviaService.updateMember(m); await load(); return true }
+        catch { errorText = "Couldn't save — is that phone number already used?"; return false }
+    }
+
+    @discardableResult
+    func delete(_ m: Member) async -> Bool {
+        errorText = nil
+        do { try await TriviaService.deleteMember(id: m.id); await load(); return true }
+        catch { errorText = "Couldn't delete this member."; return false }
     }
 }
 
@@ -143,7 +163,7 @@ struct AddMemberView: View {
                                 inputField($name, placeholder: "Duke")
                                 fieldLabel("PHONE")
                                 inputField($phone, placeholder: "(405) 555-0123", keyboard: .phonePad)
-                                Toggle("Admin (manages roster)", isOn: $admin).tint(Theme.red)
+                                Toggle("Admin (manages roster)", isOn: $admin).tint(Theme.cyan)
                                     .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
                                 Toggle("Trivia Master", isOn: $master).tint(Theme.cyan)
                                     .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
@@ -184,8 +204,14 @@ struct AddMemberView: View {
 struct EditMemberView: View {
     let model: AdminModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppState.self) private var app
     @State var member: Member
+    @State private var phoneText = ""
     @State private var working = false
+    @State private var errorText: String?
+    @State private var confirmDelete = false
+
+    private var isSelf: Bool { member.id == app.currentMember?.id }
 
     var body: some View {
         ZStack {
@@ -196,30 +222,68 @@ struct EditMemberView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             fieldLabel("NAME")
                             inputField($member.displayName, placeholder: "Name")
-                            Text(PhoneUtil.pretty(member.phone)).font(Theme.label(14)).foregroundStyle(.black)
+                            fieldLabel("PHONE")
+                            inputField($phoneText, placeholder: "(405) 555-0123", keyboard: .phonePad)
+                                .onChange(of: phoneText) { _, v in
+                                    let f = PhoneUtil.format(v); if f != v { phoneText = f }
+                                }
                             Divider().overlay(Theme.oliveDrab)
-                            Toggle("Admin", isOn: $member.isAdmin).tint(Theme.red)
+                            Toggle("Admin", isOn: $member.isAdmin).tint(Theme.cyan)
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
                             Toggle("Trivia Master", isOn: $member.isTriviaMaster).tint(Theme.cyan)
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
-                            Toggle("Active (can sign in)", isOn: $member.isActive).tint(Theme.oliveDrab)
+                            Toggle("Active (can sign in)", isOn: $member.isActive).tint(Theme.cyan)
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
                         }
                     }
+
+                    if let e = errorText {
+                        Text(e).font(Theme.label(13)).foregroundStyle(Theme.red)
+                    }
+
                     Button {
+                        errorText = nil
+                        guard let e164 = PhoneUtil.normalize(phoneText) else {
+                            errorText = "Enter a valid 10-digit phone number."; return
+                        }
+                        member.phone = e164
                         working = true
-                        Task { await model.save(member); working = false; dismiss() }
+                        Task {
+                            if await model.save(member) { dismiss() }
+                            else { errorText = model.errorText }
+                            working = false
+                        }
                     } label: {
                         if working { ProgressView().tint(.black) } else { Text("SAVE CHANGES") }
                     }
                     .buttonStyle(JoeButtonStyle())
-                    .disabled(working || member.displayName.trimmed.isEmpty)
+                    .disabled(working || member.displayName.trimmed.isEmpty || phoneText.trimmed.isEmpty)
+
+                    if !isSelf {
+                        Button("DELETE MEMBER") { confirmDelete = true }
+                            .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
+                            .disabled(working)
+                    }
                 }
                 .padding(20)
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Edit Member", size: 20) } }
+        .onAppear { phoneText = PhoneUtil.pretty(member.phone) }
+        .alert("Delete \(member.displayName)?", isPresented: $confirmDelete) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                working = true
+                Task {
+                    if await model.delete(member) { dismiss() }
+                    else { errorText = model.errorText }
+                    working = false
+                }
+            }
+        } message: {
+            Text("This removes them from the roster and deletes their trivia answers. This can't be undone.")
+        }
     }
 }
 
