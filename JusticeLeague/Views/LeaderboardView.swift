@@ -63,7 +63,7 @@ struct LeaderboardView: View {
     @ViewBuilder
     private var monthlyBoard: some View {
         Text(MonthFmt.label(currentMonthDate()).uppercased())
-            .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(Theme.tan)
+            .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
         if model.monthlyScores.isEmpty {
             emptyNote("No correct answers logged yet this month. Get in the game!")
         } else {
@@ -76,7 +76,7 @@ struct LeaderboardView: View {
     @ViewBuilder
     private var hallOfFame: some View {
         Text("MONTHLY CHAMPIONS")
-            .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(Theme.tan)
+            .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
         if model.winnersByMonth.isEmpty {
             emptyNote("No champions crowned yet. The first month's winner will appear here.")
         } else {

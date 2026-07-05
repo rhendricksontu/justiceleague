@@ -42,7 +42,7 @@ struct ProfileView: View {
                             StencilTitle(m.displayName, size: 26)
                             Text(PhoneUtil.pretty(m.phone))
                                 .font(Theme.label(14))
-                                .foregroundStyle(Theme.textDim)
+                                .foregroundStyle(.black)
                         }
                         HStack(spacing: 8) {
                             if m.isAdmin { RoleTag(text: "ADMIN", color: Theme.cyan) }

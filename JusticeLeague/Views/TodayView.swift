@@ -38,7 +38,7 @@ struct TodayView: View {
         Text(todayLabel().uppercased())
             .font(Theme.label(13, weight: .bold))
             .tracking(2)
-            .foregroundStyle(Theme.tan)
+            .foregroundStyle(.black)
     }
 
     @ViewBuilder
@@ -180,7 +180,7 @@ struct GradingPanel: View {
             StencilTitle("GRADE RESPONSES", size: 17)
 
             if model.responses.isEmpty {
-                Text("No one answered today.").font(Theme.label(14)).foregroundStyle(Theme.textDim)
+                Text("No one answered today.").font(Theme.label(14)).foregroundStyle(.black)
             }
 
             ForEach(model.responses) { r in
