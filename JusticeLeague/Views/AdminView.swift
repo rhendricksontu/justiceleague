@@ -194,7 +194,7 @@ struct AddMemberView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("New Recruit", size: 20) }
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }.foregroundStyle(Theme.tan)
+                    Button("Cancel") { dismiss() }.foregroundStyle(.black)
                 }
             }
         }

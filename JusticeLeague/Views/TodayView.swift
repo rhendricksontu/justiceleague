@@ -271,14 +271,14 @@ struct AnsweredPanel: View {
                                 }
                             }.buttonStyle(JoeButtonStyle()).disabled(draft.trimmed.isEmpty)
                             Button("CANCEL") { editing = false }
-                                .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: Theme.textPrimary))
+                                .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
                         }
                     } else {
                         Text(answer).font(Theme.label(19, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                         Text("Waiting for the trivia master to reveal. You can still change it until then.")
                             .font(Theme.label(13, weight: .regular)).foregroundStyle(.black)
                         Button("EDIT ANSWER") { draft = answer; editing = true }
-                            .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: Theme.textPrimary))
+                            .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
                     }
                 }
             }
