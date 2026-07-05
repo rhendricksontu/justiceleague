@@ -42,7 +42,7 @@ struct AvatarBadge: View {
             Circle().fill(avatar?.color ?? Theme.surfaceHi)
             Image(systemName: avatar?.symbol ?? "person.fill")
                 .font(.system(size: size * 0.42, weight: .bold))
-                .foregroundStyle(avatar == nil ? Theme.textDim : .white)
+                .foregroundStyle(avatar == nil ? .black : .white)
         }
         .frame(width: size, height: size)
         .overlay(Circle().strokeBorder(.black, lineWidth: max(1.5, size * 0.035)))
