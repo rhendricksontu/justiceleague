@@ -1,0 +1,21 @@
+# Xcode / build
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.DS_Store
+
+# XcodeGen generates this from project.yml — safe to regenerate, but we commit it
+# so contributors without XcodeGen can open the project. Uncomment to ignore:
+# JusticeLeague.xcodeproj/
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# Secrets (none currently — anon key is public; service key never committed)
+.env

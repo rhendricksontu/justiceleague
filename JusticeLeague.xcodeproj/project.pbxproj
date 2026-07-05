@@ -1,0 +1,439 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0AB70EE31ED558415206A096 /* LeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB491B33BB1F1CB400EA6232 /* LeaderboardView.swift */; };
+		1F257D71E233FC97A9C04413 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33930753A3BBBE11C7E8E5A8 /* SupabaseManager.swift */; };
+		27B183D628284BB5E64D572D /* JusticeLeagueApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13308E8C9C4C3847C47977CC /* JusticeLeagueApp.swift */; };
+		38599BDFBCCF56652B42FDF0 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2252D9099F58EE367BC4BAD7 /* AppState.swift */; };
+		3C3506BD04053D58231EFBB6 /* AdminView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCAD4B88E640F9824B4064D /* AdminView.swift */; };
+		47AE8E75908EA1815FDBFD41 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 789C448ADCEBE8E0858D53CB /* Theme.swift */; };
+		6F12572585A4BA08FC0255EF /* TodayModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F4DE8780321056AC60F9FBB /* TodayModel.swift */; };
+		782D83D54C61DE8188B34F36 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA19FC4049A19571C1190FB /* TodayView.swift */; };
+		A535335A9AAA52F04A9C1F91 /* TriviaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A24768EA70AAECC9156AA2 /* TriviaService.swift */; };
+		B04F2B034C68EDEAD33A3580 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 878F4BE1CC297E414DB14004 /* Assets.xcassets */; };
+		B0C9DC6AF257823046DD725C /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9700054F74FBBE38EC29A7 /* Config.swift */; };
+		BAA769C40F6E741BE2989CE6 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760719996BFC647E5C926F38 /* LoginView.swift */; };
+		C6711C8E09D66BACCE951285 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E9767F13E51151C28929AD /* MainTabView.swift */; };
+		CE404E85FC62DE0E5416CCC1 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8DC00ED3F70BE9F40A1B29E /* Components.swift */; };
+		D4F147B3B687A9B11330D62D /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE82526BF1C2F444D769649 /* Models.swift */; };
+		D5428005A3E0D848A768FF8C /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = A35A657DE3C76FC2F98074C1 /* Supabase */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0CCAD4B88E640F9824B4064D /* AdminView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdminView.swift; sourceTree = "<group>"; };
+		13308E8C9C4C3847C47977CC /* JusticeLeagueApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JusticeLeagueApp.swift; sourceTree = "<group>"; };
+		1CE82526BF1C2F444D769649 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		2252D9099F58EE367BC4BAD7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		33930753A3BBBE11C7E8E5A8 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		4F4DE8780321056AC60F9FBB /* TodayModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayModel.swift; sourceTree = "<group>"; };
+		760719996BFC647E5C926F38 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		789C448ADCEBE8E0858D53CB /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		878F4BE1CC297E414DB14004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8DA19FC4049A19571C1190FB /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		91A24768EA70AAECC9156AA2 /* TriviaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaService.swift; sourceTree = "<group>"; };
+		A8DC00ED3F70BE9F40A1B29E /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		B3BA7D46CC8EBBADF630CF12 /* JusticeLeague.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JusticeLeague.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C39B918CA25042AF31BC665C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D4E9767F13E51151C28929AD /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		DB491B33BB1F1CB400EA6232 /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
+		FE9700054F74FBBE38EC29A7 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		32D081E1069D125C92056C68 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5428005A3E0D848A768FF8C /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		041CCC49958963CCF3B85884 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B3BA7D46CC8EBBADF630CF12 /* JusticeLeague.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0646C33B740F022D8A6D7440 /* JusticeLeague */ = {
+			isa = PBXGroup;
+			children = (
+				878F4BE1CC297E414DB14004 /* Assets.xcassets */,
+				C39B918CA25042AF31BC665C /* Info.plist */,
+				28260141B162DA0F6BD7237F /* App */,
+				65337667BAC3BD8ECE9DD2CF /* Models */,
+				DAE42E73C6C6BAF8D3189D88 /* Services */,
+				A100668D4CCDCAD219D38409 /* Theme */,
+				FB9D1E25D7240F5995B2139F /* Views */,
+			);
+			path = JusticeLeague;
+			sourceTree = "<group>";
+		};
+		28260141B162DA0F6BD7237F /* App */ = {
+			isa = PBXGroup;
+			children = (
+				FE9700054F74FBBE38EC29A7 /* Config.swift */,
+				13308E8C9C4C3847C47977CC /* JusticeLeagueApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		65337667BAC3BD8ECE9DD2CF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				1CE82526BF1C2F444D769649 /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		8D95DC924BF717E9E8AFF2B4 = {
+			isa = PBXGroup;
+			children = (
+				0646C33B740F022D8A6D7440 /* JusticeLeague */,
+				041CCC49958963CCF3B85884 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A100668D4CCDCAD219D38409 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				789C448ADCEBE8E0858D53CB /* Theme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		DAE42E73C6C6BAF8D3189D88 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				2252D9099F58EE367BC4BAD7 /* AppState.swift */,
+				33930753A3BBBE11C7E8E5A8 /* SupabaseManager.swift */,
+				91A24768EA70AAECC9156AA2 /* TriviaService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		FB9D1E25D7240F5995B2139F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				0CCAD4B88E640F9824B4064D /* AdminView.swift */,
+				A8DC00ED3F70BE9F40A1B29E /* Components.swift */,
+				DB491B33BB1F1CB400EA6232 /* LeaderboardView.swift */,
+				760719996BFC647E5C926F38 /* LoginView.swift */,
+				D4E9767F13E51151C28929AD /* MainTabView.swift */,
+				4F4DE8780321056AC60F9FBB /* TodayModel.swift */,
+				8DA19FC4049A19571C1190FB /* TodayView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		98DA493C76CD7B02808F6FEB /* JusticeLeague */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9D683B40E7FFBA3A11B9D310 /* Build configuration list for PBXNativeTarget "JusticeLeague" */;
+			buildPhases = (
+				C28FF0F6F2B6FD2C489BEE92 /* Sources */,
+				FCEDCA5ADCF45399F80A3E25 /* Resources */,
+				32D081E1069D125C92056C68 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JusticeLeague;
+			packageProductDependencies = (
+				A35A657DE3C76FC2F98074C1 /* Supabase */,
+			);
+			productName = JusticeLeague;
+			productReference = B3BA7D46CC8EBBADF630CF12 /* JusticeLeague.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E5C9A4D3BBF4550D775B7508 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 712FECF48842D2F8F9F0F688 /* Build configuration list for PBXProject "JusticeLeague" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 8D95DC924BF717E9E8AFF2B4;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				49D98B57E5EA462B34838A35 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 041CCC49958963CCF3B85884 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				98DA493C76CD7B02808F6FEB /* JusticeLeague */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FCEDCA5ADCF45399F80A3E25 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B04F2B034C68EDEAD33A3580 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C28FF0F6F2B6FD2C489BEE92 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3C3506BD04053D58231EFBB6 /* AdminView.swift in Sources */,
+				38599BDFBCCF56652B42FDF0 /* AppState.swift in Sources */,
+				CE404E85FC62DE0E5416CCC1 /* Components.swift in Sources */,
+				B0C9DC6AF257823046DD725C /* Config.swift in Sources */,
+				27B183D628284BB5E64D572D /* JusticeLeagueApp.swift in Sources */,
+				0AB70EE31ED558415206A096 /* LeaderboardView.swift in Sources */,
+				BAA769C40F6E741BE2989CE6 /* LoginView.swift in Sources */,
+				C6711C8E09D66BACCE951285 /* MainTabView.swift in Sources */,
+				D4F147B3B687A9B11330D62D /* Models.swift in Sources */,
+				1F257D71E233FC97A9C04413 /* SupabaseManager.swift in Sources */,
+				47AE8E75908EA1815FDBFD41 /* Theme.swift in Sources */,
+				6F12572585A4BA08FC0255EF /* TodayModel.swift in Sources */,
+				782D83D54C61DE8188B34F36 /* TodayView.swift in Sources */,
+				A535335A9AAA52F04A9C1F91 /* TriviaService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1A2278139BEA9EB274881AAD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = JoeGold;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JusticeLeague/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.justiceleagueok.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		7CB2A14B64BEE8A531800875 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = JoeGold;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = JusticeLeague/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.justiceleagueok.app;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		8AEE877F93646BF43775D14F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		BC191448D702CEA07FA22CDF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		712FECF48842D2F8F9F0F688 /* Build configuration list for PBXProject "JusticeLeague" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC191448D702CEA07FA22CDF /* Debug */,
+				8AEE877F93646BF43775D14F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		9D683B40E7FFBA3A11B9D310 /* Build configuration list for PBXNativeTarget "JusticeLeague" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A2278139BEA9EB274881AAD /* Debug */,
+				7CB2A14B64BEE8A531800875 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		49D98B57E5EA462B34838A35 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A35A657DE3C76FC2F98074C1 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 49D98B57E5EA462B34838A35 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = E5C9A4D3BBF4550D775B7508 /* Project object */;
+}
