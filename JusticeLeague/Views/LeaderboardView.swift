@@ -102,7 +102,7 @@ struct LeaderboardView: View {
 
     private func emptyNote(_ t: String) -> some View {
         FieldPanel {
-            Text(t).font(Theme.label(14, weight: .regular)).foregroundStyle(Theme.textDim)
+            Text(t).font(Theme.label(14, weight: .regular)).foregroundStyle(.black)
         }
     }
 }

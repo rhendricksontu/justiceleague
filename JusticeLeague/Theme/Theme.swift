@@ -56,7 +56,8 @@ struct StencilTitle: View {
         // Red flanking lines only on outlined headers (nav titles / sand background);
         // headers on white cards (solid) are slanted but without the lines.
         if solid {
-            label.modifier(Skew(k: slanted ? 0.18 : 0))
+            // White-card headers are upright & undecorated, matching the sign-in card.
+            label
         } else {
             HStack(spacing: size * 0.35) {
                 headerBar

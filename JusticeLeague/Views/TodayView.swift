@@ -81,7 +81,7 @@ struct TodayView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     StencilTitle("STAND BY", size: 18, solid: true)
                     Text("No trivia has been posted yet today. Check back soon, soldier.")
-                        .font(Theme.label(15, weight: .regular)).foregroundStyle(Theme.textDim)
+                        .font(Theme.label(15, weight: .regular)).foregroundStyle(.black)
                 }
             }
         }
@@ -96,7 +96,7 @@ struct TodayView: View {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("You control the reveal. Once you reveal, everyone sees all answers and you grade them.")
-                        .font(Theme.label(14, weight: .regular)).foregroundStyle(Theme.textDim)
+                        .font(Theme.label(14, weight: .regular)).foregroundStyle(.black)
                     Button("REVEAL ANSWERS (\(model.answeredCount)/\(model.totalCount))") {
                         Task { await model.reveal(member: m) }
                     }
@@ -222,7 +222,7 @@ struct AnswerForm: View {
             VStack(alignment: .leading, spacing: 12) {
                 StencilTitle("YOUR ANSWER", size: 17, solid: true)
                 Text("No one sees your answer until the trivia master reveals.")
-                    .font(Theme.label(13, weight: .regular)).foregroundStyle(Theme.textDim)
+                    .font(Theme.label(13, weight: .regular)).foregroundStyle(.black)
                 TextField("", text: $answer, prompt: Text("Type your answer…").foregroundColor(Theme.textDim))
                     .padding(12).background(Theme.surfaceHi)
                     .foregroundStyle(Theme.textPrimary)
@@ -276,7 +276,7 @@ struct AnsweredPanel: View {
                     } else {
                         Text(answer).font(Theme.label(19, weight: .semibold)).foregroundStyle(Theme.textPrimary)
                         Text("Waiting for the trivia master to reveal. You can still change it until then.")
-                            .font(Theme.label(13, weight: .regular)).foregroundStyle(Theme.textDim)
+                            .font(Theme.label(13, weight: .regular)).foregroundStyle(.black)
                         Button("EDIT ANSWER") { draft = answer; editing = true }
                             .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: Theme.textPrimary))
                     }
@@ -357,7 +357,7 @@ func gradeBadge(_ isCorrect: Bool?) -> some View {
 }
 
 func fieldLabel(_ t: String) -> some View {
-    Text(t).font(Theme.label(12, weight: .bold)).tracking(1).foregroundStyle(Theme.tan)
+    Text(t).font(Theme.label(12, weight: .bold)).tracking(1).foregroundStyle(.black)
 }
 
 struct GradeButtonStyle: ButtonStyle {
