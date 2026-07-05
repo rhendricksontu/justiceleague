@@ -67,14 +67,14 @@ struct ProfileView: View {
 
 struct RoleTag: View {
     let text: String
-    let color: Color
+    var color: Color = Theme.cyan   // kept for call-site compatibility; all pills are cyan
     var body: some View {
         Text(text)
             .font(Theme.label(11, weight: .bold))
             .tracking(1)
             .foregroundStyle(Theme.textPrimary)
             .padding(.horizontal, 10).padding(.vertical, 5)
-            .background(color.opacity(0.85))
+            .background(Theme.cyan)
             .clipShape(Capsule())
     }
 }
