@@ -52,10 +52,16 @@ struct StencilTitle: View {
         self.text = text; self.size = size; self.solid = solid
     }
     var body: some View {
-        HStack(spacing: size * 0.35) {
-            headerBar
+        // Red flanking lines only on outlined headers (nav titles / sand background);
+        // headers on white cards (solid) are slanted but without the lines.
+        if solid {
             label.modifier(Skew(k: 0.18))
-            headerBar
+        } else {
+            HStack(spacing: size * 0.35) {
+                headerBar
+                label.modifier(Skew(k: 0.18))
+                headerBar
+            }
         }
     }
 
