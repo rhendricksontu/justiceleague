@@ -157,7 +157,7 @@ struct JoeWordmark: View {
     var size: CGFloat = 40
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: size * 0.16) {
+            HStack(spacing: -size * 0.04) {
                 OutlinedText(text: "JUSTICE", font: Theme.block(size),
                              width: size * 0.05, tracking: size * 0.10)
                 JoeStar(size: size * 0.92)
@@ -168,7 +168,7 @@ struct JoeWordmark: View {
             HStack(spacing: 8) {
                 Rectangle().fill(Theme.red).frame(width: 28, height: 3)
                 Text("REAL AMERICAN MEN")
-                    .font(Theme.label(11, weight: .heavy)).tracking(2).foregroundStyle(Theme.tan)
+                    .font(Theme.label(11, weight: .heavy).italic()).tracking(2).foregroundStyle(Theme.tan)
                 Rectangle().fill(Theme.cyan).frame(width: 28, height: 3)
             }
         }
