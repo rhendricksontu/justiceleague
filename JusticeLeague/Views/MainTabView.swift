@@ -7,12 +7,12 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selection) {
+            ChatView()
+                .tabItem { Label("Comms", systemImage: "bubble.left.and.bubble.right.fill") }.tag(4)
+                .badge(app.chatUnread)
+
             TodayView()
                 .tabItem { Label("Trivia", systemImage: "target") }.tag(0)
-
-            ChatView()
-                .tabItem { Label("Command Center", systemImage: "bubble.left.and.bubble.right.fill") }.tag(4)
-                .badge(app.chatUnread)
 
             if app.currentMember?.isAdmin == true {
                 AdminView()
