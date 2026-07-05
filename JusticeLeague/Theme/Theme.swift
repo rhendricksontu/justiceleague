@@ -24,6 +24,10 @@ enum Theme {
     static func stencil(_ size: CGFloat) -> Font {
         .system(size: size, weight: .black, design: .default).width(.condensed).italic()
     }
+    // Blocked display face (Anton, OFL) — the G.I. Joe logo lettering.
+    static func block(_ size: CGFloat) -> Font {
+        .custom("Anton-Regular", size: size)
+    }
     static func label(_ size: CGFloat, weight: Font.Weight = .semibold) -> Font {
         .system(size: size, weight: weight, design: .rounded)
     }
@@ -98,19 +102,29 @@ struct OutlinedText: View {
     }
 }
 
+// Horizontal shear to slant the upright block face like the italic logo.
+// Top of the glyphs shifts right relative to the baseline.
+struct Skew: GeometryEffect {
+    var k: CGFloat = 0.2
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        ProjectionTransform(CGAffineTransform(a: 1, b: 0, c: -k, d: 1, tx: k * size.height, ty: 0))
+    }
+}
+
 // The big brand lockup used on login / splash: "JUSTICE ★ LEAGUE".
 struct JoeWordmark: View {
     var size: CGFloat = 40
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 6) {
-                OutlinedText(text: "JUSTICE", font: Theme.stencil(size), width: size * 0.055)
+            HStack(spacing: size * 0.14) {
+                OutlinedText(text: "JUSTICE", font: Theme.block(size), width: size * 0.05)
                 Image(systemName: "star.fill")
-                    .font(.system(size: size * 0.5, weight: .black))
+                    .font(.system(size: size * 0.62, weight: .black))
                     .foregroundStyle(Theme.cyan)
                     .shadow(color: .black, radius: 0, x: size * 0.03, y: 0)
-                OutlinedText(text: "LEAGUE", font: Theme.stencil(size), width: size * 0.055)
+                OutlinedText(text: "LEAGUE", font: Theme.block(size), width: size * 0.05)
             }
+            .modifier(Skew(k: 0.18))
             HStack(spacing: 8) {
                 Rectangle().fill(Theme.red).frame(width: 28, height: 3)
                 Text("REAL AMERICAN MEN")

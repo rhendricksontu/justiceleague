@@ -19,10 +19,12 @@
 		B04F2B034C68EDEAD33A3580 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 878F4BE1CC297E414DB14004 /* Assets.xcassets */; };
 		B0C9DC6AF257823046DD725C /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE9700054F74FBBE38EC29A7 /* Config.swift */; };
 		BAA769C40F6E741BE2989CE6 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 760719996BFC647E5C926F38 /* LoginView.swift */; };
+		BD3A00B2DC74B39F77E25479 /* Anton-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DC2ED64F344FAA9696200720 /* Anton-Regular.ttf */; };
 		C6711C8E09D66BACCE951285 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E9767F13E51151C28929AD /* MainTabView.swift */; };
 		CE404E85FC62DE0E5416CCC1 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8DC00ED3F70BE9F40A1B29E /* Components.swift */; };
 		D4F147B3B687A9B11330D62D /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE82526BF1C2F444D769649 /* Models.swift */; };
 		D5428005A3E0D848A768FF8C /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = A35A657DE3C76FC2F98074C1 /* Supabase */; };
+		E78A0312565423EEB1D5C46C /* Anton-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 67F9AC78A0943CD1C1EA81A5 /* Anton-OFL.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,7 @@
 		2252D9099F58EE367BC4BAD7 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		33930753A3BBBE11C7E8E5A8 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		4F4DE8780321056AC60F9FBB /* TodayModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayModel.swift; sourceTree = "<group>"; };
+		67F9AC78A0943CD1C1EA81A5 /* Anton-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Anton-OFL.txt"; sourceTree = "<group>"; };
 		760719996BFC647E5C926F38 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		789C448ADCEBE8E0858D53CB /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		878F4BE1CC297E414DB14004 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -42,6 +45,7 @@
 		C39B918CA25042AF31BC665C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		D4E9767F13E51151C28929AD /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		DB491B33BB1F1CB400EA6232 /* LeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardView.swift; sourceTree = "<group>"; };
+		DC2ED64F344FAA9696200720 /* Anton-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Anton-Regular.ttf"; sourceTree = "<group>"; };
 		FE9700054F74FBBE38EC29A7 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -72,11 +76,21 @@
 				C39B918CA25042AF31BC665C /* Info.plist */,
 				28260141B162DA0F6BD7237F /* App */,
 				65337667BAC3BD8ECE9DD2CF /* Models */,
+				0755486FF06681CC071D9633 /* Resources */,
 				DAE42E73C6C6BAF8D3189D88 /* Services */,
 				A100668D4CCDCAD219D38409 /* Theme */,
 				FB9D1E25D7240F5995B2139F /* Views */,
 			);
 			path = JusticeLeague;
+			sourceTree = "<group>";
+		};
+		0755486FF06681CC071D9633 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				67F9AC78A0943CD1C1EA81A5 /* Anton-OFL.txt */,
+				DC2ED64F344FAA9696200720 /* Anton-Regular.ttf */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		28260141B162DA0F6BD7237F /* App */ = {
@@ -197,6 +211,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E78A0312565423EEB1D5C46C /* Anton-OFL.txt in Resources */,
+				BD3A00B2DC74B39F77E25479 /* Anton-Regular.ttf in Resources */,
 				B04F2B034C68EDEAD33A3580 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
