@@ -5,6 +5,19 @@ struct LoginView: View {
     @State private var phone = ""
     @FocusState private var focused: Bool
 
+    // Formats digits into (XXX) XXX-XXXX live as the user types. Idempotent.
+    private func formatUSPhone(_ raw: String) -> String {
+        let digits = String(raw.filter(\.isNumber).prefix(10))
+        var out = ""
+        for (i, ch) in digits.enumerated() {
+            if i == 0 { out += "(" }
+            else if i == 3 { out += ") " }
+            else if i == 6 { out += "-" }
+            out.append(ch)
+        }
+        return out
+    }
+
     var body: some View {
         ZStack {
             Theme.background.ignoresSafeArea()
@@ -24,6 +37,10 @@ struct LoginView: View {
                             .keyboardType(.phonePad)
                             .textContentType(.telephoneNumber)
                             .focused($focused)
+                            .onChange(of: phone) { _, newValue in
+                                let formatted = formatUSPhone(newValue)
+                                if formatted != newValue { phone = formatted }
+                            }
                             .font(Theme.label(20, weight: .semibold))
                             .foregroundStyle(Theme.textPrimary)
                             .padding(12)
