@@ -48,18 +48,19 @@ struct StencilTitle: View {
     let text: String
     var size: CGFloat = 30
     var solid: Bool = false
-    init(_ text: String, size: CGFloat = 30, solid: Bool = false) {
-        self.text = text; self.size = size; self.solid = solid
+    var slanted: Bool = true
+    init(_ text: String, size: CGFloat = 30, solid: Bool = false, slanted: Bool = true) {
+        self.text = text; self.size = size; self.solid = solid; self.slanted = slanted
     }
     var body: some View {
         // Red flanking lines only on outlined headers (nav titles / sand background);
         // headers on white cards (solid) are slanted but without the lines.
         if solid {
-            label.modifier(Skew(k: 0.18))
+            label.modifier(Skew(k: slanted ? 0.18 : 0))
         } else {
             HStack(spacing: size * 0.35) {
                 headerBar
-                label.modifier(Skew(k: 0.18))
+                label.modifier(Skew(k: slanted ? 0.18 : 0))
                 headerBar
             }
         }
