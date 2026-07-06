@@ -96,7 +96,7 @@ struct TodayView: View {
                         .foregroundStyle(Theme.textPrimary)
                     if q.revealed, let key = model.answerKey {
                         Divider().overlay(Theme.oliveDrab)
-                        Label("Answer: \(key.correctAnswer)", systemImage: "checkmark.seal.fill")
+                        Text("Answer: \(key.correctAnswer)")
                             .font(Theme.label(16, weight: .bold))
                             .foregroundStyle(.black)
                     }
