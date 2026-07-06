@@ -5,12 +5,22 @@ import SwiftUI
 final class LeaderboardModel {
     var monthlyScores: [MonthlyScore] = []
     var winners: [MonthlyWinner] = []
+    var avatars: [UUID: String] = [:]   // memberId -> chosen avatar id
     var loading = true
 
     func load() async {
         loading = true
-        monthlyScores = (try? await TriviaService.monthlyScores(monthStart: MonthFmt.startOfCurrentMonth())) ?? []
+        var scores = (try? await TriviaService.monthlyScores(monthStart: MonthFmt.startOfCurrentMonth())) ?? []
+        // Most points first, then name A–Z.
+        scores.sort { a, b in
+            a.correctCount != b.correctCount
+                ? a.correctCount > b.correctCount
+                : a.displayName.localizedCaseInsensitiveCompare(b.displayName) == .orderedAscending
+        }
+        monthlyScores = scores
         winners = (try? await TriviaService.monthlyWinners()) ?? []
+        let members = (try? await TriviaService.allMembers()) ?? []
+        avatars = Dictionary(uniqueKeysWithValues: members.compactMap { m in m.avatar.map { (m.id, $0) } })
         loading = false
     }
 
@@ -57,8 +67,8 @@ struct LeaderboardSection: View {
         if model.monthlyScores.isEmpty {
             emptyNote("No correct answers logged yet this month. Get in the game!")
         } else {
-            ForEach(Array(model.monthlyScores.enumerated()), id: \.element.id) { idx, score in
-                RankRow(rank: idx + 1, name: score.displayName, count: score.correctCount)
+            ForEach(model.monthlyScores) { score in
+                LeaderRow(avatarId: model.avatars[score.memberId], name: score.displayName, count: score.correctCount)
             }
         }
     }
@@ -97,22 +107,14 @@ struct LeaderboardSection: View {
     }
 }
 
-struct RankRow: View {
-    let rank: Int
+struct LeaderRow: View {
+    let avatarId: String?
     let name: String
     let count: Int
 
-    private var rankColor: Color {
-        switch rank { case 1: return Theme.gold; case 2: return Theme.tan; case 3: return Theme.red; default: return Theme.oliveDrab }
-    }
-
     var body: some View {
-        HStack(spacing: 14) {
-            Text("\(rank)")
-                .font(Theme.stencil(22))
-                .foregroundStyle(rank <= 3 ? Theme.onPrimary : Theme.textPrimary)
-                .frame(width: 40, height: 40)
-                .background(Circle().fill(rank <= 3 ? rankColor : Theme.surfaceHi))
+        HStack(spacing: 12) {
+            AvatarBadge(avatar: Avatars.find(avatarId), size: 40)
             Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
             Spacer()
             Text("\(count)").font(Theme.stencil(22)).foregroundStyle(.black)
