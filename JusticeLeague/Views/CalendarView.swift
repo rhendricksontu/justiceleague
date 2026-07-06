@@ -391,7 +391,7 @@ struct EventCard: View {
     }
 
     private func color(_ s: RSVPStatus) -> Color {
-        switch s { case .yes: return Theme.oliveDrab; case .no: return Theme.red; case .maybe: return Theme.gold }
+        switch s { case .yes: return Theme.cyan; case .no: return Theme.red; case .maybe: return Avatars.badgeGreen }
     }
 }
 
@@ -413,7 +413,16 @@ struct EventDetailView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 8) {
-                                Text(occ.event.title).font(Theme.label(20, weight: .heavy)).foregroundStyle(.black)
+                                HStack(alignment: .top) {
+                                    Text(occ.event.title).font(Theme.label(20, weight: .heavy)).foregroundStyle(.black)
+                                    Spacer()
+                                    if canManage {
+                                        Button { onEdit() } label: {
+                                            Image(systemName: "pencil").font(.system(size: 20, weight: .bold)).foregroundStyle(.black)
+                                        }
+                                        .accessibilityLabel("Edit event")
+                                    }
+                                }
                                 Label(dateLine, systemImage: "clock").font(Theme.label(14)).foregroundStyle(.black)
                                 if occ.event.recurrence != .none {
                                     Label(occ.event.recurrence.label, systemImage: "repeat").font(Theme.label(13)).foregroundStyle(.black)
@@ -447,8 +456,6 @@ struct EventDetailView: View {
                         rsvpList
 
                         if canManage {
-                            Button("EDIT EVENT") { onEdit() }
-                                .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
                             Button("DELETE EVENT") { confirmDelete = true }
                                 .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
                         }
@@ -495,7 +502,7 @@ struct EventDetailView: View {
         switch s { case .yes: return "Going"; case .no: return "Can't"; case .maybe: return "Maybe" }
     }
     private func color(_ s: RSVPStatus) -> Color {
-        switch s { case .yes: return Theme.oliveDrab; case .no: return Theme.red; case .maybe: return Theme.gold }
+        switch s { case .yes: return Theme.cyan; case .no: return Theme.red; case .maybe: return Avatars.badgeGreen }
     }
 }
 
