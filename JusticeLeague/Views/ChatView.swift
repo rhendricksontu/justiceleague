@@ -284,7 +284,7 @@ struct ChatView: View {
     @Environment(AppState.self) private var app
     @State private var model = ChatModel()
     @State private var draft = ""
-    @State private var pickedItem: PhotosPickerItem?
+    @State private var pickedItems: [PhotosPickerItem] = []
     @State private var showPhotoPicker = false
     @State private var showCamera = false
     @State private var showFiles = false
@@ -341,11 +341,13 @@ struct ChatView: View {
                 Button("Files") { showFiles = true }
                 Button("Cancel", role: .cancel) {}
             }
-            .photosPicker(isPresented: $showPhotoPicker, selection: $pickedItem,
-                          matching: .any(of: [.images, .videos]))
-            .onChange(of: pickedItem) { _, item in
-                guard let item else { return }
-                Task { await handlePhotosItem(item); pickedItem = nil }
+            .photosPicker(isPresented: $showPhotoPicker, selection: $pickedItems,
+                          maxSelectionCount: 10, matching: .any(of: [.images, .videos]))
+            .onChange(of: pickedItems) { _, items in
+                guard !items.isEmpty else { return }
+                let toSend = items
+                pickedItems = []
+                Task { for item in toSend { await handlePhotosItem(item) } }
             }
             .fullScreenCover(isPresented: $showCamera) {
                 CameraPicker { result in
