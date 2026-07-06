@@ -186,7 +186,7 @@ struct GradingPanel: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            StencilTitle("GRADE RESPONSES", size: 17)
+            StencilTitle("GRADE RESPONSES", size: 17).frame(maxWidth: .infinity)
 
             if model.responses.isEmpty {
                 Text("No one answered today.").font(Theme.label(14)).foregroundStyle(.black)
