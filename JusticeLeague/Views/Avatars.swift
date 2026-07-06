@@ -12,19 +12,19 @@ struct JoeAvatar: Identifiable, Hashable {
 
 enum Avatars {
     static let all: [JoeAvatar] = [
-        JoeAvatar(id: "duke",        name: "Duke",         symbol: "star.fill",                                hex: 0xC79A3B),
-        JoeAvatar(id: "snake_eyes",  name: "Snake Eyes",   symbol: "eye.slash.fill",                           hex: 0x26262B),
-        JoeAvatar(id: "roadblock",   name: "Roadblock",    symbol: "dumbbell.fill",                            hex: 0xC0651D),
-        JoeAvatar(id: "gung_ho",     name: "Gung-Ho",      symbol: "megaphone.fill",                           hex: 0xB03A2E),
-        JoeAvatar(id: "stalker",     name: "Stalker",      symbol: "binoculars.fill",                          hex: 0x4E6B2F),
-        JoeAvatar(id: "doc",         name: "Doc",          symbol: "cross.case.fill",                          hex: 0x2AA198),
+        JoeAvatar(id: "duke",        name: "Duke",         symbol: "star",                                     hex: 0xC79A3B),
+        JoeAvatar(id: "snake_eyes",  name: "Snake Eyes",   symbol: "eye.slash",                                hex: 0x26262B),
+        JoeAvatar(id: "roadblock",   name: "Roadblock",    symbol: "dumbbell",                                 hex: 0xC0651D),
+        JoeAvatar(id: "gung_ho",     name: "Gung-Ho",      symbol: "megaphone",                                hex: 0xB03A2E),
+        JoeAvatar(id: "stalker",     name: "Stalker",      symbol: "binoculars",                               hex: 0x4E6B2F),
+        JoeAvatar(id: "doc",         name: "Doc",          symbol: "cross.case",                               hex: 0x2AA198),
         JoeAvatar(id: "wild_bill",   name: "Wild Bill",    symbol: "airplane",                                 hex: 0x8E6B3A),
         JoeAvatar(id: "breaker",     name: "Breaker",      symbol: "antenna.radiowaves.left.and.right",        hex: 0x2E6DA4),
-        JoeAvatar(id: "clutch",      name: "Clutch",       symbol: "car.fill",                                 hex: 0x5D6D7E),
-        JoeAvatar(id: "rock_n_roll", name: "Rock 'n' Roll",symbol: "guitars.fill",                             hex: 0x7D3C98),
-        JoeAvatar(id: "steeler",     name: "Steeler",      symbol: "shield.fill",                              hex: 0x34495E),
-        JoeAvatar(id: "flash",       name: "Flash",        symbol: "bolt.fill",                                hex: 0xC79A00),
-        JoeAvatar(id: "zap",         name: "Zap",          symbol: "flame.fill",                               hex: 0xD35400),
+        JoeAvatar(id: "clutch",      name: "Clutch",       symbol: "car",                                      hex: 0x5D6D7E),
+        JoeAvatar(id: "rock_n_roll", name: "Rock 'n' Roll",symbol: "guitars",                                  hex: 0x7D3C98),
+        JoeAvatar(id: "steeler",     name: "Steeler",      symbol: "shield",                                   hex: 0x34495E),
+        JoeAvatar(id: "flash",       name: "Flash",        symbol: "bolt",                                     hex: 0xC79A00),
+        JoeAvatar(id: "zap",         name: "Zap",          symbol: "flame",                                    hex: 0xD35400),
         JoeAvatar(id: "torpedo",     name: "Torpedo",      symbol: "water.waves",                              hex: 0x196F8C),
     ]
     static func find(_ id: String?) -> JoeAvatar? {
@@ -47,8 +47,8 @@ struct AvatarBadge: View {
     var body: some View {
         ZStack {
             Circle().fill(background)
-            Image(systemName: avatar?.symbol ?? "person.fill")
-                .font(.system(size: size * 0.40, weight: .medium))
+            Image(systemName: avatar?.symbol ?? "person")
+                .font(.system(size: size * 0.44, weight: .regular))
                 .foregroundStyle(avatar == nil ? .black : .white)
         }
         .frame(width: size, height: size)
