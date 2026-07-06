@@ -250,8 +250,11 @@ struct EditMemberView: View {
                         member.phone = e164
                         working = true
                         Task {
-                            if await model.save(member) { dismiss() }
-                            else { errorText = model.errorText }
+                            if await model.save(member) {
+                                // Editing yourself must refresh the cached member the Me screen shows.
+                                if isSelf { await app.refreshMember() }
+                                dismiss()
+                            } else { errorText = model.errorText }
                             working = false
                         }
                     } label: {
