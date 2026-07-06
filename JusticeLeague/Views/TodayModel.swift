@@ -6,6 +6,7 @@ import Observation
 final class TodayModel {
     var loading = true
     var errorText: String?
+    var day: String = Date.triviaDayString()   // the day being viewed (yyyy-MM-dd)
 
     var question: TriviaQuestion?
     var myResponse: TriviaResponse?
@@ -20,8 +21,12 @@ final class TodayModel {
         loading = true
         errorText = nil
         do {
-            let q = try await TriviaService.todaysQuestion()
+            let q = try await TriviaService.question(on: day)
             question = q
+            myResponse = nil
+            responses = []
+            participation = []
+            answerKey = nil
             guard let q else { loading = false; return }
 
             // Everyone can see who has answered.
@@ -49,7 +54,7 @@ final class TodayModel {
     func post(prompt: String, answer: String, by member: Member) async -> Bool {
         errorText = nil
         do {
-            _ = try await TriviaService.createQuestion(prompt: prompt, answer: answer, by: member.id)
+            _ = try await TriviaService.createQuestion(prompt: prompt, answer: answer, by: member.id, day: day)
             await load(member: member)
             return true
         } catch {

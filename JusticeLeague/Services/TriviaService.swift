@@ -34,8 +34,8 @@ enum TriviaService {
 
     // Master creates today's question + its (hidden) answer key.
     @discardableResult
-    static func createQuestion(prompt: String, answer: String, by memberId: UUID) async throws -> TriviaQuestion {
-        let day = Date.triviaDayString()
+    static func createQuestion(prompt: String, answer: String, by memberId: UUID,
+                               day: String = Date.triviaDayString()) async throws -> TriviaQuestion {
         let inserted: TriviaQuestion = try await db
             .from("trivia_questions")
             .insert(NewQuestion(question_date: day, prompt: prompt, created_by: memberId))

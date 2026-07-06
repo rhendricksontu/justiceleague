@@ -4,8 +4,15 @@ struct TodayView: View {
     @Environment(AppState.self) private var app
     @State private var model = TodayModel()
     @State private var lbModel = LeaderboardModel()
+    @State private var selectedDay = CalFmt.central.startOfDay(for: Date())
 
     private var member: Member? { app.currentMember }
+    private var startOfToday: Date { CalFmt.central.startOfDay(for: Date()) }
+    private var isToday: Bool { CalFmt.central.isDate(selectedDay, inSameDayAs: startOfToday) }
+    // Anyone can page back through history; only the master goes into the future.
+    private var canGoForward: Bool {
+        selectedDay < startOfToday || member?.isTriviaMaster == true
+    }
 
     var body: some View {
         NavigationStack {
@@ -35,19 +42,46 @@ struct TodayView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Daily Intel", size: 20) } }
             .task { await refreshAll() }
+            .onChange(of: selectedDay) { _, _ in Task { await reloadDay() } }
         }
     }
 
     private func refreshAll() async {
+        model.day = CalFmt.dayKey(selectedDay)
         if let m = member { await model.load(member: m) }
         await lbModel.load()
     }
 
+    private func reloadDay() async {
+        model.day = CalFmt.dayKey(selectedDay)
+        if let m = member { await model.load(member: m) }
+    }
+
+    private func shiftDay(_ delta: Int) {
+        if let d = CalFmt.central.date(byAdding: .day, value: delta, to: selectedDay) { selectedDay = d }
+    }
+
     private var header: some View {
-        Text(todayLabel().uppercased())
-            .font(Theme.label(13, weight: .bold))
-            .tracking(2)
-            .foregroundStyle(.black)
+        HStack(spacing: 12) {
+            Button { shiftDay(-1) } label: {
+                Image(systemName: "chevron.left").font(.system(size: 16, weight: .bold)).foregroundStyle(.black)
+            }
+            Spacer()
+            Text(dayLabel.uppercased())
+                .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
+            Spacer()
+            Button { shiftDay(1) } label: {
+                Image(systemName: "chevron.right").font(.system(size: 16, weight: .bold)).foregroundStyle(.black)
+            }
+            .disabled(!canGoForward)
+            .opacity(canGoForward ? 1 : 0.25)
+        }
+    }
+
+    private var dayLabel: String {
+        let f = DateFormatter(); f.timeZone = Config.timeZone; f.dateFormat = "EEEE, MMMM d"
+        let base = f.string(from: selectedDay)
+        return isToday ? "TODAY · \(base)" : base
     }
 
     @ViewBuilder
@@ -89,7 +123,8 @@ struct TodayView: View {
             FieldPanel {
                 VStack(alignment: .leading, spacing: 8) {
                     StencilTitle("STAND BY", size: 18, solid: true)
-                    Text("No trivia has been posted yet today. Check back soon, soldier.")
+                    Text(isToday ? "No trivia has been posted yet today. Check back soon, soldier."
+                                 : "No trivia was posted for this day.")
                         .font(Theme.label(15, weight: .regular)).foregroundStyle(.black)
                 }
             }
@@ -143,7 +178,7 @@ struct PostQuestionForm: View {
     var body: some View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 12) {
-                StencilTitle("POST TODAY'S TRIVIA", size: 17, solid: true)
+                StencilTitle("POST TRIVIA", size: 17, solid: true)
 
                 fieldLabel("QUESTION")
                 TextEditor(text: $prompt)
