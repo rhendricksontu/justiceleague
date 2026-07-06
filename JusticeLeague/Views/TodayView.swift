@@ -225,33 +225,46 @@ struct PostQuestionForm: View {
 struct GradingPanel: View {
     let model: TodayModel
     let member: Member
+    @State private var expanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            StencilTitle("GRADE RESPONSES", size: 17).frame(maxWidth: .infinity)
-
-            if model.responses.isEmpty {
-                Text("No one answered today.").font(Theme.label(14)).foregroundStyle(.black)
+            Button { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } } label: {
+                ZStack {
+                    StencilTitle("GRADE RESPONSES", size: 17).frame(maxWidth: .infinity)
+                    HStack {
+                        Spacer()
+                        Image(systemName: expanded ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 14, weight: .bold)).foregroundStyle(.black)
+                    }
+                }
             }
+            .buttonStyle(.plain)
 
-            ForEach(model.responses) { r in
-                FieldPanel {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Text(r.name).font(Theme.label(15, weight: .bold)).foregroundStyle(.black)
-                            Spacer()
-                            gradeBadge(r.isCorrect)
-                        }
-                        Text(r.answer).font(Theme.label(17, weight: .medium)).foregroundStyle(Theme.textPrimary)
-                        HStack(spacing: 10) {
-                            Button {
-                                Task { await model.grade(r, correct: true, member: member) }
-                            } label: { Label("Correct", systemImage: "checkmark") }
-                                .buttonStyle(GradeButtonStyle(active: r.isCorrect == true, color: Avatars.badgeGreen))
-                            Button {
-                                Task { await model.grade(r, correct: false, member: member) }
-                            } label: { Label("Wrong", systemImage: "xmark") }
-                                .buttonStyle(GradeButtonStyle(active: r.isCorrect == false, color: Theme.red))
+            if expanded {
+                if model.responses.isEmpty {
+                    Text("No one answered today.").font(Theme.label(14)).foregroundStyle(.black)
+                }
+
+                ForEach(model.responses) { r in
+                    FieldPanel {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text(r.name).font(Theme.label(15, weight: .bold)).foregroundStyle(.black)
+                                Spacer()
+                                gradeBadge(r.isCorrect)
+                            }
+                            Text(r.answer).font(Theme.label(17, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                            HStack(spacing: 10) {
+                                Button {
+                                    Task { await model.grade(r, correct: true, member: member) }
+                                } label: { Label("Correct", systemImage: "checkmark") }
+                                    .buttonStyle(GradeButtonStyle(active: r.isCorrect == true, color: Avatars.badgeGreen))
+                                Button {
+                                    Task { await model.grade(r, correct: false, member: member) }
+                                } label: { Label("Wrong", systemImage: "xmark") }
+                                    .buttonStyle(GradeButtonStyle(active: r.isCorrect == false, color: Theme.red))
+                            }
                         }
                     }
                 }
