@@ -1446,7 +1446,7 @@ struct GifPickerView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) { StencilTitle("GIFs", size: 20) }
+                ToolbarItem(placement: .principal) { StencilTitle("Attach GIF", size: 20) }
             }
             .task { loading = true; gifs = await GiphyService.trending(); loading = false }
             .onChange(of: query) { _, q in
