@@ -51,6 +51,20 @@ enum TriviaService {
         return inserted
     }
 
+    // Master fixes a mistake in the prompt and/or the correct answer.
+    static func updateQuestion(questionId: UUID, prompt: String, answer: String) async throws {
+        struct PromptPatch: Encodable { let prompt: String }
+        try await db
+            .from("trivia_questions")
+            .update(PromptPatch(prompt: prompt))
+            .eq("id", value: questionId)
+            .execute()
+        try await db
+            .from("trivia_answer_keys")
+            .upsert(NewAnswerKey(question_id: questionId, correct_answer: answer), onConflict: "question_id")
+            .execute()
+    }
+
     struct RevealPatch: Encodable { let revealed = true; let revealed_at: String }
 
     static func reveal(question: TriviaQuestion) async throws {

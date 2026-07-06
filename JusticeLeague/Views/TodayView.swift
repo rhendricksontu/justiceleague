@@ -5,6 +5,7 @@ struct TodayView: View {
     @State private var model = TodayModel()
     @State private var lbModel = LeaderboardModel()
     @State private var selectedDay = CalFmt.central.startOfDay(for: Date())
+    @State private var showEditQuestion = false
 
     private var member: Member? { app.currentMember }
     private var startOfToday: Date { CalFmt.central.startOfDay(for: Date()) }
@@ -43,6 +44,14 @@ struct TodayView: View {
             .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Daily Intel", size: 20) } }
             .task { await refreshAll() }
             .onChange(of: selectedDay) { _, _ in Task { await reloadDay() } }
+            .sheet(isPresented: $showEditQuestion) {
+                if let m = member, let q = model.question {
+                    EditQuestionView(model: model, member: m,
+                                     prompt: q.prompt,
+                                     answer: model.answerKey?.correctAnswer ?? "")
+                        .flyUpSheet()
+                }
+            }
             #if DEBUG
             .onAppear {
                 if let s = ProcessInfo.processInfo.environment["START_DAY"] {
@@ -98,7 +107,16 @@ struct TodayView: View {
             // Question prompt panel — shown to everyone.
             FieldPanel {
                 VStack(alignment: .leading, spacing: 10) {
-                    StencilTitle("MISSION BRIEFING", size: 15, solid: true)
+                    HStack {
+                        StencilTitle("MISSION BRIEFING", size: 15, solid: true)
+                        Spacer()
+                        if m.isTriviaMaster {
+                            Button { showEditQuestion = true } label: {
+                                Image(systemName: "pencil").font(.system(size: 16, weight: .bold)).foregroundStyle(.black)
+                            }
+                            .accessibilityLabel("Edit question")
+                        }
+                    }
                     Text(q.prompt)
                         .font(Theme.label(19, weight: .regular))
                         .foregroundStyle(Theme.textPrimary)
@@ -438,6 +456,70 @@ struct ResultsPanel: View {
                     .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.line, lineWidth: 1))
                 }
             }
+        }
+    }
+}
+
+// MARK: - Master: edit question / answer
+
+struct EditQuestionView: View {
+    let model: TodayModel
+    let member: Member
+    @Environment(\.dismiss) private var dismiss
+    @State private var prompt: String
+    @State private var answer: String
+    @State private var working = false
+
+    init(model: TodayModel, member: Member, prompt: String, answer: String) {
+        self.model = model
+        self.member = member
+        _prompt = State(initialValue: prompt)
+        _answer = State(initialValue: answer)
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                ScrollView {
+                    VStack(spacing: 16) {
+                        FieldPanel {
+                            VStack(alignment: .leading, spacing: 12) {
+                                fieldLabel("QUESTION")
+                                TextEditor(text: $prompt)
+                                    .frame(minHeight: 140)
+                                    .scrollContentBackground(.hidden)
+                                    .padding(8).background(Theme.surfaceHi)
+                                    .foregroundStyle(Theme.textPrimary)
+                                    .font(Theme.label(17, weight: .medium))
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
+                                fieldLabel("CORRECT ANSWER")
+                                inputField($answer)
+                            }
+                        }
+                        if let e = model.errorText {
+                            Text(e).font(Theme.label(13)).foregroundStyle(Theme.red)
+                        }
+                        Button {
+                            working = true
+                            Task {
+                                if await model.editQuestion(prompt: prompt.trimmed, answer: answer.trimmed, member: member) {
+                                    dismiss()
+                                }
+                                working = false
+                            }
+                        } label: {
+                            if working { ProgressView().tint(.black) } else { Text("SAVE") }
+                        }
+                        .buttonStyle(JoeButtonStyle())
+                        .disabled(working || prompt.trimmed.isEmpty || answer.trimmed.isEmpty)
+                    }
+                    .padding(20)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Edit Trivia", size: 20) } }
         }
     }
 }

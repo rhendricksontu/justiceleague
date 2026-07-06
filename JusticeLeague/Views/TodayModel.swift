@@ -83,6 +83,19 @@ final class TodayModel {
         }
     }
 
+    func editQuestion(prompt: String, answer: String, member: Member) async -> Bool {
+        guard let q = question else { return false }
+        errorText = nil
+        do {
+            try await TriviaService.updateQuestion(questionId: q.id, prompt: prompt, answer: answer)
+            await load(member: member)
+            return true
+        } catch {
+            errorText = friendly(error)
+            return false
+        }
+    }
+
     func reveal(member: Member) async {
         guard let q = question else { return }
         errorText = nil
