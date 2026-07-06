@@ -62,11 +62,15 @@ final class VoiceRecorder {
 final class ChatModel {
     var messages: [ChatMessage] = []
     var reactionMap: [UUID: [MessageReaction]] = [:]
+    var typingMembers: [UUID: String] = [:]
+    var readTimes: [UUID: Date] = [:]
+    var currentMemberId: UUID?
     var loading = true
     var sending = false
     var errorText: String?
 
     private var roster: [UUID: Member] = [:]
+    private var typingSeq: [UUID: Int] = [:]
     private var channel: RealtimeChannelV2?
     private var listenTask: Task<Void, Never>?
     private var db: SupabaseClient { SupabaseManager.client }
@@ -75,7 +79,43 @@ final class ChatModel {
         await loadRoster()
         await load()
         await reloadReactions()
+        await reloadReadTimes()
         await subscribe()
+    }
+
+    func reloadReadTimes() async {
+        let rows = (try? await TriviaService.chatReadTimes()) ?? []
+        readTimes = Dictionary(uniqueKeysWithValues: rows.compactMap { row in
+            row.chat_last_read_at.map { (row.id, $0) }
+        })
+    }
+
+    // "Seen" text under my most recent message, if others have read past it.
+    func seenText(for message: ChatMessage) -> String? {
+        guard let myId = currentMemberId, message.memberId == myId, messages.last?.id == message.id else { return nil }
+        let count = readTimes.filter { $0.key != myId && $0.value >= message.createdAt }.count
+        guard count > 0 else { return nil }
+        return count == 1 ? "Seen" : "Seen by \(count)"
+    }
+
+    func sendTyping(name: String) {
+        guard let id = currentMemberId, let channel else { return }
+        Task {
+            try? await channel.broadcast(event: "typing",
+                                         message: ["member_id": .string(id.uuidString), "name": .string(name)])
+        }
+    }
+
+    private func handleTyping(_ payload: [String: AnyJSON]) {
+        guard let idStr = payload["member_id"]?.stringValue, let id = UUID(uuidString: idStr),
+              let name = payload["name"]?.stringValue, id != currentMemberId else { return }
+        typingMembers[id] = name
+        let seq = (typingSeq[id] ?? 0) + 1
+        typingSeq[id] = seq
+        Task {
+            try? await Task.sleep(for: .seconds(4))
+            if typingSeq[id] == seq { typingMembers[id] = nil }
+        }
     }
 
     func messageByID(_ id: UUID?) -> ChatMessage? {
@@ -114,6 +154,8 @@ final class ChatModel {
         let reactIns = channel.postgresChange(InsertAction.self, schema: "public", table: "message_reactions")
         let reactUpd = channel.postgresChange(UpdateAction.self, schema: "public", table: "message_reactions")
         let reactDel = channel.postgresChange(DeleteAction.self, schema: "public", table: "message_reactions")
+        let memberUpd = channel.postgresChange(UpdateAction.self, schema: "public", table: "members")
+        let typing = channel.broadcastStream(event: "typing")
         await channel.subscribe()
         listenTask = Task { [weak self] in
             await withTaskGroup(of: Void.self) { group in
@@ -129,6 +171,8 @@ final class ChatModel {
                 group.addTask { for await _ in reactIns { await self?.reloadReactions() } }
                 group.addTask { for await _ in reactUpd { await self?.reloadReactions() } }
                 group.addTask { for await _ in reactDel { await self?.reloadReactions() } }
+                group.addTask { for await _ in memberUpd { await self?.reloadReadTimes() } }
+                group.addTask { for await payload in typing { await self?.handleTyping(payload) } }
             }
         }
     }
@@ -251,6 +295,7 @@ struct ChatView: View {
     @State private var replyingTo: ChatMessage?
     @State private var editingMessage: ChatMessage?
     @State private var recorder = VoiceRecorder()
+    @State private var lastTypingSent = Date.distantPast
     @FocusState private var inputFocused: Bool
 
     var body: some View {
@@ -280,7 +325,15 @@ struct ChatView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Command Center", size: 20) } }
-            .task { await model.start(); await markRead() }
+            .task { model.currentMemberId = app.currentMember?.id; await model.start(); await markRead() }
+            .onChange(of: draft) { _, v in
+                guard !v.trimmed.isEmpty, let m = app.currentMember else { return }
+                let now = Date()
+                if now.timeIntervalSince(lastTypingSent) > 2 {
+                    lastTypingSent = now
+                    model.sendTyping(name: m.displayName)
+                }
+            }
             .onDisappear { model.stop() }
             .confirmationDialog("Add Attachment", isPresented: $showAttachMenu, titleVisibility: .visible) {
                 Button("Photo Library") { showPhotoPicker = true }
@@ -334,6 +387,7 @@ struct ChatView: View {
                                        repliedMessage: model.messageByID(msg.replyTo),
                                        reactions: model.reactionMap[msg.id] ?? [],
                                        myMemberId: app.currentMember?.id,
+                                       seenText: model.seenText(for: msg),
                                        onDelete: { Task { await model.delete(msg) } },
                                        onTapImage: { fullScreenImage = $0 },
                                        onOpenFile: { openFile($0) },
@@ -342,6 +396,11 @@ struct ChatView: View {
                             .padding(.top, firstInGroup ? 8 : 0)
                             .id(msg.id)
                         }
+                    }
+                    if !model.typingMembers.isEmpty {
+                        TypingIndicator(names: Array(model.typingMembers.values).sorted())
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 4)
                     }
                     Color.clear.frame(height: 1).id(bottomAnchor)
                 }
@@ -352,6 +411,9 @@ struct ChatView: View {
             .onChange(of: model.messages.count) {
                 withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(bottomAnchor, anchor: .bottom) }
                 Task { await markRead() }
+            }
+            .onChange(of: model.typingMembers.count) {
+                withAnimation(.easeOut(duration: 0.2)) { proxy.scrollTo(bottomAnchor, anchor: .bottom) }
             }
             .onChange(of: model.loading) { _, isLoading in
                 if !isLoading { proxy.scrollTo(bottomAnchor, anchor: .bottom) }
@@ -641,6 +703,7 @@ struct MessageRow: View {
     let repliedMessage: ChatMessage?
     let reactions: [MessageReaction]
     let myMemberId: UUID?
+    let seenText: String?
     let onDelete: () -> Void
     let onTapImage: (URL) -> Void
     let onOpenFile: (ChatMessage) -> Void
@@ -674,6 +737,11 @@ struct MessageRow: View {
                 if lastInGroup {
                     Text(timeLabel(message.createdAt) + (message.isEdited ? " · Edited" : ""))
                         .font(Theme.label(10, weight: .regular)).foregroundStyle(.black)
+                        .padding(.horizontal, 4)
+                }
+                if let seenText {
+                    Text(seenText)
+                        .font(Theme.label(10, weight: .bold)).foregroundStyle(.black)
                         .padding(.horizontal, 4)
                 }
             }
@@ -723,6 +791,41 @@ struct MessageRow: View {
         f.timeZone = Config.timeZone
         f.dateFormat = Calendar.current.isDateInToday(date) ? "h:mm a" : "MMM d, h:mm a"
         return f.string(from: date)
+    }
+}
+
+// Animated "… is typing" bubble.
+struct TypingIndicator: View {
+    let names: [String]
+    @State private var phase = 0
+
+    private var label: String {
+        switch names.count {
+        case 0: return ""
+        case 1: return "\(names[0]) is typing"
+        case 2: return "\(names[0]) & \(names[1]) are typing"
+        default: return "Several people are typing"
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 4) {
+                ForEach(0..<3) { i in
+                    Circle().fill(.black.opacity(phase == i ? 0.9 : 0.3)).frame(width: 7, height: 7)
+                }
+            }
+            .padding(.horizontal, 12).padding(.vertical, 10)
+            .background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line))
+            Text(label).font(Theme.label(11)).foregroundStyle(.black)
+        }
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(350))
+                phase = (phase + 1) % 3
+            }
+        }
     }
 }
 

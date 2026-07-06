@@ -310,6 +310,11 @@ enum TriviaService {
         try await db.rpc("chat_unread_count").execute().value
     }
 
+    struct ReadTime: Decodable { let id: UUID; let chat_last_read_at: Date? }
+    static func chatReadTimes() async throws -> [ReadTime] {
+        try await db.from("members").select("id, chat_last_read_at").execute().value
+    }
+
     // MARK: Push tokens
 
     struct DeviceTokenParam: Encodable { let p_token: String; let p_platform: String }
