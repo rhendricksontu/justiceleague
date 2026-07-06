@@ -71,12 +71,13 @@ struct ProfileView: View {
                                     Text(PhoneUtil.pretty(m.phone))
                                         .font(Theme.label(15))
                                         .foregroundStyle(.black)
-                                    HStack(spacing: 8) {
-                                        if m.isAdmin { RoleTag(text: "ADMIN") }
-                                        if m.isTriviaMaster { RoleTag(text: "TRIVIA") }
-                                        if !m.isAdmin && !m.isTriviaMaster { RoleTag(text: "MEMBER") }
+                                    if m.isAdmin || m.isTriviaMaster {
+                                        HStack(spacing: 8) {
+                                            if m.isAdmin { RoleTag(text: "ADMIN") }
+                                            if m.isTriviaMaster { RoleTag(text: "TRIVIA") }
+                                        }
+                                        .padding(.top, 2)
                                     }
-                                    .padding(.top, 2)
                                 }
                                 Spacer()
                                 Button { showEdit = true } label: {
