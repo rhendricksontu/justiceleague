@@ -120,7 +120,8 @@ struct TodayView: View {
                     Text(q.prompt)
                         .font(Theme.label(19, weight: .regular))
                         .foregroundStyle(Theme.textPrimary)
-                    if q.revealed, let key = model.answerKey {
+                    // The master sees the answer anytime; members only after reveal.
+                    if q.revealed || m.isTriviaMaster, let key = model.answerKey {
                         Divider().overlay(Theme.oliveDrab)
                         (Text("Answer: ").font(Theme.label(16, weight: .bold)).foregroundColor(.black)
                             + Text(key.correctAnswer).font(Theme.label(16, weight: .regular)).foregroundColor(.black))
