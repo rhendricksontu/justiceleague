@@ -222,7 +222,7 @@ struct CalEvent: Codable, Identifiable, Hashable {
 }
 
 enum RSVPStatus: String, Codable, CaseIterable, Hashable {
-    case yes, no, maybe
+    case yes, maybe, no
     var label: String { rawValue.capitalized }
 }
 
