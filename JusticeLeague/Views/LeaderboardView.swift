@@ -85,7 +85,7 @@ struct LeaderboardSection: View {
                     Text("\(MonthFmt.label(entry.month)) Champion")
                         .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
                     ForEach(entry.winners) { w in
-                        LeaderRow(avatarId: model.avatars[w.memberId], name: w.displayName, count: w.correctCount)
+                        LeaderRow(avatarId: model.avatars[w.memberId], name: w.displayName, count: w.correctCount, showAvatarName: true)
                     }
                 }
             }
@@ -103,10 +103,15 @@ struct LeaderRow: View {
     let avatarId: String?
     let name: String
     let count: Int?
+    var showAvatarName = false
 
     var body: some View {
         HStack(spacing: 12) {
-            AvatarBadge(avatar: Avatars.find(avatarId), size: 40)
+            if showAvatarName {
+                LabeledAvatar(avatarId: avatarId, size: 40, nameSize: 10)
+            } else {
+                AvatarBadge(avatar: Avatars.find(avatarId), size: 40)
+            }
             Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
             Spacer()
             if let count {
