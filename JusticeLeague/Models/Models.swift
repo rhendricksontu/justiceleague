@@ -198,6 +198,7 @@ struct CalEvent: Codable, Identifiable, Hashable {
     var createdBy: UUID?
     var title: String
     var description: String?
+    var location: String?
     var startsAt: Date
     var endsAt: Date
     var recurrence: Recurrence
@@ -209,9 +210,10 @@ struct CalEvent: Codable, Identifiable, Hashable {
         enum CodingKeys: String, CodingKey { case displayName = "display_name" }
     }
     var creatorName: String { creator?.displayName ?? "Someone" }
+    var hasLocation: Bool { !(location ?? "").isEmpty }
 
     enum CodingKeys: String, CodingKey {
-        case id, title, description, recurrence, creator
+        case id, title, description, location, recurrence, creator
         case createdBy = "created_by"
         case startsAt = "starts_at"
         case endsAt = "ends_at"

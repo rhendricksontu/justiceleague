@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
   if (eventId) {
     const { data: ev } = await admin
       .from("events")
-      .select("id, title, starts_at, created_by, members(display_name)")
+      .select("id, title, location, starts_at, created_by, members(display_name)")
       .eq("id", eventId)
       .maybeSingle();
     if (!ev) return new Response("event_not_found", { status: 404 });
@@ -101,8 +101,9 @@ Deno.serve(async (req) => {
       timeZone: "America/Chicago", weekday: "short", month: "short",
       day: "numeric", hour: "numeric", minute: "2-digit",
     });
+    const loc = (ev.location as string | null)?.trim();
     title = "📅 New Event";
-    preview = `${ev.title} — ${when} (by ${creator})`.slice(0, 180);
+    preview = `${ev.title} — ${when}${loc ? " @ " + loc : ""} (by ${creator})`.slice(0, 180);
     excludeMember = ev.created_by as string | null;
     threadId = "league-events";
   } else {

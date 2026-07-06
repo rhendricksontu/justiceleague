@@ -345,6 +345,10 @@ struct EventCard: View {
                         Text(occ.event.title).font(Theme.label(16, weight: .bold)).foregroundStyle(.black)
                             .lineLimit(1)
                         Text(timeRange).font(Theme.label(13)).foregroundStyle(.black)
+                        if occ.event.hasLocation {
+                            Label(occ.event.location ?? "", systemImage: "mappin.and.ellipse")
+                                .font(Theme.label(13)).foregroundStyle(.black).lineLimit(1)
+                        }
                         if let desc = occ.event.description, !desc.isEmpty {
                             Text(desc).font(Theme.label(13)).foregroundStyle(.black).lineLimit(2)
                         }
@@ -404,6 +408,7 @@ struct EventDetailView: View {
     let canManage: Bool
     let onEdit: () -> Void
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @State private var confirmDelete = false
 
     var body: some View {
@@ -427,6 +432,13 @@ struct EventDetailView: View {
                                 Label(dateLine, systemImage: "clock").font(Theme.label(14)).foregroundStyle(.black)
                                 if occ.event.recurrence != .none {
                                     Label(occ.event.recurrence.label, systemImage: "repeat").font(Theme.label(13)).foregroundStyle(.black)
+                                }
+                                if occ.event.hasLocation, let loc = occ.event.location {
+                                    Button { openInMaps(loc) } label: {
+                                        Label(loc, systemImage: "mappin.and.ellipse")
+                                            .font(Theme.label(14, weight: .medium)).foregroundStyle(Theme.cyan)
+                                            .multilineTextAlignment(.leading)
+                                    }
                                 }
                                 Text("Added by \(occ.event.creatorName)").font(Theme.label(12)).foregroundStyle(Theme.textDim)
                                 if let desc = occ.event.description, !desc.isEmpty {
@@ -481,6 +493,11 @@ struct EventDetailView: View {
         "\(CalFmt.dayHeader(occ.start).capitalized) · \(CalFmt.time(occ.start)) – \(CalFmt.time(occ.end))"
     }
 
+    private func openInMaps(_ location: String) {
+        let q = location.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        if let url = URL(string: "http://maps.apple.com/?q=\(q)") { openURL(url) }
+    }
+
     private var rsvpList: some View {
         let r = model.rsvps(for: occ)
         return VStack(alignment: .leading, spacing: 8) {
@@ -516,6 +533,7 @@ struct EventEditView: View {
 
     @State private var title = ""
     @State private var description = ""
+    @State private var location = ""
     @State private var start = Date()
     @State private var end = Date().addingTimeInterval(3600)
     @State private var recurrence: Recurrence = .none
@@ -534,6 +552,8 @@ struct EventEditView: View {
                             VStack(alignment: .leading, spacing: 12) {
                                 fieldLabel("TITLE")
                                 inputField($title, placeholder: "Movie night")
+                                fieldLabel("LOCATION")
+                                inputField($location, placeholder: "Warren Theatre")
                                 fieldLabel("DESCRIPTION")
                                 TextEditor(text: $description)
                                     .frame(minHeight: 70).scrollContentBackground(.hidden)
@@ -586,6 +606,7 @@ struct EventEditView: View {
         guard let e = editing else { return }
         title = e.title
         description = e.description ?? ""
+        location = e.location ?? ""
         start = e.startsAt
         end = e.endsAt
         recurrence = e.recurrence
@@ -600,10 +621,10 @@ struct EventEditView: View {
         Task {
             do {
                 if let e = editing {
-                    try await TriviaService.updateEvent(id: e.id, title: title.trimmed, description: description,
+                    try await TriviaService.updateEvent(id: e.id, title: title.trimmed, description: description, location: location.trimmed,
                                                         startsAt: start, endsAt: end, recurrence: recurrence, recurrenceUntil: untilStr)
                 } else {
-                    try await TriviaService.createEvent(createdBy: me, title: title.trimmed, description: description,
+                    try await TriviaService.createEvent(createdBy: me, title: title.trimmed, description: description, location: location.trimmed,
                                                         startsAt: start, endsAt: end, recurrence: recurrence, recurrenceUntil: untilStr)
                 }
                 await model.load()

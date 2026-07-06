@@ -286,7 +286,7 @@ enum TriviaService {
 
     // MARK: Calendar events
 
-    static let eventSelect = "id, created_by, title, description, starts_at, ends_at, recurrence, recurrence_until, creator:members!events_created_by_fkey(display_name)"
+    static let eventSelect = "id, created_by, title, description, location, starts_at, ends_at, recurrence, recurrence_until, creator:members!events_created_by_fkey(display_name)"
 
     static func events() async throws -> [CalEvent] {
         try await db.from("events").select(eventSelect).order("starts_at", ascending: true).execute().value
@@ -296,6 +296,7 @@ enum TriviaService {
         let created_by: UUID
         let title: String
         let description: String?
+        let location: String?
         let starts_at: Date
         let ends_at: Date
         let recurrence: String
@@ -303,12 +304,13 @@ enum TriviaService {
     }
 
     @discardableResult
-    static func createEvent(createdBy: UUID, title: String, description: String?,
+    static func createEvent(createdBy: UUID, title: String, description: String?, location: String?,
                             startsAt: Date, endsAt: Date, recurrence: Recurrence,
                             recurrenceUntil: String?) async throws -> CalEvent {
         try await db.from("events")
             .insert(NewEvent(created_by: createdBy, title: title,
                              description: (description?.isEmpty ?? true) ? nil : description,
+                             location: (location?.isEmpty ?? true) ? nil : location,
                              starts_at: startsAt, ends_at: endsAt,
                              recurrence: recurrence.rawValue, recurrence_until: recurrenceUntil))
             .select(eventSelect).single().execute().value
@@ -317,18 +319,20 @@ enum TriviaService {
     struct EventPatch: Encodable {
         let title: String
         let description: String?
+        let location: String?
         let starts_at: Date
         let ends_at: Date
         let recurrence: String
         let recurrence_until: String?
     }
 
-    static func updateEvent(id: UUID, title: String, description: String?,
+    static func updateEvent(id: UUID, title: String, description: String?, location: String?,
                             startsAt: Date, endsAt: Date, recurrence: Recurrence,
                             recurrenceUntil: String?) async throws {
         try await db.from("events")
             .update(EventPatch(title: title,
                                description: (description?.isEmpty ?? true) ? nil : description,
+                               location: (location?.isEmpty ?? true) ? nil : location,
                                starts_at: startsAt, ends_at: endsAt,
                                recurrence: recurrence.rawValue, recurrence_until: recurrenceUntil))
             .eq("id", value: id).execute()
