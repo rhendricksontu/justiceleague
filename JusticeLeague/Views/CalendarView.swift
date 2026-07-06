@@ -336,34 +336,37 @@ struct EventCard: View {
     let occ: Occurrence
     let model: CalendarModel
     let onOpen: () -> Void
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Button(action: onOpen) {
-                HStack(alignment: .top, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(occ.event.title).font(Theme.label(16, weight: .bold)).foregroundStyle(.black)
-                            .lineLimit(1)
-                        Text(timeRange).font(Theme.label(13)).foregroundStyle(.black)
-                        if occ.event.hasLocation {
-                            Label(occ.event.location ?? "", systemImage: "mappin.and.ellipse")
-                                .font(Theme.label(13)).foregroundStyle(.black).lineLimit(1)
+            HStack(alignment: .top, spacing: 10) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(occ.event.title).font(Theme.label(16, weight: .bold)).foregroundStyle(.black)
+                        .lineLimit(1)
+                    Text(timeRange).font(Theme.label(13)).foregroundStyle(.black)
+                    if occ.event.hasLocation, let loc = occ.event.location {
+                        Button { openInMaps(loc) } label: {
+                            Label(loc, systemImage: "mappin.and.ellipse")
+                                .font(Theme.label(13, weight: .medium)).foregroundStyle(Theme.cyan).lineLimit(1)
                         }
-                        HStack(spacing: 10) {
-                            if occ.event.recurrence != .none {
-                                Label(occ.event.recurrence.shortLabel, systemImage: "repeat")
-                                    .font(Theme.label(11, weight: .bold)).foregroundStyle(Theme.cyan)
-                            }
-                            let c = model.counts(occ)
-                            Text("✓ \(c.yes)   ✗ \(c.no)   ? \(c.maybe)")
-                                .font(Theme.label(12, weight: .bold)).foregroundStyle(.black)
-                        }
+                        .buttonStyle(.plain)
                     }
-                    Spacer()
-                    Image(systemName: "chevron.right").foregroundStyle(.black)
+                    HStack(spacing: 10) {
+                        if occ.event.recurrence != .none {
+                            Label(occ.event.recurrence.shortLabel, systemImage: "repeat")
+                                .font(Theme.label(11, weight: .bold)).foregroundStyle(Theme.cyan)
+                        }
+                        let c = model.counts(occ)
+                        Text("✓ \(c.yes)   ✗ \(c.no)   ? \(c.maybe)")
+                            .font(Theme.label(12, weight: .bold)).foregroundStyle(.black)
+                    }
                 }
+                Spacer()
+                Image(systemName: "chevron.right").foregroundStyle(.black)
             }
-            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .onTapGesture { onOpen() }
 
             HStack(spacing: 8) {
                 ForEach(RSVPStatus.allCases, id: \.self) { status in
@@ -390,6 +393,11 @@ struct EventCard: View {
         let sameDay = CalFmt.central.isDate(occ.start, inSameDayAs: occ.end)
         return sameDay ? "\(CalFmt.time(occ.start)) – \(CalFmt.time(occ.end))"
                        : "\(CalFmt.time(occ.start)) – \(CalFmt.dayHeader(occ.end).capitalized) \(CalFmt.time(occ.end))"
+    }
+
+    private func openInMaps(_ location: String) {
+        let q = location.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        if let url = URL(string: "http://maps.apple.com/?q=\(q)") { openURL(url) }
     }
 
     private func color(_ s: RSVPStatus) -> Color {
