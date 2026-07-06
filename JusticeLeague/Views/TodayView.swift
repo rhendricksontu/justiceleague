@@ -362,7 +362,7 @@ struct ResultsPanel: View {
             }
             Button { withAnimation(.easeInOut(duration: 0.2)) { showAllAnswers.toggle() } } label: {
                 ZStack {
-                    StencilTitle("ALL ANSWERS", size: 16)
+                    StencilTitle("View Responses", size: 16)
                         .frame(maxWidth: .infinity)
                     HStack {
                         Spacer()
