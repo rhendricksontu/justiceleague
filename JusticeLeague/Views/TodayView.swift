@@ -231,7 +231,7 @@ struct GradingPanel: View {
         VStack(alignment: .leading, spacing: 12) {
             Button { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } } label: {
                 ZStack {
-                    StencilTitle("GRADE RESPONSES", size: 17).frame(maxWidth: .infinity)
+                    StencilTitle("GRADE RESPONSES", size: 18).frame(maxWidth: .infinity)
                     HStack {
                         Spacer()
                         Image(systemName: expanded ? "chevron.up" : "chevron.down")
