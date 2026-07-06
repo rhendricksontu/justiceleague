@@ -623,7 +623,7 @@ struct EventEditView: View {
                                 inputField($title, placeholder: "Movie night")
                                 fieldLabel("LOCATION")
                                 inputField($location, placeholder: "Warren Theatre")
-                                fieldLabel("DESCRIPTION")
+                                fieldLabel("EVENT NOTES")
                                 TextEditor(text: $description)
                                     .frame(minHeight: 70).scrollContentBackground(.hidden)
                                     .padding(8).background(Theme.surfaceHi)
