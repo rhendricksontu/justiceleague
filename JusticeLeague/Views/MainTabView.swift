@@ -164,6 +164,9 @@ struct EditProfileView: View {
                         }
                         .buttonStyle(JoeButtonStyle())
                         .disabled(working || name.trimmed.isEmpty || phoneText.trimmed.isEmpty)
+
+                        Button("CANCEL") { dismiss() }
+                            .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
                     }
                     .padding(20)
                 }
@@ -171,9 +174,6 @@ struct EditProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("Edit Profile", size: 20) }
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }.foregroundStyle(.black)
-                }
             }
             .onAppear {
                 if let m = app.currentMember {

@@ -152,6 +152,10 @@ struct AvatarPickerView: View {
                                 }
                             }
                         }
+
+                        Button("CANCEL") { dismiss() }
+                            .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
+                            .padding(.top, 8)
                     }
                     .padding(20)
                 }
@@ -159,9 +163,6 @@ struct AvatarPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("Choose Avatar", size: 20) }
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }.foregroundStyle(.black)
-                }
             }
             .task { await loadTaken() }
         }
