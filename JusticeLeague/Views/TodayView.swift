@@ -249,8 +249,12 @@ struct GradingPanel: View {
                 ForEach(model.responses) { r in
                     FieldPanel {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text(r.name).font(Theme.label(15, weight: .bold)).foregroundStyle(.black)
-                            Text(r.answer).font(Theme.label(17, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                            HStack(spacing: 12) {
+                                LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
+                                (Text("\(r.name): ").font(Theme.label(16, weight: .semibold)).foregroundColor(.black)
+                                    + Text(r.answer).font(Theme.label(16, weight: .regular)).foregroundColor(.black))
+                                Spacer(minLength: 0)
+                            }
                             HStack(spacing: 10) {
                                 Button {
                                     Task { await model.grade(r, correct: true, member: member) }
