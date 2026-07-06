@@ -249,11 +249,7 @@ struct GradingPanel: View {
                 ForEach(model.responses) { r in
                     FieldPanel {
                         VStack(alignment: .leading, spacing: 10) {
-                            HStack {
-                                Text(r.name).font(Theme.label(15, weight: .bold)).foregroundStyle(.black)
-                                Spacer()
-                                gradeBadge(r.isCorrect)
-                            }
+                            Text(r.name).font(Theme.label(15, weight: .bold)).foregroundStyle(.black)
                             Text(r.answer).font(Theme.label(17, weight: .medium)).foregroundStyle(Theme.textPrimary)
                             HStack(spacing: 10) {
                                 Button {
