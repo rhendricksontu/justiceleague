@@ -10,6 +10,7 @@ struct TodayView: View {
     private var member: Member? { app.currentMember }
     private var startOfToday: Date { CalFmt.central.startOfDay(for: Date()) }
     private var isToday: Bool { CalFmt.central.isDate(selectedDay, inSameDayAs: startOfToday) }
+    private var isPast: Bool { selectedDay < startOfToday }
     // Anyone can page back through history; only the master goes into the future.
     private var canGoForward: Bool {
         selectedDay < startOfToday || member?.isTriviaMaster == true
@@ -161,7 +162,9 @@ struct TodayView: View {
 
     @ViewBuilder
     private func masterSection(q: TriviaQuestion, m: Member) -> some View {
-        if !q.revealed {
+        // Reveal only applies to the current day; past trivia is always treated
+        // as revealed (and never needs to be unrevealed).
+        if !q.revealed && !isPast {
             ParticipationPanel(model: model)
             FieldPanel {
                 VStack(alignment: .leading, spacing: 12) {
@@ -195,7 +198,7 @@ struct TodayView: View {
 
     @ViewBuilder
     private func memberSection(q: TriviaQuestion, m: Member) -> some View {
-        if q.revealed {
+        if q.revealed || isPast {
             ResultsPanel(model: model, member: m)
         } else if let mine = model.myResponse {
             AnsweredPanel(answer: mine.answer, model: model, member: m)
