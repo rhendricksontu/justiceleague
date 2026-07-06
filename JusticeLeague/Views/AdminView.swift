@@ -114,7 +114,7 @@ struct AdminView: View {
                     Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(.black) }
                 }
             }
-            .sheet(isPresented: $showAdd) { AddMemberView(model: model) }
+            .sheet(isPresented: $showAdd) { AddMemberView(model: model).flyUpSheet() }
             .task { await model.load() }
         }
     }

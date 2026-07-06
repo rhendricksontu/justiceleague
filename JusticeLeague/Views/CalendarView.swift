@@ -240,12 +240,13 @@ struct CalendarView: View {
             }
             .task { model.currentMemberId = app.currentMember?.id; await model.start() }
             .onDisappear { model.stop() }
-            .sheet(isPresented: $showCreate) { EventEditView(model: model, editing: nil) }
-            .sheet(item: $editing) { ev in EventEditView(model: model, editing: ev) }
+            .sheet(isPresented: $showCreate) { EventEditView(model: model, editing: nil).flyUpSheet() }
+            .sheet(item: $editing) { ev in EventEditView(model: model, editing: ev).flyUpSheet() }
             .sheet(item: $detail) { occ in
                 EventDetailView(occ: occ, model: model,
                                 canManage: occ.event.createdBy == app.currentMember?.id || app.currentMember?.isAdmin == true,
                                 onEdit: { detail = nil; editing = occ.event })
+                    .flyUpSheet()
             }
         }
     }

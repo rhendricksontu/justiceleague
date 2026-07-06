@@ -348,6 +348,7 @@ struct ChatView: View {
                     showGifPicker = false
                     Task { await sendGif(data) }
                 }
+                .flyUpSheet()
             }
             .photosPicker(isPresented: $showPhotoPicker, selection: $pickedItems,
                           maxSelectionCount: 10, matching: .any(of: [.images, .videos]))

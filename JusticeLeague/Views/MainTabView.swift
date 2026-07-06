@@ -99,7 +99,7 @@ struct ProfileView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 30)
             }
-            .sheet(isPresented: $showEdit) { EditProfileView() }
+            .sheet(isPresented: $showEdit) { EditProfileView().flyUpSheet() }
             .navigationTitle("")
         }
     }
@@ -184,7 +184,7 @@ struct EditProfileView: View {
                     phoneText = PhoneUtil.pretty(m.phone)
                 }
             }
-            .sheet(isPresented: $showAvatar) { AvatarPickerView() }
+            .sheet(isPresented: $showAvatar) { AvatarPickerView().flyUpSheet() }
         }
     }
 }

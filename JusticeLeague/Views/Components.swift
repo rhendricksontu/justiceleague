@@ -1,5 +1,14 @@
 import SwiftUI
 
+extension View {
+    // iMessage-style bottom sheet: flies up partway, drag indicator, swipe to close.
+    func flyUpSheet() -> some View {
+        self.presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+            .presentationContentInteraction(.scrolls)
+    }
+}
+
 // A simple wrapping row (chips flow to the next line when they run out of width).
 struct FlowRow<Item: Identifiable, Content: View>: View {
     let items: [Item]
