@@ -288,6 +288,7 @@ struct ChatView: View {
     @State private var showPhotoPicker = false
     @State private var showCamera = false
     @State private var showFiles = false
+    @State private var showGifPicker = false
     @State private var showAttachMenu = false
     @State private var fullScreenImage: URL?
     @State private var quickLookURL: URL?
@@ -338,8 +339,15 @@ struct ChatView: View {
             .confirmationDialog("Add Attachment", isPresented: $showAttachMenu, titleVisibility: .visible) {
                 Button("Photo Library") { showPhotoPicker = true }
                 if CameraPicker.isAvailable { Button("Camera") { showCamera = true } }
+                Button("GIF") { showGifPicker = true }
                 Button("Files") { showFiles = true }
                 Button("Cancel", role: .cancel) {}
+            }
+            .sheet(isPresented: $showGifPicker) {
+                GifPickerView { data in
+                    showGifPicker = false
+                    Task { await sendGif(data) }
+                }
             }
             .photosPicker(isPresented: $showPhotoPicker, selection: $pickedItems,
                           maxSelectionCount: 10, matching: .any(of: [.images, .videos]))
@@ -559,6 +567,12 @@ struct ChatView: View {
     private func sendRecording() async {
         guard let data = recorder.stop(), let m = app.currentMember else { recorder.cancel(); return }
         await model.sendAttachment(AttachmentPrep.audio(data), caption: "", from: m)
+    }
+
+    private func sendGif(_ data: Data) async {
+        guard let m = app.currentMember else { return }
+        let caption = draft; draft = ""
+        await model.sendAttachment(AttachmentPrep.gif(data), caption: caption, from: m)
     }
 
     private func composeBanner(icon: String, title: String, subtitle: String?, onCancel: @escaping () -> Void) -> some View {
@@ -1281,6 +1295,152 @@ struct CameraPicker: UIViewControllerRepresentable {
             else { onResult(.cancelled) }
         }
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { onResult(.cancelled) }
+    }
+}
+
+// MARK: - Giphy GIF search
+
+struct GiphyItem: Identifiable, Decodable {
+    let id: String
+    let images: Images
+    struct Images: Decodable {
+        let fixed_width: GImage
+        let downsized: GImage?
+    }
+    struct GImage: Decodable { let url: String }
+
+    var previewURL: URL? { URL(string: images.fixed_width.url) }
+    var sendURL: URL? { URL(string: (images.downsized ?? images.fixed_width).url) }
+}
+
+enum GiphyService {
+    private struct Response: Decodable { let data: [GiphyItem] }
+
+    static func trending() async -> [GiphyItem] {
+        await fetch("https://api.giphy.com/v1/gifs/trending?api_key=\(Config.giphyKey)&limit=24&rating=pg-13")
+    }
+    static func search(_ query: String) async -> [GiphyItem] {
+        let q = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        return await fetch("https://api.giphy.com/v1/gifs/search?api_key=\(Config.giphyKey)&q=\(q)&limit=24&rating=pg-13")
+    }
+    private static func fetch(_ urlString: String) async -> [GiphyItem] {
+        guard let url = URL(string: urlString),
+              let (data, _) = try? await URLSession.shared.data(from: url),
+              let resp = try? JSONDecoder().decode(Response.self, from: data) else { return [] }
+        return resp.data
+    }
+}
+
+struct GifPickerView: View {
+    let onPick: (Data) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var query = ""
+    @State private var gifs: [GiphyItem] = []
+    @State private var loading = false
+    @State private var downloadingId: String?
+    @State private var searchTask: Task<Void, Never>?
+
+    private let columns = [GridItem(.flexible(), spacing: 6), GridItem(.flexible(), spacing: 6)]
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                VStack(spacing: 10) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "magnifyingglass").foregroundStyle(.black)
+                        TextField("", text: $query, prompt: Text("Search GIFs").foregroundColor(.black))
+                            .foregroundStyle(Theme.textPrimary)
+                    }
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Theme.surfaceHi).clipShape(Capsule())
+                    .overlay(Capsule().strokeBorder(Theme.line))
+                    .padding(.horizontal, 16).padding(.top, 8)
+
+                    ScrollView {
+                        if !Config.giphyConfigured {
+                            gifKeyHint
+                        } else if loading {
+                            ProgressView().tint(Theme.cyan).padding(.top, 40)
+                        } else if gifs.isEmpty {
+                            Text(query.trimmed.isEmpty ? "Search for a GIF." : "No GIFs found.")
+                                .font(Theme.label(14)).foregroundStyle(.black).padding(.top, 40)
+                        } else {
+                            LazyVGrid(columns: columns, spacing: 6) {
+                                ForEach(gifs) { gif in
+                                    Button { pick(gif) } label: {
+                                        RemoteGif(url: gif.previewURL)
+                                            .frame(height: 110)
+                                            .frame(maxWidth: .infinity)
+                                            .clipped()
+                                            .overlay { if downloadingId == gif.id { Color.black.opacity(0.4); ProgressView().tint(.white) } }
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    }
+                                    .disabled(downloadingId != nil)
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                        }
+                        Text("Powered by GIPHY").font(Theme.label(10)).foregroundStyle(.black).padding(.top, 8)
+                    }
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) { StencilTitle("GIFs", size: 20) }
+                ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() }.foregroundStyle(.black) }
+            }
+            .task { loading = true; gifs = await GiphyService.trending(); loading = false }
+            .onChange(of: query) { _, q in
+                searchTask?.cancel()
+                searchTask = Task {
+                    try? await Task.sleep(for: .milliseconds(400))
+                    guard !Task.isCancelled else { return }
+                    loading = true
+                    gifs = q.trimmed.isEmpty ? await GiphyService.trending() : await GiphyService.search(q.trimmed)
+                    loading = false
+                }
+            }
+        }
+    }
+
+    private var gifKeyHint: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "wand.and.stars").font(.system(size: 34)).foregroundStyle(Theme.cyan)
+            Text("GIF search needs a free Giphy key")
+                .font(Theme.label(15, weight: .bold)).foregroundStyle(.black)
+            Text("Add one at developers.giphy.com, then paste it into Config.swift (giphyKey). Until then, send GIFs from Photo Library or Files.")
+                .font(Theme.label(13)).foregroundStyle(.black)
+                .multilineTextAlignment(.center)
+        }
+        .padding(30)
+    }
+
+    private func pick(_ gif: GiphyItem) {
+        guard Config.giphyConfigured, let url = gif.sendURL else { return }
+        downloadingId = gif.id
+        Task {
+            defer { downloadingId = nil }
+            guard let (data, _) = try? await URLSession.shared.data(from: url) else { return }
+            onPick(data)
+        }
+    }
+}
+
+// A remote GIF that downloads and animates in place.
+struct RemoteGif: View {
+    let url: URL?
+    @State private var image: UIImage?
+    var body: some View {
+        ZStack {
+            Theme.surfaceHi
+            if let image { GifImageView(image: image) }
+            else { ProgressView().tint(Theme.cyan) }
+        }
+        .task(id: url) {
+            guard let url, let (data, _) = try? await URLSession.shared.data(from: url) else { return }
+            image = GIF.animatedImage(from: data)
+        }
     }
 }
 
