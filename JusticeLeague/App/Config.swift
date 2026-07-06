@@ -14,6 +14,6 @@ enum Config {
     // Giphy API key for in-app GIF search. Get a FREE key in ~2 minutes at
     // https://developers.giphy.com → Create an App → choose "API" → copy the
     // API Key, and paste it below. GIF search stays empty until this is set.
-    static let giphyKey = "PASTE_YOUR_GIPHY_API_KEY"
+    static let giphyKey = "fp0jxUH2qVWjr1rGC53bDX0RTqwxW64I"
     static var giphyConfigured: Bool { giphyKey != "PASTE_YOUR_GIPHY_API_KEY" && !giphyKey.isEmpty }
 }
