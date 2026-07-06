@@ -290,6 +290,7 @@ struct ChatView: View {
     @State private var showFiles = false
     @State private var showGifPicker = false
     @State private var showAttachMenu = false
+    @State private var pendingAttach: AttachKind?
     @State private var fullScreenImage: URL?
     @State private var quickLookURL: URL?
     @State private var reactionTarget: ChatMessage?
@@ -336,12 +337,14 @@ struct ChatView: View {
                 }
             }
             .onDisappear { model.stop() }
-            .confirmationDialog("Add Attachment", isPresented: $showAttachMenu, titleVisibility: .visible) {
-                Button("Photo Library") { showPhotoPicker = true }
-                if CameraPicker.isAvailable { Button("Camera") { showCamera = true } }
-                Button("GIF") { showGifPicker = true }
-                Button("Files") { showFiles = true }
-                Button("Cancel", role: .cancel) {}
+            .sheet(isPresented: $showAttachMenu, onDismiss: firePendingAttach) {
+                AttachMenuSheet(
+                    onPhoto: { pendingAttach = .photo; showAttachMenu = false },
+                    onCamera: { pendingAttach = .camera; showAttachMenu = false },
+                    onGif: { pendingAttach = .gif; showAttachMenu = false },
+                    onFiles: { pendingAttach = .files; showAttachMenu = false }
+                )
+                .flyUpSheet()
             }
             .sheet(isPresented: $showGifPicker) {
                 GifPickerView { data in
@@ -574,6 +577,18 @@ struct ChatView: View {
         guard let m = app.currentMember else { return }
         let caption = draft; draft = ""
         await model.sendAttachment(AttachmentPrep.gif(data), caption: caption, from: m)
+    }
+
+    // Present the chosen picker after the attach sheet finishes dismissing.
+    private func firePendingAttach() {
+        switch pendingAttach {
+        case .photo:  showPhotoPicker = true
+        case .camera: showCamera = true
+        case .gif:    showGifPicker = true
+        case .files:  showFiles = true
+        case nil:     break
+        }
+        pendingAttach = nil
     }
 
     private func composeBanner(icon: String, title: String, subtitle: String?, onCancel: @escaping () -> Void) -> some View {
@@ -1296,6 +1311,50 @@ struct CameraPicker: UIViewControllerRepresentable {
             else { onResult(.cancelled) }
         }
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { onResult(.cancelled) }
+    }
+}
+
+// MARK: - Attachment menu (fly-up sheet)
+
+enum AttachKind { case photo, camera, gif, files }
+
+struct AttachMenuSheet: View {
+    let onPhoto: () -> Void
+    let onCamera: () -> Void
+    let onGif: () -> Void
+    let onFiles: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                VStack(spacing: 12) {
+                    row("Photo Library", "photo.on.rectangle.angled", action: onPhoto)
+                    if CameraPicker.isAvailable { row("Camera", "camera.fill", action: onCamera) }
+                    row("GIF", "sparkles", action: onGif)
+                    row("Files", "folder.fill", action: onFiles)
+                    Spacer()
+                }
+                .padding(20)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Attach", size: 20) } }
+        }
+    }
+
+    private func row(_ title: String, _ icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: icon).font(.system(size: 22)).foregroundStyle(Theme.cyan).frame(width: 34)
+                Text(title).font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
+                Spacer()
+                Image(systemName: "chevron.right").foregroundStyle(.black)
+            }
+            .padding(16)
+            .background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line))
+        }
+        .buttonStyle(.plain)
     }
 }
 
