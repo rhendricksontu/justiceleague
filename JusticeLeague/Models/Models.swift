@@ -101,7 +101,7 @@ struct Participation: Codable, Identifiable, Hashable {
 
 // A group-chat message, joined with the sender's name + avatar.
 enum AttachmentKind: String, Codable, Hashable {
-    case image, gif, video, file
+    case image, gif, video, audio, file
 }
 
 struct ChatMessage: Codable, Identifiable, Hashable {
@@ -112,6 +112,8 @@ struct ChatMessage: Codable, Identifiable, Hashable {
     var attachmentKind: AttachmentKind?
     var attachmentName: String?
     var attachmentMime: String?
+    var replyTo: UUID?
+    var editedAt: Date?
     var createdAt: Date
     var member: Sender?
 
@@ -128,6 +130,20 @@ struct ChatMessage: Codable, Identifiable, Hashable {
     var text: String { body ?? "" }
     var hasText: Bool { !(body ?? "").isEmpty }
     var hasAttachment: Bool { attachmentPath != nil }
+    var isEdited: Bool { editedAt != nil }
+
+    // One-line summary for reply previews / notifications.
+    var preview: String {
+        if hasText { return text }
+        switch attachmentKind {
+        case .image: return "📷 Photo"
+        case .gif:   return "🎬 GIF"
+        case .video: return "🎬 Video"
+        case .audio: return "🎤 Voice message"
+        case .file:  return "📎 \(attachmentName ?? "File")"
+        case .none:  return ""
+        }
+    }
 
     enum CodingKeys: String, CodingKey {
         case id, body, member
@@ -136,6 +152,8 @@ struct ChatMessage: Codable, Identifiable, Hashable {
         case attachmentKind = "attachment_kind"
         case attachmentName = "attachment_name"
         case attachmentMime = "attachment_mime"
+        case replyTo = "reply_to"
+        case editedAt = "edited_at"
         case createdAt = "created_at"
     }
 }
@@ -149,7 +167,20 @@ struct RealtimeMessageRow: Decodable {
     let attachment_kind: String?
     let attachment_name: String?
     let attachment_mime: String?
+    let reply_to: UUID?
     let created_at: String
+}
+
+struct MessageReaction: Codable, Identifiable, Hashable {
+    let messageId: UUID
+    let memberId: UUID
+    var emoji: String
+    var id: String { "\(messageId)-\(memberId)" }
+    enum CodingKeys: String, CodingKey {
+        case emoji
+        case messageId = "message_id"
+        case memberId = "member_id"
+    }
 }
 
 struct MonthlyScore: Codable, Identifiable, Hashable {

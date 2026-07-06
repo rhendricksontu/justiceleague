@@ -208,7 +208,7 @@ enum TriviaService {
 
     // MARK: Group chat
 
-    static let chatSelect = "id, member_id, body, attachment_path, attachment_kind, attachment_name, attachment_mime, created_at, member:members(display_name, avatar)"
+    static let chatSelect = "id, member_id, body, attachment_path, attachment_kind, attachment_name, attachment_mime, reply_to, edited_at, created_at, member:members!messages_member_id_fkey(display_name, avatar)"
 
     // Most recent messages (joined with sender name + avatar), oldest-first for display.
     static func messages(limit: Int = 200) async throws -> [ChatMessage] {
@@ -228,12 +228,14 @@ enum TriviaService {
         let attachment_kind: String?
         let attachment_name: String?
         let attachment_mime: String?
+        let reply_to: String?
     }
 
     @discardableResult
     static func sendMessage(memberId: UUID, body: String?,
                             attachmentPath: String? = nil, attachmentKind: AttachmentKind? = nil,
-                            attachmentName: String? = nil, attachmentMime: String? = nil) async throws -> ChatMessage {
+                            attachmentName: String? = nil, attachmentMime: String? = nil,
+                            replyTo: UUID? = nil) async throws -> ChatMessage {
         let trimmed = body?.trimmingCharacters(in: .whitespacesAndNewlines)
         return try await db
             .from("messages")
@@ -242,10 +244,44 @@ enum TriviaService {
                                    attachment_path: attachmentPath,
                                    attachment_kind: attachmentKind?.rawValue,
                                    attachment_name: attachmentName,
-                                   attachment_mime: attachmentMime))
+                                   attachment_mime: attachmentMime,
+                                   reply_to: replyTo?.uuidString))
             .select(chatSelect)
             .single()
             .execute().value
+    }
+
+    struct EditPatch: Encodable { let body: String; let edited_at: String }
+
+    static func editMessage(id: UUID, newBody: String) async throws {
+        let now = ISO8601DateFormatter().string(from: Date())
+        try await db.from("messages")
+            .update(EditPatch(body: newBody, edited_at: now))
+            .eq("id", value: id)
+            .execute()
+    }
+
+    // MARK: Reactions (tapbacks)
+
+    static func reactions() async throws -> [MessageReaction] {
+        try await db.from("message_reactions").select().execute().value
+    }
+
+    struct NewReaction: Encodable { let message_id: UUID; let member_id: UUID; let emoji: String }
+
+    static func setReaction(messageId: UUID, memberId: UUID, emoji: String) async throws {
+        try await db.from("message_reactions")
+            .upsert(NewReaction(message_id: messageId, member_id: memberId, emoji: emoji),
+                    onConflict: "message_id,member_id")
+            .execute()
+    }
+
+    static func removeReaction(messageId: UUID, memberId: UUID) async throws {
+        try await db.from("message_reactions")
+            .delete()
+            .eq("message_id", value: messageId)
+            .eq("member_id", value: memberId)
+            .execute()
     }
 
     // Upload arbitrary data to the private chat-media bucket, returning its storage path.

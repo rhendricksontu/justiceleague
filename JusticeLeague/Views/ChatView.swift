@@ -11,6 +11,7 @@ import QuickLook
 @Observable
 final class ChatModel {
     var messages: [ChatMessage] = []
+    var reactionMap: [UUID: [MessageReaction]] = [:]
     var loading = true
     var sending = false
     var errorText: String?
@@ -23,7 +24,13 @@ final class ChatModel {
     func start() async {
         await loadRoster()
         await load()
+        await reloadReactions()
         await subscribe()
+    }
+
+    func messageByID(_ id: UUID?) -> ChatMessage? {
+        guard let id else { return nil }
+        return messages.first { $0.id == id }
     }
 
     func stop() {
@@ -49,16 +56,29 @@ final class ChatModel {
     }
 
     private func subscribe() async {
-        let channel = db.channel("public:messages")
+        let channel = db.channel("public:chat")
         self.channel = channel
         let inserts = channel.postgresChange(InsertAction.self, schema: "public", table: "messages")
+        let updates = channel.postgresChange(UpdateAction.self, schema: "public", table: "messages")
+        let deletes = channel.postgresChange(DeleteAction.self, schema: "public", table: "messages")
+        let reactIns = channel.postgresChange(InsertAction.self, schema: "public", table: "message_reactions")
+        let reactUpd = channel.postgresChange(UpdateAction.self, schema: "public", table: "message_reactions")
+        let reactDel = channel.postgresChange(DeleteAction.self, schema: "public", table: "message_reactions")
         await channel.subscribe()
         listenTask = Task { [weak self] in
-            for await change in inserts {
-                guard let self else { return }
-                if let row = try? change.decodeRecord(as: RealtimeMessageRow.self, decoder: JSONDecoder()) {
-                    await self.append(row)
+            await withTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    for await change in inserts {
+                        if let row = try? change.decodeRecord(as: RealtimeMessageRow.self, decoder: JSONDecoder()) {
+                            await self?.append(row)
+                        }
+                    }
                 }
+                group.addTask { for await _ in updates { await self?.load() } }
+                group.addTask { for await _ in deletes { await self?.load() } }
+                group.addTask { for await _ in reactIns { await self?.reloadReactions() } }
+                group.addTask { for await _ in reactUpd { await self?.reloadReactions() } }
+                group.addTask { for await _ in reactDel { await self?.reloadReactions() } }
             }
         }
     }
@@ -75,20 +95,55 @@ final class ChatModel {
             attachmentKind: row.attachment_kind.flatMap(AttachmentKind.init(rawValue:)),
             attachmentName: row.attachment_name,
             attachmentMime: row.attachment_mime,
+            replyTo: row.reply_to,
+            editedAt: nil,
             createdAt: SupabaseManager.flexibleDate(from: row.created_at) ?? Date(),
             member: sender.map { .init(displayName: $0.displayName, avatar: $0.avatar) }
         )
         messages.append(msg)
     }
 
-    func send(_ text: String, from member: Member) async {
+    func reloadReactions() async {
+        let all = (try? await TriviaService.reactions()) ?? []
+        reactionMap = Dictionary(grouping: all, by: { $0.messageId })
+    }
+
+    func send(_ text: String, replyTo: UUID? = nil, from member: Member) async {
         let body = text.trimmed
         guard !body.isEmpty else { return }
         do {
-            let msg = try await TriviaService.sendMessage(memberId: member.id, body: body)
+            let msg = try await TriviaService.sendMessage(memberId: member.id, body: body, replyTo: replyTo)
             if !messages.contains(where: { $0.id == msg.id }) { messages.append(msg) }
         } catch {
             errorText = "Message failed to send."
+        }
+    }
+
+    func react(_ message: ChatMessage, emoji: String, from member: Member) async {
+        let mine = reactionMap[message.id]?.first { $0.memberId == member.id }
+        do {
+            if mine?.emoji == emoji {
+                try await TriviaService.removeReaction(messageId: message.id, memberId: member.id)
+            } else {
+                try await TriviaService.setReaction(messageId: message.id, memberId: member.id, emoji: emoji)
+            }
+            await reloadReactions()
+        } catch {
+            errorText = "Couldn't react."
+        }
+    }
+
+    func edit(_ message: ChatMessage, newBody: String) async {
+        let trimmed = newBody.trimmed
+        guard !trimmed.isEmpty else { return }
+        do {
+            try await TriviaService.editMessage(id: message.id, newBody: trimmed)
+            if let i = messages.firstIndex(where: { $0.id == message.id }) {
+                messages[i].body = trimmed
+                messages[i].editedAt = Date()
+            }
+        } catch {
+            errorText = "Couldn't edit that message."
         }
     }
 
@@ -142,6 +197,9 @@ struct ChatView: View {
     @State private var showAttachMenu = false
     @State private var fullScreenImage: URL?
     @State private var quickLookURL: URL?
+    @State private var reactionTarget: ChatMessage?
+    @State private var replyingTo: ChatMessage?
+    @State private var editingMessage: ChatMessage?
     @FocusState private var inputFocused: Bool
 
     var body: some View {
@@ -151,6 +209,22 @@ struct ChatView: View {
                 VStack(spacing: 0) {
                     messageList
                     inputBar
+                }
+                if let target = reactionTarget {
+                    ReactionOverlay(
+                        message: target,
+                        isMine: target.memberId == app.currentMember?.id,
+                        myReaction: model.reactionMap[target.id]?.first { $0.memberId == app.currentMember?.id }?.emoji,
+                        onReact: { emoji in
+                            if let m = app.currentMember { Task { await model.react(target, emoji: emoji, from: m) } }
+                            reactionTarget = nil
+                        },
+                        onReply: { startReply(target); reactionTarget = nil },
+                        onCopy: { UIPasteboard.general.string = target.text; reactionTarget = nil },
+                        onEdit: { startEdit(target); reactionTarget = nil },
+                        onDelete: { Task { await model.delete(target) }; reactionTarget = nil },
+                        onDismiss: { reactionTarget = nil }
+                    )
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -191,19 +265,32 @@ struct ChatView: View {
     private var messageList: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 10) {
+                LazyVStack(spacing: 2) {
                     if model.loading {
                         ProgressView().tint(Theme.cyan).padding(.top, 40)
                     } else if model.messages.isEmpty {
                         emptyState
                     }
-                    ForEach(model.messages) { msg in
-                        MessageRow(message: msg,
-                                   isMine: msg.memberId == app.currentMember?.id,
-                                   onDelete: { Task { await model.delete(msg) } },
-                                   onTapImage: { fullScreenImage = $0 },
-                                   onOpenFile: { openFile($0) })
-                        .id(msg.id)
+                    ForEach(rows) { row in
+                        switch row {
+                        case .date(let date):
+                            DateSeparator(date: date).padding(.vertical, 8)
+                        case .message(let msg, let firstInGroup, let lastInGroup):
+                            MessageRow(message: msg,
+                                       isMine: msg.memberId == app.currentMember?.id,
+                                       firstInGroup: firstInGroup,
+                                       lastInGroup: lastInGroup,
+                                       repliedMessage: model.messageByID(msg.replyTo),
+                                       reactions: model.reactionMap[msg.id] ?? [],
+                                       myMemberId: app.currentMember?.id,
+                                       onDelete: { Task { await model.delete(msg) } },
+                                       onTapImage: { fullScreenImage = $0 },
+                                       onOpenFile: { openFile($0) },
+                                       onLongPress: { reactionTarget = msg },
+                                       onTapReply: { scrollTo($0, proxy: proxy) })
+                            .padding(.top, firstInGroup ? 8 : 0)
+                            .id(msg.id)
+                        }
                     }
                     Color.clear.frame(height: 1).id(bottomAnchor)
                 }
@@ -221,7 +308,50 @@ struct ChatView: View {
         }
     }
 
+    private func scrollTo(_ id: UUID, proxy: ScrollViewProxy) {
+        withAnimation { proxy.scrollTo(id, anchor: .center) }
+    }
+
+    // Messages interleaved with day separators; each message flagged for grouping.
+    private var rows: [ChatRowItem] {
+        var result: [ChatRowItem] = []
+        var lastDay: String?
+        let msgs = model.messages
+        for (i, msg) in msgs.enumerated() {
+            let day = Self.dayKey(msg.createdAt)
+            if day != lastDay { result.append(.date(msg.createdAt)); lastDay = day }
+            let prev = i > 0 ? msgs[i - 1] : nil
+            let next = i < msgs.count - 1 ? msgs[i + 1] : nil
+            let firstInGroup = prev == nil || prev!.memberId != msg.memberId
+                || Self.dayKey(prev!.createdAt) != day
+                || msg.createdAt.timeIntervalSince(prev!.createdAt) > 300
+            let lastInGroup = next == nil || next!.memberId != msg.memberId
+                || Self.dayKey(next!.createdAt) != day
+                || next!.createdAt.timeIntervalSince(msg.createdAt) > 300
+            result.append(.message(msg, firstInGroup: firstInGroup, lastInGroup: lastInGroup))
+        }
+        return result
+    }
+
+    private static func dayKey(_ date: Date) -> String {
+        let f = DateFormatter(); f.timeZone = Config.timeZone; f.dateFormat = "yyyy-MM-dd"
+        return f.string(from: date)
+    }
+
     private let bottomAnchor = "chat-bottom"
+
+    private func startReply(_ msg: ChatMessage) {
+        editingMessage = nil
+        replyingTo = msg
+        inputFocused = true
+    }
+
+    private func startEdit(_ msg: ChatMessage) {
+        replyingTo = nil
+        editingMessage = msg
+        draft = msg.text
+        inputFocused = true
+    }
 
     private var emptyState: some View {
         VStack(spacing: 6) {
@@ -234,41 +364,78 @@ struct ChatView: View {
     }
 
     private var inputBar: some View {
-        HStack(spacing: 10) {
-            Button { showAttachMenu = true } label: {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 28))
-                    .foregroundStyle(Theme.cyan)
-            }
-            .disabled(model.sending)
-
-            TextField("", text: $draft, prompt: Text("Message the League…").foregroundColor(.black), axis: .vertical)
-                .lineLimit(1...5)
-                .focused($inputFocused)
-                .padding(.horizontal, 14).padding(.vertical, 10)
-                .background(Theme.surfaceHi)
-                .foregroundStyle(Theme.textPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Theme.line))
-
-            if model.sending {
-                ProgressView().frame(width: 32, height: 32)
-            } else {
-                Button {
-                    guard let m = app.currentMember else { return }
-                    let text = draft; draft = ""
-                    Task { await model.send(text, from: m) }
-                } label: {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundStyle(draft.trimmed.isEmpty ? .black : Theme.cyan)
+        VStack(spacing: 0) {
+            if let reply = replyingTo { composeBanner(icon: "arrowshape.turn.up.left.fill",
+                                                      title: "Replying to \(reply.senderName)",
+                                                      subtitle: reply.preview) { replyingTo = nil } }
+            if editingMessage != nil { composeBanner(icon: "pencil", title: "Editing message",
+                                                     subtitle: nil) { cancelEdit() } }
+            HStack(spacing: 10) {
+                Button { showAttachMenu = true } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 28))
+                        .foregroundStyle(Theme.cyan)
                 }
-                .disabled(draft.trimmed.isEmpty)
+                .disabled(model.sending || editingMessage != nil)
+
+                TextField("", text: $draft, prompt: Text("Message the League…").foregroundColor(.black), axis: .vertical)
+                    .lineLimit(1...5)
+                    .focused($inputFocused)
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Theme.surfaceHi)
+                    .foregroundStyle(Theme.textPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Theme.line))
+
+                if model.sending {
+                    ProgressView().frame(width: 32, height: 32)
+                } else {
+                    Button { submit() } label: {
+                        Image(systemName: editingMessage != nil ? "checkmark.circle.fill" : "arrow.up.circle.fill")
+                            .font(.system(size: 32))
+                            .foregroundStyle(draft.trimmed.isEmpty ? .black : Theme.cyan)
+                    }
+                    .disabled(draft.trimmed.isEmpty)
+                }
             }
+            .padding(.horizontal, 14).padding(.vertical, 10)
         }
-        .padding(.horizontal, 14).padding(.vertical, 10)
         .background(Theme.surface)
         .overlay(Rectangle().frame(height: 1).foregroundStyle(Theme.line), alignment: .top)
+    }
+
+    private func composeBanner(icon: String, title: String, subtitle: String?, onCancel: @escaping () -> Void) -> some View {
+        HStack(spacing: 10) {
+            Rectangle().fill(Theme.cyan).frame(width: 3).clipShape(Capsule())
+            Image(systemName: icon).foregroundStyle(Theme.cyan).font(.system(size: 14))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title).font(Theme.label(12, weight: .bold)).foregroundStyle(.black)
+                if let subtitle { Text(subtitle).font(Theme.label(12)).foregroundStyle(.black).lineLimit(1) }
+            }
+            Spacer()
+            Button { onCancel() } label: {
+                Image(systemName: "xmark.circle.fill").foregroundStyle(.black).font(.system(size: 18))
+            }
+        }
+        .padding(.horizontal, 16).padding(.top, 8)
+    }
+
+    private func submit() {
+        guard let m = app.currentMember else { return }
+        let text = draft; draft = ""
+        if let editing = editingMessage {
+            editingMessage = nil
+            Task { await model.edit(editing, newBody: text) }
+        } else {
+            let reply = replyingTo?.id
+            replyingTo = nil
+            Task { await model.send(text, replyTo: reply, from: m) }
+        }
+    }
+
+    private func cancelEdit() {
+        editingMessage = nil
+        draft = ""
     }
 
     // MARK: - Attachment intake
@@ -342,50 +509,120 @@ struct ChatView: View {
     }
 }
 
-// MARK: - Message row
+// MARK: - Chat rows
+
+enum ChatRowItem: Identifiable {
+    case date(Date)
+    case message(ChatMessage, firstInGroup: Bool, lastInGroup: Bool)
+    var id: String {
+        switch self {
+        case .date(let d): return "date-\(d.timeIntervalSince1970)"
+        case .message(let m, _, _): return m.id.uuidString
+        }
+    }
+}
+
+struct DateSeparator: View {
+    let date: Date
+    var body: some View {
+        Text(label)
+            .font(Theme.label(11, weight: .bold)).tracking(1)
+            .foregroundStyle(.black)
+            .frame(maxWidth: .infinity)
+    }
+    private var label: String {
+        let cal = Calendar.current
+        if cal.isDateInToday(date) { return "TODAY" }
+        if cal.isDateInYesterday(date) { return "YESTERDAY" }
+        let f = DateFormatter(); f.timeZone = Config.timeZone
+        f.dateFormat = cal.isDate(date, equalTo: Date(), toGranularity: .year) ? "EEEE, MMM d" : "MMM d, yyyy"
+        return f.string(from: date).uppercased()
+    }
+}
 
 struct MessageRow: View {
     let message: ChatMessage
     let isMine: Bool
+    let firstInGroup: Bool
+    let lastInGroup: Bool
+    let repliedMessage: ChatMessage?
+    let reactions: [MessageReaction]
+    let myMemberId: UUID?
     let onDelete: () -> Void
     let onTapImage: (URL) -> Void
     let onOpenFile: (ChatMessage) -> Void
+    let onLongPress: () -> Void
+    let onTapReply: (UUID) -> Void
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 8) {
             if isMine { Spacer(minLength: 40) }
             if !isMine {
-                LabeledAvatar(avatarId: message.member?.avatar, size: 32, nameSize: 9)
+                if lastInGroup {
+                    LabeledAvatar(avatarId: message.member?.avatar, size: 32, nameSize: 9)
+                } else {
+                    Color.clear.frame(width: 32)
+                }
             }
             VStack(alignment: isMine ? .trailing : .leading, spacing: 3) {
-                if !isMine {
+                if !isMine && firstInGroup {
                     Text(message.senderName)
-                        .font(Theme.label(12, weight: .bold))
-                        .foregroundStyle(.black)
+                        .font(Theme.label(12, weight: .bold)).foregroundStyle(.black)
+                        .padding(.leading, 4)
                 }
-                if message.hasAttachment {
-                    AttachmentBubble(message: message, onTapImage: onTapImage, onOpenFile: onOpenFile)
+                if message.replyTo != nil { replyQuote }
+                bubble
+                    .overlay(alignment: isMine ? .topLeading : .topTrailing) {
+                        if !reactions.isEmpty {
+                            ReactionBadges(reactions: reactions, myMemberId: myMemberId)
+                                .offset(x: isMine ? -10 : 10, y: -14)
+                        }
+                    }
+                if lastInGroup {
+                    Text(timeLabel(message.createdAt) + (message.isEdited ? " · Edited" : ""))
+                        .font(Theme.label(10, weight: .regular)).foregroundStyle(.black)
+                        .padding(.horizontal, 4)
                 }
-                if message.hasText {
-                    Text(message.text)
-                        .font(Theme.label(16, weight: .regular))
-                        .foregroundStyle(isMine ? .black : Theme.textPrimary)
-                        .padding(.horizontal, 12).padding(.vertical, 8)
-                        .background(isMine ? Theme.cyan : Theme.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line, lineWidth: isMine ? 0 : 1))
-                }
-                Text(timeLabel(message.createdAt))
-                    .font(Theme.label(10, weight: .regular))
-                    .foregroundStyle(.black)
             }
             if !isMine { Spacer(minLength: 40) }
         }
-        .contextMenu {
-            if isMine {
-                Button(role: .destructive) { onDelete() } label: { Label("Delete", systemImage: "trash") }
+        .padding(.top, reactions.isEmpty ? 0 : 10)
+    }
+
+    @ViewBuilder
+    private var bubble: some View {
+        VStack(alignment: isMine ? .trailing : .leading, spacing: 4) {
+            if message.hasAttachment {
+                AttachmentBubble(message: message, onTapImage: onTapImage, onOpenFile: onOpenFile)
+            }
+            if message.hasText {
+                Text(message.text)
+                    .font(Theme.label(16, weight: .regular))
+                    .foregroundStyle(isMine ? .black : Theme.textPrimary)
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(isMine ? Theme.cyan : Theme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line, lineWidth: isMine ? 0 : 1))
             }
         }
+        .onLongPressGesture { onLongPress() }
+    }
+
+    @ViewBuilder
+    private var replyQuote: some View {
+        Button { if let id = message.replyTo { onTapReply(id) } } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "arrowshape.turn.up.left.fill")
+                    .font(.system(size: 9)).foregroundStyle(.black)
+                Text(repliedMessage.map { "\($0.senderName): \($0.preview)" } ?? "Original message")
+                    .font(Theme.label(11)).foregroundStyle(.black)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 10).padding(.vertical, 5)
+            .background(Theme.surfaceHi).clipShape(Capsule())
+            .overlay(Capsule().strokeBorder(Theme.line))
+        }
+        .buttonStyle(.plain)
     }
 
     private func timeLabel(_ date: Date) -> String {
@@ -393,6 +630,116 @@ struct MessageRow: View {
         f.timeZone = Config.timeZone
         f.dateFormat = Calendar.current.isDateInToday(date) ? "h:mm a" : "MMM d, h:mm a"
         return f.string(from: date)
+    }
+}
+
+// Tapback badges shown on a bubble corner.
+struct ReactionBadges: View {
+    let reactions: [MessageReaction]
+    let myMemberId: UUID?
+
+    private var grouped: [(emoji: String, count: Int)] {
+        var counts: [String: Int] = [:]
+        for r in reactions { counts[r.emoji, default: 0] += 1 }
+        return counts.sorted { $0.value > $1.value }.map { ($0.key, $0.value) }
+    }
+    private var mine: Bool { reactions.contains { $0.memberId == myMemberId } }
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(grouped.prefix(3), id: \.emoji) { g in
+                Text(g.emoji).font(.system(size: 13))
+            }
+            if reactions.count > 1 {
+                Text("\(reactions.count)").font(Theme.label(10, weight: .bold)).foregroundStyle(.black)
+            }
+        }
+        .padding(.horizontal, 6).padding(.vertical, 3)
+        .background(Theme.surface)
+        .clipShape(Capsule())
+        .overlay(Capsule().strokeBorder(mine ? Theme.cyan : Theme.line, lineWidth: mine ? 1.5 : 1))
+        .shadow(color: .black.opacity(0.12), radius: 1.5, y: 1)
+    }
+}
+
+// MARK: - Long-press reaction + actions overlay
+
+struct ReactionOverlay: View {
+    let message: ChatMessage
+    let isMine: Bool
+    let myReaction: String?
+    let onReact: (String) -> Void
+    let onReply: () -> Void
+    let onCopy: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    let onDismiss: () -> Void
+
+    private let tapbacks = ["❤️", "👍", "👎", "😂", "‼️", "❓"]
+
+    var body: some View {
+        ZStack {
+            Color.black.opacity(0.35).ignoresSafeArea().onTapGesture { onDismiss() }
+            VStack(spacing: 14) {
+                // Reaction bar
+                HStack(spacing: 10) {
+                    ForEach(tapbacks, id: \.self) { emoji in
+                        Button { onReact(emoji) } label: {
+                            Text(emoji).font(.system(size: 30))
+                                .padding(6)
+                                .background(myReaction == emoji ? Theme.cyan.opacity(0.3) : .clear)
+                                .clipShape(Circle())
+                        }
+                    }
+                }
+                .padding(.horizontal, 14).padding(.vertical, 10)
+                .background(Theme.surface).clipShape(Capsule())
+                .overlay(Capsule().strokeBorder(Theme.line))
+
+                // Message preview
+                Text(message.preview.isEmpty ? "Attachment" : message.preview)
+                    .font(Theme.label(15)).foregroundStyle(isMine ? .black : Theme.textPrimary)
+                    .lineLimit(3)
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(isMine ? Theme.cyan : Theme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .frame(maxWidth: 300)
+
+                // Actions
+                VStack(spacing: 0) {
+                    actionRow("Reply", "arrowshape.turn.up.left", action: onReply)
+                    if message.hasText {
+                        Divider()
+                        actionRow("Copy", "doc.on.doc", action: onCopy)
+                    }
+                    if isMine && message.hasText {
+                        Divider()
+                        actionRow("Edit", "pencil", action: onEdit)
+                    }
+                    if isMine {
+                        Divider()
+                        actionRow("Delete", "trash", role: .destructive, action: onDelete)
+                    }
+                }
+                .background(Theme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line))
+                .frame(maxWidth: 260)
+            }
+            .padding(24)
+        }
+    }
+
+    private func actionRow(_ title: String, _ icon: String, role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
+        Button(role: role, action: action) {
+            HStack {
+                Text(title).font(Theme.label(16, weight: .medium))
+                Spacer()
+                Image(systemName: icon)
+            }
+            .foregroundStyle(role == .destructive ? Theme.red : .black)
+            .padding(.horizontal, 16).padding(.vertical, 13)
+        }
     }
 }
 
@@ -409,6 +756,7 @@ struct AttachmentBubble: View {
             case .image:      ImageAttachment(path: path, onTap: onTapImage)
             case .gif:        GifAttachment(path: path)
             case .video:      VideoAttachment(path: path)
+            case .audio:      AudioAttachment(path: path)
             case .file, .none: FileAttachment(message: message, onOpen: onOpenFile)
             }
         }
@@ -487,6 +835,43 @@ struct VideoAttachment: View {
         .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line))
         .task(id: path) {
             if let url = await ChatImageCache.shared.url(for: path) { player = AVPlayer(url: url) }
+        }
+    }
+}
+
+struct AudioAttachment: View {
+    let path: String
+    @State private var player: AVPlayer?
+    @State private var playing = false
+    @State private var endObserver: NSObjectProtocol?
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Button { toggle() } label: {
+                Image(systemName: playing ? "pause.circle.fill" : "play.circle.fill")
+                    .font(.system(size: 30)).foregroundStyle(Theme.cyan)
+            }
+            Image(systemName: "waveform").font(.system(size: 22)).foregroundStyle(.black)
+            Text("Voice message").font(Theme.label(13, weight: .medium)).foregroundStyle(.black)
+        }
+        .padding(12).frame(maxWidth: 240, alignment: .leading)
+        .background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line))
+        .task(id: path) {
+            if let url = await ChatImageCache.shared.url(for: path) { player = AVPlayer(url: url) }
+        }
+    }
+
+    private func toggle() {
+        guard let player else { return }
+        if playing {
+            player.pause(); playing = false
+        } else {
+            player.seek(to: .zero); player.play(); playing = true
+            endObserver = NotificationCenter.default.addObserver(
+                forName: .AVPlayerItemDidPlayToEndTime, object: player.currentItem, queue: .main) { _ in
+                playing = false
+            }
         }
     }
 }
