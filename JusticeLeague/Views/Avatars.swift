@@ -18,7 +18,7 @@ enum Avatars {
         JoeAvatar(id: "gung_ho",     name: "Gung-Ho",      symbol: "megaphone",                                hex: 0xB03A2E),
         JoeAvatar(id: "stalker",     name: "Stalker",      symbol: "binoculars",                               hex: 0x4E6B2F),
         JoeAvatar(id: "doc",         name: "Doc",          symbol: "cross.case",                               hex: 0x2AA198),
-        JoeAvatar(id: "wild_bill",   name: "Wild Bill",    symbol: "paperplane",                               hex: 0x8E6B3A),
+        JoeAvatar(id: "wild_bill",   name: "Wild Bill",    symbol: "hat.widebrim",                             hex: 0x8E6B3A),
         JoeAvatar(id: "breaker",     name: "Breaker",      symbol: "antenna.radiowaves.left.and.right",        hex: 0x2E6DA4),
         JoeAvatar(id: "clutch",      name: "Clutch",       symbol: "steeringwheel",                            hex: 0x5D6D7E),
         JoeAvatar(id: "rock_n_roll", name: "Rock 'n' Roll",symbol: "guitars",                                  hex: 0x7D3C98),
