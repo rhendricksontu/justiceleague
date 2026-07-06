@@ -363,9 +363,8 @@ struct ResultsPanel: View {
             ForEach(model.responses) { r in
                 HStack(spacing: 12) {
                     LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
-                    Text("\(r.name): \(r.answer)")
-                        .font(Theme.label(16, weight: .semibold))
-                        .foregroundStyle(.black)
+                    (Text("\(r.name): ").font(Theme.label(16, weight: .semibold)).foregroundColor(.black)
+                        + Text(r.answer).font(Theme.label(16, weight: .regular)).foregroundColor(.black))
                     Spacer(minLength: 0)
                 }
                 .padding(14)
