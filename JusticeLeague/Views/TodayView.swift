@@ -33,7 +33,7 @@ struct TodayView: View {
                 .refreshable { await refreshAll() }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Daily Intel", size: 20) } }
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Daily Trivia", size: 20) } }
             .task { await refreshAll() }
         }
     }

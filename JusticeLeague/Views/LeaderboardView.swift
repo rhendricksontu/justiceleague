@@ -31,7 +31,8 @@ struct LeaderboardSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            StencilTitle("Leaderboard", size: 18)
+            StencilTitle("Current Leaderboard", size: 18)
+                .frame(maxWidth: .infinity)
 
             Picker("", selection: $tab) {
                 Text("THIS MONTH").tag(0)
