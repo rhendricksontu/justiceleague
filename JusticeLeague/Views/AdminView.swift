@@ -130,6 +130,7 @@ struct AdminView: View {
 }
 
 struct MemberRow: View {
+    @Environment(\.openURL) private var openURL
     let member: Member
     var showEdit: Bool = true
     var body: some View {
@@ -139,7 +140,12 @@ struct MemberRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(member.displayName).font(Theme.label(17, weight: .bold))
                         .foregroundStyle(.black)
-                    Text(PhoneUtil.pretty(member.phone)).font(Theme.label(13)).foregroundStyle(.black)
+                    Button {
+                        if let url = URL(string: "sms:\(member.phone)") { openURL(url) }
+                    } label: {
+                        Text(PhoneUtil.pretty(member.phone)).font(Theme.label(13)).foregroundStyle(Theme.cyan)
+                    }
+                    .buttonStyle(.plain)
                     HStack(spacing: 6) {
                         if member.isAdmin { RoleTag(text: "ADMIN", color: Theme.red) }
                         if member.isTriviaMaster { RoleTag(text: "TRIVIA", color: Theme.cyan) }
