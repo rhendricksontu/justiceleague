@@ -25,10 +25,10 @@ final class LeaderboardModel {
     }
 
     // Group winners by month for the year-long history list.
-    var winnersByMonth: [(month: Date, names: [String], count: Int)] {
+    var winnersByMonth: [(month: Date, names: [String], count: Int?)] {
         let grouped = Dictionary(grouping: winners, by: { $0.month })
         return grouped
-            .map { (month: $0.key, names: $0.value.map(\.displayName).sorted(), count: $0.value.first?.correctCount ?? 0) }
+            .map { (month: $0.key, names: $0.value.map(\.displayName).sorted(), count: $0.value.first?.correctCount ?? nil) }
             .sorted { $0.month > $1.month }
     }
 }
@@ -90,9 +90,11 @@ struct LeaderboardSection: View {
                                 .font(Theme.label(18, weight: .heavy)).foregroundStyle(.black)
                         }
                         Spacer()
-                        VStack {
-                            Text("\(entry.count)").font(Theme.stencil(24)).foregroundStyle(.black)
-                            Text("CORRECT").font(Theme.label(9, weight: .bold)).foregroundStyle(.black)
+                        if let c = entry.count {
+                            VStack {
+                                Text("\(c)").font(Theme.stencil(24)).foregroundStyle(.black)
+                                Text("CORRECT").font(Theme.label(9, weight: .bold)).foregroundStyle(.black)
+                            }
                         }
                     }
                 }

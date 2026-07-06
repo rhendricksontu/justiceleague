@@ -276,7 +276,7 @@ struct MonthlyWinner: Codable, Identifiable, Hashable {
     let month: Date
     let memberId: UUID
     let displayName: String
-    let correctCount: Int
+    let correctCount: Int?   // null for manually recorded (retroactive) champions
     var id: String { "\(month.timeIntervalSince1970)-\(memberId)" }
 
     enum CodingKeys: String, CodingKey {
