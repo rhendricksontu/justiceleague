@@ -1,18 +1,21 @@
 import SwiftUI
+import UIKit
 
-// The selectable G.I. Joe (1983) avatars. Since the character art is copyrighted,
-// each is a stylized badge: a role-appropriate SF Symbol on a signature color.
+// The selectable G.I. Joe (1983) avatars. Most are a stylized glyph on the shared
+// field-green badge; an avatar may instead supply `image` (an asset-catalog name)
+// to use real character art, which fills the badge.
 struct JoeAvatar: Identifiable, Hashable {
     let id: String
     let name: String
     let symbol: String
     let hex: UInt32
+    var image: String? = nil
     var color: Color { Color(hex: hex) }
 }
 
 enum Avatars {
     static let all: [JoeAvatar] = [
-        JoeAvatar(id: "duke",        name: "Duke",         symbol: "star",                                     hex: 0xC79A3B),
+        JoeAvatar(id: "duke",        name: "Duke",         symbol: "star",                                     hex: 0xC79A3B, image: "AvatarDuke"),
         JoeAvatar(id: "snake_eyes",  name: "Snake Eyes",   symbol: "eye.slash",                                hex: 0x26262B),
         JoeAvatar(id: "roadblock",   name: "Roadblock",    symbol: "dumbbell",                                 hex: 0xC0651D),
         JoeAvatar(id: "gung_ho",     name: "Gung-Ho",      symbol: "megaphone",                                hex: 0xB03A2E),
@@ -20,7 +23,7 @@ enum Avatars {
         JoeAvatar(id: "doc",         name: "Doc",          symbol: "cross.case",                               hex: 0x2AA198),
         JoeAvatar(id: "wild_bill",   name: "Wild Bill",    symbol: "paperplane",                               hex: 0x8E6B3A),
         JoeAvatar(id: "breaker",     name: "Breaker",      symbol: "antenna.radiowaves.left.and.right",        hex: 0x2E6DA4),
-        JoeAvatar(id: "clutch",      name: "Clutch",       symbol: "car.side",                                 hex: 0x5D6D7E),
+        JoeAvatar(id: "clutch",      name: "Clutch",       symbol: "truck.pickup.side",                        hex: 0x5D6D7E),
         JoeAvatar(id: "rock_n_roll", name: "Rock 'n' Roll",symbol: "guitars",                                  hex: 0x7D3C98),
         JoeAvatar(id: "steeler",     name: "Steeler",      symbol: "shield",                                   hex: 0x34495E),
         JoeAvatar(id: "flash",       name: "Flash",        symbol: "bolt",                                     hex: 0xC79A00),
@@ -45,19 +48,35 @@ struct AvatarBadge: View {
     var size: CGFloat = 56
 
     var body: some View {
-        ZStack {
-            Circle().fill(background)
-            Image(systemName: avatar?.symbol ?? "person")
-                .font(.system(size: size * 0.44, weight: .regular))
-                .foregroundStyle(avatar == nil ? .black : .white)
+        content
+            .frame(width: size, height: size)
+            .clipShape(Circle())
+            .overlay(Circle().strokeBorder(ringColor, lineWidth: 1))
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if let art = imageAsset {
+            Image(art).resizable().scaledToFill()
+        } else {
+            ZStack {
+                Circle().fill(background)
+                Image(systemName: avatar?.symbol ?? "person")
+                    .font(.system(size: size * 0.44, weight: .regular))
+                    .foregroundStyle(avatar == nil ? .black : .white)
+            }
         }
-        .frame(width: size, height: size)
-        .overlay(
-            Circle().strokeBorder(
-                avatar == nil ? Color.black.opacity(0.18) : Avatars.badgeGreenEdge,
-                lineWidth: 1
-            )
-        )
+    }
+
+    // Use character art only if the asset actually exists; otherwise fall back to the glyph.
+    private var imageAsset: String? {
+        guard let name = avatar?.image, UIImage(named: name) != nil else { return nil }
+        return name
+    }
+
+    private var ringColor: Color {
+        if imageAsset != nil { return Color.black.opacity(0.2) }
+        return avatar == nil ? Color.black.opacity(0.18) : Avatars.badgeGreenEdge
     }
 
     private var background: AnyShapeStyle {
