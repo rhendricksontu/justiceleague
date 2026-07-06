@@ -19,7 +19,7 @@ struct MainTabView: View {
 
             if app.currentMember?.isAdmin == true {
                 AdminView()
-                    .tabItem { Label("Members", systemImage: "person.3.fill") }.tag(2)
+                    .tabItem { Label("Soldiers", systemImage: "person.3.fill") }.tag(2)
             }
 
             ProfileView()

@@ -109,7 +109,7 @@ struct AdminView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) { StencilTitle("Team Members", size: 20) }
+                ToolbarItem(placement: .principal) { StencilTitle("Special Forces", size: 20) }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(.black) }
                 }
