@@ -137,7 +137,7 @@ struct MemberRow: View {
                     }
                 }
                 Spacer()
-                Image(systemName: "chevron.right").foregroundStyle(.black)
+                Image(systemName: "pencil").font(.system(size: 18, weight: .bold)).foregroundStyle(.black)
             }
         }
     }
