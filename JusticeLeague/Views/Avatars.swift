@@ -31,21 +31,43 @@ enum Avatars {
         guard let id else { return nil }
         return all.first { $0.id == id }
     }
+
+    // Every avatar shares one field-drab green (Stalker's) for a cohesive look.
+    static let badgeGreen     = Color(hex: 0x4E6B2F)
+    static let badgeGreenTop  = Color(hex: 0x5E7F3A)   // slightly lit top for depth
+    static let badgeGreenEdge = Color(hex: 0x374B20)   // thin darker rim
 }
 
-// Circular avatar badge (icon on the character's color, black ring).
+// Circular avatar badge — a modern military patch: unified drab-green field with
+// a subtle top-lit gradient, a clean white glyph, and a thin rim (no heavy ring).
 struct AvatarBadge: View {
     let avatar: JoeAvatar?
     var size: CGFloat = 56
+
     var body: some View {
         ZStack {
-            Circle().fill(avatar?.color ?? Theme.surfaceHi)
+            Circle().fill(background)
             Image(systemName: avatar?.symbol ?? "person.fill")
-                .font(.system(size: size * 0.42, weight: .bold))
+                .font(.system(size: size * 0.40, weight: .medium))
                 .foregroundStyle(avatar == nil ? .black : .white)
         }
         .frame(width: size, height: size)
-        .overlay(Circle().strokeBorder(.black, lineWidth: max(1.5, size * 0.035)))
+        .overlay(
+            Circle().strokeBorder(
+                avatar == nil ? Color.black.opacity(0.18) : Avatars.badgeGreenEdge,
+                lineWidth: 1
+            )
+        )
+    }
+
+    private var background: AnyShapeStyle {
+        guard avatar != nil else { return AnyShapeStyle(Theme.surfaceHi) }
+        return AnyShapeStyle(
+            LinearGradient(
+                colors: [Avatars.badgeGreenTop, Avatars.badgeGreen],
+                startPoint: .top, endPoint: .bottom
+            )
+        )
     }
 }
 
