@@ -1,9 +1,9 @@
 import SwiftUI
 
 extension View {
-    // iMessage-style bottom sheet: flies up to 90%, grabber, swipe to close.
+    // iMessage-style bottom sheet: full height, grabber, swipe to close.
     func flyUpSheet() -> some View {
-        self.presentationDetents([.fraction(0.90)])
+        self.presentationDetents([.large])
             .presentationDragIndicator(.visible)
             .presentationContentInteraction(.scrolls)
     }
