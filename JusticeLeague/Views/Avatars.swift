@@ -77,9 +77,18 @@ struct AvatarPickerView: View {
     @State private var takenByOthers: Set<String> = []
     @State private var savingId: String?
     @State private var errorText: String?
+    @State private var gridWidth: CGFloat = 0
 
+    private let columnGap: CGFloat = 14
     private var currentId: String? { app.currentMember?.avatar }
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
+    private var columns: [GridItem] {
+        Array(repeating: GridItem(.flexible(), spacing: columnGap), count: 3)
+    }
+
+    // One grid column's width, so the centered last row uses the same spacing as full rows.
+    private var columnWidth: CGFloat? {
+        gridWidth > 0 ? (gridWidth - columnGap * 2) / 3 : nil
+    }
 
     // Full rows go in the grid; any trailing partial row is centered on its own.
     private var gridItems: [JoeAvatar] {
@@ -109,10 +118,15 @@ struct AvatarPickerView: View {
                                     cell(a)
                                 }
                             }
+                            .background(GeometryReader { geo in
+                                Color.clear
+                                    .onAppear { gridWidth = geo.size.width }
+                                    .onChange(of: geo.size.width) { _, w in gridWidth = w }
+                            })
                             if !lastRowItems.isEmpty {
-                                HStack(spacing: 14) {
+                                HStack(spacing: columnGap) {
                                     ForEach(lastRowItems) { a in
-                                        cell(a)
+                                        cell(a).frame(width: columnWidth)
                                     }
                                 }
                             }
