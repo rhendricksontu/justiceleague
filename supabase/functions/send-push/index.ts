@@ -85,14 +85,19 @@ Deno.serve(async (req) => {
   // Load the message + sender name.
   const { data: msg } = await admin
     .from("messages")
-    .select("id, body, image_path, member_id, members(display_name)")
+    .select("id, body, attachment_kind, member_id, members(display_name)")
     .eq("id", messageId)
     .maybeSingle();
   if (!msg) return new Response("message_not_found", { status: 404 });
 
   const senderName = (msg.members as { display_name?: string } | null)?.display_name ?? "Someone";
   const bodyText = (msg.body ?? "").trim();
-  const preview = bodyText.length ? bodyText.slice(0, 180) : (msg.image_path ? "📷 Photo" : "");
+  const kindLabel: Record<string, string> = {
+    image: "📷 Photo", gif: "🎬 GIF", video: "🎬 Video", file: "📎 File",
+  };
+  const preview = bodyText.length
+    ? bodyText.slice(0, 180)
+    : (kindLabel[msg.attachment_kind as string] ?? "New message");
 
   // Everyone else's devices.
   const { data: tokens } = await admin

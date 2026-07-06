@@ -100,11 +100,18 @@ struct Participation: Codable, Identifiable, Hashable {
 }
 
 // A group-chat message, joined with the sender's name + avatar.
+enum AttachmentKind: String, Codable, Hashable {
+    case image, gif, video, file
+}
+
 struct ChatMessage: Codable, Identifiable, Hashable {
     let id: UUID
     let memberId: UUID
     var body: String?
-    var imagePath: String?
+    var attachmentPath: String?
+    var attachmentKind: AttachmentKind?
+    var attachmentName: String?
+    var attachmentMime: String?
     var createdAt: Date
     var member: Sender?
 
@@ -120,11 +127,15 @@ struct ChatMessage: Codable, Identifiable, Hashable {
     var senderName: String { member?.displayName ?? "Unknown" }
     var text: String { body ?? "" }
     var hasText: Bool { !(body ?? "").isEmpty }
+    var hasAttachment: Bool { attachmentPath != nil }
 
     enum CodingKeys: String, CodingKey {
         case id, body, member
         case memberId = "member_id"
-        case imagePath = "image_path"
+        case attachmentPath = "attachment_path"
+        case attachmentKind = "attachment_kind"
+        case attachmentName = "attachment_name"
+        case attachmentMime = "attachment_mime"
         case createdAt = "created_at"
     }
 }
@@ -134,7 +145,10 @@ struct RealtimeMessageRow: Decodable {
     let id: UUID
     let member_id: UUID
     let body: String?
-    let image_path: String?
+    let attachment_path: String?
+    let attachment_kind: String?
+    let attachment_name: String?
+    let attachment_mime: String?
     let created_at: String
 }
 
