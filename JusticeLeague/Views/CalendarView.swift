@@ -460,11 +460,13 @@ struct EventDetailView: View {
                                     ForEach(RSVPStatus.allCases, id: \.self) { status in
                                         let mine = model.myStatus(occ) == status
                                         Button { Task { await model.setRSVP(occ, status) } } label: {
-                                            Text(status.label).font(Theme.label(15, weight: .bold))
-                                                .frame(maxWidth: .infinity).padding(.vertical, 10)
+                                            Text(status.label)
+                                                .font(Theme.label(13, weight: .bold))
+                                                .frame(maxWidth: .infinity).padding(.vertical, 7)
                                                 .background(mine ? color(status) : Theme.surfaceHi)
                                                 .foregroundStyle(mine ? Theme.onPrimary : .black)
                                                 .clipShape(Capsule())
+                                                .overlay(Capsule().strokeBorder(color(status).opacity(mine ? 1 : 0.4)))
                                         }
                                         .buttonStyle(.plain)
                                     }
