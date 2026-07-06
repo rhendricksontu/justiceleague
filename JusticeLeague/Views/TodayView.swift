@@ -273,7 +273,7 @@ struct GradingPanel: View {
                     Text("No one answered today.").font(Theme.label(14)).foregroundStyle(.black)
                 }
 
-                ForEach(model.responses) { r in
+                ForEach(locked ? model.sortedResponses : model.responses) { r in
                     if locked {
                         HStack(spacing: 12) {
                             LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
@@ -424,7 +424,7 @@ struct ResultsPanel: View {
             .buttonStyle(.plain)
 
             if showAllAnswers {
-                ForEach(model.responses) { r in
+                ForEach(model.sortedResponses) { r in
                     HStack(spacing: 12) {
                         LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
                         (Text("\(r.name): ").font(Theme.label(16, weight: .semibold)).foregroundColor(.black)

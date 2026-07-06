@@ -17,6 +17,15 @@ final class TodayModel {
     var answeredCount: Int { participation.filter(\.hasAnswered).count }
     var totalCount: Int { participation.count }
 
+    // For viewing: correct responses first, then by name A–Z.
+    var sortedResponses: [ResponseWithName] {
+        responses.sorted { a, b in
+            let ac = a.isCorrect == true, bc = b.isCorrect == true
+            if ac != bc { return ac }
+            return a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+        }
+    }
+
     func load(member: Member) async {
         loading = true
         errorText = nil
