@@ -511,7 +511,7 @@ struct EventDetailView: View {
     private var rsvpList: some View {
         let r = model.rsvps(for: occ)
         return VStack(alignment: .leading, spacing: 8) {
-            ForEach(RSVPStatus.allCases, id: \.self) { status in
+            ForEach([RSVPStatus.yes, .maybe, .no], id: \.self) { status in
                 let names = r.filter { $0.status == status }.compactMap { $0.member?.displayName }.sorted()
                 if !names.isEmpty {
                     HStack(alignment: .top, spacing: 8) {
