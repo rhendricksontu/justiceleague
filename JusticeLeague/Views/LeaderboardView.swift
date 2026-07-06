@@ -40,7 +40,7 @@ final class LeaderboardModel {
 struct LeaderboardSection: View {
     let model: LeaderboardModel
     @State private var tab = 0
-    @State private var expanded = false
+    @State private var expanded = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
