@@ -53,16 +53,6 @@ enum TriviaService {
 
     struct RevealPatch: Encodable { let revealed = true; let revealed_at: String }
 
-    // Master locks/unlocks grading for a day.
-    static func setGradingLock(questionId: UUID, locked: Bool) async throws {
-        struct LockPatch: Encodable { let grading_locked: Bool }
-        try await db
-            .from("trivia_questions")
-            .update(LockPatch(grading_locked: locked))
-            .eq("id", value: questionId)
-            .execute()
-    }
-
     static func reveal(question: TriviaQuestion) async throws {
         let now = ISO8601DateFormatter().string(from: Date())
         try await db

@@ -155,11 +155,11 @@ struct TodayView: View {
                 }
             }
         } else {
-            // Days lock automatically once they end; the master can override.
-            let locked = q.gradingLocked ?? (selectedDay < startOfToday)
-            GradingPanel(model: model, member: m, locked: locked) {
-                Task { await model.setGradingLock(!locked, member: m) }
-            }
+            // Previous days are always locked on arrival; the current day is
+            // unlocked. The master can toggle within the session to fix a past
+            // day; it re-derives its default each time the day is opened.
+            GradingPanel(model: model, member: m, startsLocked: selectedDay < startOfToday)
+                .id(q.id)
         }
     }
 
@@ -229,9 +229,14 @@ struct PostQuestionForm: View {
 struct GradingPanel: View {
     let model: TodayModel
     let member: Member
-    let locked: Bool
-    let onToggleLock: () -> Void
     @State private var expanded = false
+    @State private var locked: Bool
+
+    init(model: TodayModel, member: Member, startsLocked: Bool) {
+        self.model = model
+        self.member = member
+        _locked = State(initialValue: startsLocked)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -243,7 +248,7 @@ struct GradingPanel: View {
                 }
                 .buttonStyle(.plain)
                 HStack {
-                    Button(action: onToggleLock) {
+                    Button { withAnimation(.easeInOut(duration: 0.2)) { locked.toggle() } } label: {
                         Image(systemName: locked ? "lock.fill" : "lock.open.fill")
                             .font(.system(size: 18, weight: .bold)).foregroundStyle(.black)
                     }

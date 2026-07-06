@@ -76,16 +76,6 @@ final class TodayModel {
         }
     }
 
-    func setGradingLock(_ locked: Bool, member: Member) async {
-        guard let q = question else { return }
-        do {
-            try await TriviaService.setGradingLock(questionId: q.id, locked: locked)
-            await load(member: member)
-        } catch {
-            errorText = friendly(error)
-        }
-    }
-
     func reveal(member: Member) async {
         guard let q = question else { return }
         errorText = nil
