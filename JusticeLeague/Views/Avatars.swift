@@ -79,7 +79,15 @@ struct AvatarPickerView: View {
     @State private var errorText: String?
 
     private var currentId: String? { app.currentMember?.avatar }
-    private let columns = [GridItem(.adaptive(minimum: 96), spacing: 14)]
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
+
+    // Full rows go in the grid; any trailing partial row is centered on its own.
+    private var gridItems: [JoeAvatar] {
+        Array(Avatars.all.prefix((Avatars.all.count / 3) * 3))
+    }
+    private var lastRowItems: [JoeAvatar] {
+        Array(Avatars.all.suffix(Avatars.all.count % 3))
+    }
 
     var body: some View {
         NavigationStack {
@@ -95,9 +103,18 @@ struct AvatarPickerView: View {
                             Text(e).font(Theme.label(13)).foregroundStyle(Theme.red)
                         }
 
-                        LazyVGrid(columns: columns, spacing: 18) {
-                            ForEach(Avatars.all) { a in
-                                cell(a)
+                        VStack(spacing: 18) {
+                            LazyVGrid(columns: columns, spacing: 18) {
+                                ForEach(gridItems) { a in
+                                    cell(a)
+                                }
+                            }
+                            if !lastRowItems.isEmpty {
+                                HStack(spacing: 14) {
+                                    ForEach(lastRowItems) { a in
+                                        cell(a)
+                                    }
+                                }
                             }
                         }
                     }
