@@ -287,7 +287,7 @@ struct AnsweredPanel: View {
                         Text("Waiting for the trivia master to reveal. You can still change it until then.")
                             .font(Theme.label(13, weight: .regular)).foregroundStyle(.black)
                         Button("EDIT ANSWER") { draft = answer; editing = true }
-                            .buttonStyle(JoeButtonStyle(tint: Theme.surfaceHi, fg: .black))
+                            .buttonStyle(JoeButtonStyle())
                     }
                 }
             }
@@ -343,8 +343,15 @@ struct ParticipationPanel: View {
                 StencilTitle("ROLL CALL  \(model.answeredCount)/\(model.totalCount)", size: 15, solid: true)
                 FlowRow(items: model.participation) { p in
                     HStack(spacing: 5) {
-                        Image(systemName: p.hasAnswered ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(.black)
+                        if p.hasAnswered {
+                            ZStack {
+                                Circle().fill(Avatars.badgeGreen)
+                                Image(systemName: "checkmark").font(.system(size: 8, weight: .bold)).foregroundStyle(.white)
+                            }
+                            .frame(width: 16, height: 16)
+                        } else {
+                            Image(systemName: "circle").font(.system(size: 15)).foregroundStyle(.black)
+                        }
                         Text(p.displayName).font(Theme.label(13, weight: .medium))
                             .foregroundStyle(p.hasAnswered ? Theme.textPrimary : Theme.textDim)
                     }
