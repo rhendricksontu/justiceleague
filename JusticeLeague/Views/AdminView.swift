@@ -167,7 +167,7 @@ struct AddMemberView: View {
                                     .onChange(of: phone) { _, v in
                                         let f = PhoneUtil.format(v); if f != v { phone = f }
                                     }
-                                Toggle("Admin (manages roster)", isOn: $admin).tint(Theme.cyan)
+                                Toggle("Admin", isOn: $admin).tint(Theme.cyan)
                                     .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
                                 Toggle("Trivia Master", isOn: $master).tint(Theme.cyan)
                                     .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
