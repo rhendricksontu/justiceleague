@@ -6,6 +6,7 @@ final class LeaderboardModel {
     var monthlyScores: [MonthlyScore] = []
     var winners: [MonthlyWinner] = []
     var avatars: [UUID: String] = [:]   // memberId -> chosen avatar id
+    var masters: Set<UUID> = []          // trivia masters
     var loading = true
 
     func load() async {
@@ -21,6 +22,7 @@ final class LeaderboardModel {
         winners = (try? await TriviaService.monthlyWinners()) ?? []
         let members = (try? await TriviaService.allMembers()) ?? []
         avatars = Dictionary(uniqueKeysWithValues: members.compactMap { m in m.avatar.map { (m.id, $0) } })
+        masters = Set(members.filter(\.isTriviaMaster).map(\.id))
         loading = false
     }
 
@@ -83,7 +85,7 @@ struct LeaderboardSection: View {
             emptyNote("No correct answers logged yet this month. Get in the game!")
         } else {
             ForEach(model.monthlyScores) { score in
-                LeaderRow(avatarId: model.avatars[score.memberId], name: score.displayName, count: score.correctCount, showAvatarName: true)
+                LeaderRow(avatarId: model.avatars[score.memberId], name: score.displayName, count: score.correctCount, showAvatarName: true, isTriviaMaster: model.masters.contains(score.memberId))
             }
         }
     }
@@ -117,6 +119,7 @@ struct LeaderRow: View {
     let name: String
     let count: Int?
     var showAvatarName = false
+    var isTriviaMaster = false
 
     var body: some View {
         HStack(spacing: 12) {
@@ -126,6 +129,7 @@ struct LeaderRow: View {
                 AvatarBadge(avatar: Avatars.find(avatarId), size: 40)
             }
             Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
+            if isTriviaMaster { RoleTag(text: "TRIVIA") }
             Spacer()
             if let count {
                 Text("\(count)").font(Theme.stencil(22)).foregroundStyle(.black)
