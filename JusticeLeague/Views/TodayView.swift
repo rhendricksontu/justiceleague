@@ -251,7 +251,12 @@ struct GradingPanel: View {
                 }
                 .buttonStyle(.plain)
                 HStack {
-                    Button { withAnimation(.easeInOut(duration: 0.2)) { locked.toggle() } } label: {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            locked.toggle()
+                            if !locked { expanded = true }   // unlocking opens grading
+                        }
+                    } label: {
                         Image(systemName: locked ? "lock.fill" : "lock.open.fill")
                             .font(.system(size: 18, weight: .bold)).foregroundStyle(.black)
                     }
