@@ -453,25 +453,28 @@ struct EventDetailView: View {
                             }
                         }
 
-                        // My RSVP
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("YOUR RSVP").font(Theme.label(12, weight: .bold)).tracking(1).foregroundStyle(.black)
-                            HStack(spacing: 8) {
-                                ForEach(RSVPStatus.allCases, id: \.self) { status in
-                                    let mine = model.myStatus(occ) == status
-                                    Button { Task { await model.setRSVP(occ, status) } } label: {
-                                        Text(status.label).font(Theme.label(15, weight: .bold))
-                                            .frame(maxWidth: .infinity).padding(.vertical, 10)
-                                            .background(mine ? color(status) : Theme.surfaceHi)
-                                            .foregroundStyle(mine ? Theme.onPrimary : .black)
-                                            .clipShape(Capsule())
+                        FieldPanel {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("YOUR RSVP").font(Theme.label(12, weight: .bold)).tracking(1).foregroundStyle(.black)
+                                HStack(spacing: 8) {
+                                    ForEach(RSVPStatus.allCases, id: \.self) { status in
+                                        let mine = model.myStatus(occ) == status
+                                        Button { Task { await model.setRSVP(occ, status) } } label: {
+                                            Text(status.label).font(Theme.label(15, weight: .bold))
+                                                .frame(maxWidth: .infinity).padding(.vertical, 10)
+                                                .background(mine ? color(status) : Theme.surfaceHi)
+                                                .foregroundStyle(mine ? Theme.onPrimary : .black)
+                                                .clipShape(Capsule())
+                                        }
+                                        .buttonStyle(.plain)
                                     }
-                                    .buttonStyle(.plain)
+                                }
+                                if !model.rsvps(for: occ).isEmpty {
+                                    Divider().overlay(Theme.oliveDrab)
+                                    rsvpList
                                 }
                             }
                         }
-
-                        rsvpList
 
                         if canManage {
                             Button("DELETE EVENT") { confirmDelete = true }
@@ -483,7 +486,7 @@ struct EventDetailView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) { StencilTitle("Event", size: 20) }
+                ToolbarItem(placement: .principal) { StencilTitle("Special Event", size: 20) }
             }
             .alert("Delete this event?", isPresented: $confirmDelete) {
                 Button("Cancel", role: .cancel) {}
