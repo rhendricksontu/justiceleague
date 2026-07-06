@@ -177,20 +177,17 @@ struct TodayView: View {
             // Previous days are always locked on arrival; the current day is
             // unlocked. The master can toggle within the session to fix a past
             // day; it re-derives its default each time the day is opened.
-            GradingPanel(model: model, member: m, startsLocked: selectedDay < startOfToday,
-                         onGraded: { await lbModel.load() })
-                .id(q.id)
-
             // Escape hatch for an accidental reveal on the current day.
             if isToday {
                 Button { Task { await model.unreveal(member: m) } } label: {
-                    Text("Unreveal Answers")
-                        .font(Theme.label(14, weight: .bold))
-                        .foregroundStyle(Theme.red)
-                        .frame(maxWidth: .infinity)
+                    Text("UNREVEAL ANSWERS")
                 }
-                .padding(.top, 4)
+                .buttonStyle(JoeButtonStyle())
             }
+
+            GradingPanel(model: model, member: m, startsLocked: selectedDay < startOfToday,
+                         onGraded: { await lbModel.load() })
+                .id(q.id)
         }
     }
 
