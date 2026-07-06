@@ -64,7 +64,7 @@ struct ProfileView: View {
 
                     if let m = app.currentMember {
                         FieldPanel {
-                            HStack(alignment: .top, spacing: 14) {
+                            HStack(spacing: 14) {
                                 LabeledAvatar(avatarId: m.avatar, size: 64, nameSize: 12)
                                 VStack(alignment: .leading, spacing: 6) {
                                     StencilTitle(m.displayName, size: 20, solid: true)
