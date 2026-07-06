@@ -171,6 +171,78 @@ struct RealtimeMessageRow: Decodable {
     let created_at: String
 }
 
+enum Recurrence: String, Codable, CaseIterable, Hashable {
+    case none, daily, weekly, biweekly, monthly
+    var label: String {
+        switch self {
+        case .none: return "Does not repeat"
+        case .daily: return "Every day"
+        case .weekly: return "Every week"
+        case .biweekly: return "Every 2 weeks"
+        case .monthly: return "Every month"
+        }
+    }
+    var shortLabel: String {
+        switch self {
+        case .none: return ""
+        case .daily: return "Daily"
+        case .weekly: return "Weekly"
+        case .biweekly: return "Biweekly"
+        case .monthly: return "Monthly"
+        }
+    }
+}
+
+struct CalEvent: Codable, Identifiable, Hashable {
+    let id: UUID
+    var createdBy: UUID?
+    var title: String
+    var description: String?
+    var startsAt: Date
+    var endsAt: Date
+    var recurrence: Recurrence
+    var recurrenceUntil: Date?
+    var creator: Creator?
+
+    struct Creator: Codable, Hashable {
+        let displayName: String
+        enum CodingKeys: String, CodingKey { case displayName = "display_name" }
+    }
+    var creatorName: String { creator?.displayName ?? "Someone" }
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, description, recurrence, creator
+        case createdBy = "created_by"
+        case startsAt = "starts_at"
+        case endsAt = "ends_at"
+        case recurrenceUntil = "recurrence_until"
+    }
+}
+
+enum RSVPStatus: String, Codable, CaseIterable, Hashable {
+    case yes, no, maybe
+    var label: String { rawValue.capitalized }
+}
+
+struct EventRSVP: Codable, Hashable {
+    let eventId: UUID
+    let memberId: UUID
+    var occurrence: String   // "yyyy-MM-dd"
+    var status: RSVPStatus
+    var member: NameOnly?
+
+    struct NameOnly: Codable, Hashable {
+        let displayName: String
+        enum CodingKeys: String, CodingKey { case displayName = "display_name" }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case status, occurrence, member
+        case eventId = "event_id"
+        case memberId = "member_id"
+    }
+}
+
 struct MessageReaction: Codable, Identifiable, Hashable {
     let messageId: UUID
     let memberId: UUID

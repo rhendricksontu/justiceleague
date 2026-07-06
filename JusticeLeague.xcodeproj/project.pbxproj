@@ -28,6 +28,7 @@
 		D4F147B3B687A9B11330D62D /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE82526BF1C2F444D769649 /* Models.swift */; };
 		D5428005A3E0D848A768FF8C /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = A35A657DE3C76FC2F98074C1 /* Supabase */; };
 		E78A0312565423EEB1D5C46C /* Anton-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 67F9AC78A0943CD1C1EA81A5 /* Anton-OFL.txt */; };
+		FCE4B1F433DE5F19F986F4D1 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B41EEE371F43653B034DBAD /* CalendarView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,7 @@
 		89962FF762C8D2BB95D31C3E /* PushManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushManager.swift; sourceTree = "<group>"; };
 		8DA19FC4049A19571C1190FB /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
 		91A24768EA70AAECC9156AA2 /* TriviaService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriviaService.swift; sourceTree = "<group>"; };
+		9B41EEE371F43653B034DBAD /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		A8DC00ED3F70BE9F40A1B29E /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		B3BA7D46CC8EBBADF630CF12 /* JusticeLeague.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = JusticeLeague.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B490A39B504E6410F11B3B26 /* JusticeLeague.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JusticeLeague.entitlements; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 			children = (
 				0CCAD4B88E640F9824B4064D /* AdminView.swift */,
 				0B3036ADCE3D376F3C13143F /* Avatars.swift */,
+				9B41EEE371F43653B034DBAD /* CalendarView.swift */,
 				BD0AAD07E19A5A428EADF0E1 /* ChatView.swift */,
 				A8DC00ED3F70BE9F40A1B29E /* Components.swift */,
 				DB491B33BB1F1CB400EA6232 /* LeaderboardView.swift */,
@@ -238,6 +241,7 @@
 				3C3506BD04053D58231EFBB6 /* AdminView.swift in Sources */,
 				38599BDFBCCF56652B42FDF0 /* AppState.swift in Sources */,
 				B9F09484CADEAFA33DCF5692 /* Avatars.swift in Sources */,
+				FCE4B1F433DE5F19F986F4D1 /* CalendarView.swift in Sources */,
 				8BF5C517142DDBE634CF21FB /* ChatView.swift in Sources */,
 				CE404E85FC62DE0E5416CCC1 /* Components.swift in Sources */,
 				B0C9DC6AF257823046DD725C /* Config.swift in Sources */,

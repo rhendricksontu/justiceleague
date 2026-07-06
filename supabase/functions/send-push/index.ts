@@ -70,40 +70,62 @@ Deno.serve(async (req) => {
   }
 
   let messageId = "";
+  let eventId = "";
   try {
     const body = await req.json();
     messageId = String(body?.message_id ?? "");
+    eventId = String(body?.event_id ?? "");
   } catch {
     return new Response("bad_request", { status: 400 });
   }
-  if (!messageId) return new Response("no_message_id", { status: 400 });
+  if (!messageId && !eventId) return new Response("no_id", { status: 400 });
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // Load the message + sender name.
-  const { data: msg } = await admin
-    .from("messages")
-    .select("id, body, attachment_kind, member_id, members(display_name)")
-    .eq("id", messageId)
-    .maybeSingle();
-  if (!msg) return new Response("message_not_found", { status: 404 });
+  let title = "The League";
+  let preview = "";
+  let excludeMember: string | null = null;
+  let threadId = "league-comms";
 
-  const senderName = (msg.members as { display_name?: string } | null)?.display_name ?? "Someone";
-  const bodyText = (msg.body ?? "").trim();
-  const kindLabel: Record<string, string> = {
-    image: "📷 Photo", gif: "🎬 GIF", video: "🎬 Video", file: "📎 File",
-  };
-  const preview = bodyText.length
-    ? bodyText.slice(0, 180)
-    : (kindLabel[msg.attachment_kind as string] ?? "New message");
+  if (eventId) {
+    const { data: ev } = await admin
+      .from("events")
+      .select("id, title, starts_at, created_by, members(display_name)")
+      .eq("id", eventId)
+      .maybeSingle();
+    if (!ev) return new Response("event_not_found", { status: 404 });
+    const creator = (ev.members as { display_name?: string } | null)?.display_name ?? "Someone";
+    const when = new Date(ev.starts_at as string).toLocaleString("en-US", {
+      timeZone: "America/Chicago", weekday: "short", month: "short",
+      day: "numeric", hour: "numeric", minute: "2-digit",
+    });
+    title = "📅 New Event";
+    preview = `${ev.title} — ${when} (by ${creator})`.slice(0, 180);
+    excludeMember = ev.created_by as string | null;
+    threadId = "league-events";
+  } else {
+    const { data: msg } = await admin
+      .from("messages")
+      .select("id, body, attachment_kind, member_id, members(display_name)")
+      .eq("id", messageId)
+      .maybeSingle();
+    if (!msg) return new Response("message_not_found", { status: 404 });
+    const senderName = (msg.members as { display_name?: string } | null)?.display_name ?? "Someone";
+    const bodyText = (msg.body ?? "").trim();
+    const kindLabel: Record<string, string> = {
+      image: "📷 Photo", gif: "🎬 GIF", video: "🎬 Video", audio: "🎤 Voice message", file: "📎 File",
+    };
+    title = `${senderName} · The League`;
+    preview = bodyText.length ? bodyText.slice(0, 180) : (kindLabel[msg.attachment_kind as string] ?? "New message");
+    excludeMember = msg.member_id as string;
+  }
 
   // Everyone else's devices.
-  const { data: tokens } = await admin
-    .from("device_tokens")
-    .select("token")
-    .neq("member_id", msg.member_id);
+  let query = admin.from("device_tokens").select("token");
+  if (excludeMember) query = query.neq("member_id", excludeMember);
+  const { data: tokens } = await query;
   if (!tokens || tokens.length === 0) return new Response("no_devices", { status: 200 });
 
   if (!APNS_PRIVATE_KEY || !APNS_KEY_ID || !APNS_TEAM_ID) {
@@ -115,10 +137,10 @@ Deno.serve(async (req) => {
 
   const payload = JSON.stringify({
     aps: {
-      alert: { title: `${senderName} · The League`, body: preview },
+      alert: { title, body: preview },
       sound: "default",
       badge: 1,
-      "thread-id": "league-comms",
+      "thread-id": threadId,
     },
   });
 

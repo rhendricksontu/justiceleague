@@ -284,6 +284,83 @@ enum TriviaService {
             .execute()
     }
 
+    // MARK: Calendar events
+
+    static let eventSelect = "id, created_by, title, description, starts_at, ends_at, recurrence, recurrence_until, creator:members!events_created_by_fkey(display_name)"
+
+    static func events() async throws -> [CalEvent] {
+        try await db.from("events").select(eventSelect).order("starts_at", ascending: true).execute().value
+    }
+
+    struct NewEvent: Encodable {
+        let created_by: UUID
+        let title: String
+        let description: String?
+        let starts_at: Date
+        let ends_at: Date
+        let recurrence: String
+        let recurrence_until: String?
+    }
+
+    @discardableResult
+    static func createEvent(createdBy: UUID, title: String, description: String?,
+                            startsAt: Date, endsAt: Date, recurrence: Recurrence,
+                            recurrenceUntil: String?) async throws -> CalEvent {
+        try await db.from("events")
+            .insert(NewEvent(created_by: createdBy, title: title,
+                             description: (description?.isEmpty ?? true) ? nil : description,
+                             starts_at: startsAt, ends_at: endsAt,
+                             recurrence: recurrence.rawValue, recurrence_until: recurrenceUntil))
+            .select(eventSelect).single().execute().value
+    }
+
+    struct EventPatch: Encodable {
+        let title: String
+        let description: String?
+        let starts_at: Date
+        let ends_at: Date
+        let recurrence: String
+        let recurrence_until: String?
+    }
+
+    static func updateEvent(id: UUID, title: String, description: String?,
+                            startsAt: Date, endsAt: Date, recurrence: Recurrence,
+                            recurrenceUntil: String?) async throws {
+        try await db.from("events")
+            .update(EventPatch(title: title,
+                               description: (description?.isEmpty ?? true) ? nil : description,
+                               starts_at: startsAt, ends_at: endsAt,
+                               recurrence: recurrence.rawValue, recurrence_until: recurrenceUntil))
+            .eq("id", value: id).execute()
+    }
+
+    static func deleteEvent(id: UUID) async throws {
+        try await db.from("events").delete().eq("id", value: id).execute()
+    }
+
+    static func eventRSVPs() async throws -> [EventRSVP] {
+        try await db.from("event_rsvps")
+            .select("event_id, member_id, occurrence, status, member:members(display_name)")
+            .execute().value
+    }
+
+    struct NewRSVP: Encodable { let event_id: UUID; let member_id: UUID; let occurrence: String; let status: String }
+
+    static func setRSVP(eventId: UUID, memberId: UUID, occurrence: String, status: RSVPStatus) async throws {
+        try await db.from("event_rsvps")
+            .upsert(NewRSVP(event_id: eventId, member_id: memberId, occurrence: occurrence, status: status.rawValue),
+                    onConflict: "event_id,member_id,occurrence")
+            .execute()
+    }
+
+    static func removeRSVP(eventId: UUID, memberId: UUID, occurrence: String) async throws {
+        try await db.from("event_rsvps").delete()
+            .eq("event_id", value: eventId)
+            .eq("member_id", value: memberId)
+            .eq("occurrence", value: occurrence)
+            .execute()
+    }
+
     // Upload arbitrary data to the private chat-media bucket, returning its storage path.
     static func uploadChatFile(_ data: Data, memberId: UUID, ext: String, contentType: String) async throws -> String {
         let safeExt = ext.isEmpty ? "bin" : ext
