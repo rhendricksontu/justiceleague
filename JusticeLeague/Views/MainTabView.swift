@@ -167,9 +167,6 @@ struct EditProfileView: View {
                         }
                         .buttonStyle(JoeButtonStyle())
                         .disabled(working || name.trimmed.isEmpty || phoneText.trimmed.isEmpty)
-
-                        Button("CANCEL") { dismiss() }
-                            .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
                     }
                     .padding(20)
                 }

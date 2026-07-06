@@ -190,9 +190,6 @@ struct AddMemberView: View {
                         .buttonStyle(JoeButtonStyle())
                         .disabled(working || name.trimmed.isEmpty || phone.trimmed.isEmpty)
                         .opacity(name.trimmed.isEmpty || phone.trimmed.isEmpty ? 0.5 : 1)
-
-                        Button("CANCEL") { dismiss() }
-                            .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
                     }
                     .padding(20)
                 }

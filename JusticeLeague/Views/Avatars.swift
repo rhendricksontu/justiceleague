@@ -152,10 +152,6 @@ struct AvatarPickerView: View {
                                 }
                             }
                         }
-
-                        Button("CANCEL") { dismiss() }
-                            .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
-                            .padding(.top, 8)
                     }
                     .padding(20)
                 }

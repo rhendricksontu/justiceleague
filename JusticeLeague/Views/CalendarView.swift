@@ -467,7 +467,6 @@ struct EventDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("Event", size: 20) }
-                ToolbarItem(placement: .topBarLeading) { Button("Done") { dismiss() }.foregroundStyle(.black) }
             }
             .alert("Delete this event?", isPresented: $confirmDelete) {
                 Button("Cancel", role: .cancel) {}
@@ -573,9 +572,6 @@ struct EventEditView: View {
                         }
                         .buttonStyle(JoeButtonStyle())
                         .disabled(working || title.trimmed.isEmpty)
-
-                        Button("CANCEL") { dismiss() }
-                            .buttonStyle(JoeButtonStyle(tint: Theme.red, fg: Theme.onPrimary))
                     }
                     .padding(20)
                 }

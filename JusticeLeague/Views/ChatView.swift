@@ -1334,7 +1334,6 @@ enum GiphyService {
 
 struct GifPickerView: View {
     let onPick: (Data) -> Void
-    @Environment(\.dismiss) private var dismiss
     @State private var query = ""
     @State private var gifs: [GiphyItem] = []
     @State private var loading = false
@@ -1389,7 +1388,6 @@ struct GifPickerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("GIFs", size: 20) }
-                ToolbarItem(placement: .topBarLeading) { Button("Cancel") { dismiss() }.foregroundStyle(.black) }
             }
             .task { loading = true; gifs = await GiphyService.trending(); loading = false }
             .onChange(of: query) { _, q in
