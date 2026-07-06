@@ -349,20 +349,19 @@ struct ResultsPanel: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let mine {
-                FieldPanel {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            StencilTitle("YOUR RESULT", size: 15, solid: true)
-                            Text(mine.answer).font(Theme.label(18, weight: .semibold)).foregroundStyle(Theme.textPrimary)
-                        }
-                        Spacer()
-                        gradeBadge(mine.isCorrect)
-                    }
+                VStack(alignment: .leading, spacing: 4) {
+                    StencilTitle("YOUR RESULT", size: 15, solid: true)
+                    Text(mine.answer).font(Theme.label(18, weight: .semibold)).foregroundStyle(.black)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(14)
+                .background(answerCardColor(mine.isCorrect))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.line, lineWidth: 1))
             }
             Button { withAnimation(.easeInOut(duration: 0.2)) { showAllAnswers.toggle() } } label: {
                 ZStack {
-                    StencilTitle("View Responses", size: 16)
+                    StencilTitle("View Responses", size: 18)
                         .frame(maxWidth: .infinity)
                     HStack {
                         Spacer()
