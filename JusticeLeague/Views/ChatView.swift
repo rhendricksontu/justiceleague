@@ -3,9 +3,59 @@ import Supabase
 import PhotosUI
 import UIKit
 import AVKit
+import AVFoundation
 import ImageIO
 import UniformTypeIdentifiers
 import QuickLook
+
+// Records a voice message to a temp .m4a file.
+@MainActor
+@Observable
+final class VoiceRecorder {
+    var isRecording = false
+    private var recorder: AVAudioRecorder?
+    private(set) var fileURL: URL?
+
+    var currentTime: TimeInterval { recorder?.currentTime ?? 0 }
+
+    func requestPermissionAndStart() async -> Bool {
+        let granted = await AVAudioApplication.requestRecordPermission()
+        guard granted else { return false }
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playAndRecord, mode: .default)
+        try? session.setActive(true)
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".m4a")
+        let settings: [String: Any] = [
+            AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
+            AVSampleRateKey: 44100,
+            AVNumberOfChannelsKey: 1,
+            AVEncoderAudioQualityKey: AVAudioQuality.medium.rawValue,
+        ]
+        guard let rec = try? AVAudioRecorder(url: url, settings: settings) else { return false }
+        recorder = rec
+        fileURL = url
+        rec.record()
+        isRecording = true
+        return true
+    }
+
+    @discardableResult
+    func stop() -> Data? {
+        recorder?.stop()
+        isRecording = false
+        try? AVAudioSession.sharedInstance().setActive(false)
+        guard let url = fileURL else { return nil }
+        return try? Data(contentsOf: url)
+    }
+
+    func cancel() {
+        recorder?.stop()
+        isRecording = false
+        try? AVAudioSession.sharedInstance().setActive(false)
+        if let url = fileURL { try? FileManager.default.removeItem(at: url) }
+        fileURL = nil
+    }
+}
 
 @MainActor
 @Observable
@@ -200,6 +250,7 @@ struct ChatView: View {
     @State private var reactionTarget: ChatMessage?
     @State private var replyingTo: ChatMessage?
     @State private var editingMessage: ChatMessage?
+    @State private var recorder = VoiceRecorder()
     @FocusState private var inputFocused: Bool
 
     var body: some View {
@@ -370,38 +421,80 @@ struct ChatView: View {
                                                       subtitle: reply.preview) { replyingTo = nil } }
             if editingMessage != nil { composeBanner(icon: "pencil", title: "Editing message",
                                                      subtitle: nil) { cancelEdit() } }
-            HStack(spacing: 10) {
-                Button { showAttachMenu = true } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 28))
-                        .foregroundStyle(Theme.cyan)
-                }
-                .disabled(model.sending || editingMessage != nil)
-
-                TextField("", text: $draft, prompt: Text("Message the League…").foregroundColor(.black), axis: .vertical)
-                    .lineLimit(1...5)
-                    .focused($inputFocused)
-                    .padding(.horizontal, 14).padding(.vertical, 10)
-                    .background(Theme.surfaceHi)
-                    .foregroundStyle(Theme.textPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
-                    .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Theme.line))
-
-                if model.sending {
-                    ProgressView().frame(width: 32, height: 32)
-                } else {
-                    Button { submit() } label: {
-                        Image(systemName: editingMessage != nil ? "checkmark.circle.fill" : "arrow.up.circle.fill")
-                            .font(.system(size: 32))
-                            .foregroundStyle(draft.trimmed.isEmpty ? .black : Theme.cyan)
-                    }
-                    .disabled(draft.trimmed.isEmpty)
-                }
+            if recorder.isRecording {
+                recordingBar
+            } else {
+                composeRow
             }
-            .padding(.horizontal, 14).padding(.vertical, 10)
         }
         .background(Theme.surface)
         .overlay(Rectangle().frame(height: 1).foregroundStyle(Theme.line), alignment: .top)
+    }
+
+    private var composeRow: some View {
+        HStack(spacing: 10) {
+            Button { showAttachMenu = true } label: {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 28))
+                    .foregroundStyle(Theme.cyan)
+            }
+            .disabled(model.sending || editingMessage != nil)
+
+            TextField("", text: $draft, prompt: Text("Message the League…").foregroundColor(.black), axis: .vertical)
+                .lineLimit(1...5)
+                .focused($inputFocused)
+                .padding(.horizontal, 14).padding(.vertical, 10)
+                .background(Theme.surfaceHi)
+                .foregroundStyle(Theme.textPrimary)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(Theme.line))
+
+            if model.sending {
+                ProgressView().frame(width: 32, height: 32)
+            } else if editingMessage != nil || !draft.trimmed.isEmpty {
+                Button { submit() } label: {
+                    Image(systemName: editingMessage != nil ? "checkmark.circle.fill" : "arrow.up.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(draft.trimmed.isEmpty ? .black : Theme.cyan)
+                }
+                .disabled(draft.trimmed.isEmpty)
+            } else {
+                Button { Task { await recorder.requestPermissionAndStart() } } label: {
+                    Image(systemName: "mic.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundStyle(Theme.cyan)
+                }
+            }
+        }
+        .padding(.horizontal, 14).padding(.vertical, 10)
+    }
+
+    private var recordingBar: some View {
+        HStack(spacing: 14) {
+            Button { recorder.cancel() } label: {
+                Image(systemName: "trash").font(.system(size: 22)).foregroundStyle(Theme.red)
+            }
+            Circle().fill(Theme.red).frame(width: 10, height: 10)
+            TimelineView(.periodic(from: .now, by: 0.2)) { _ in
+                Text(timeString(recorder.currentTime))
+                    .font(Theme.label(16, weight: .bold)).monospacedDigit().foregroundStyle(.black)
+            }
+            Text("Recording…").font(Theme.label(13)).foregroundStyle(.black)
+            Spacer()
+            Button { Task { await sendRecording() } } label: {
+                Image(systemName: "arrow.up.circle.fill").font(.system(size: 32)).foregroundStyle(Theme.cyan)
+            }
+        }
+        .padding(.horizontal, 14).padding(.vertical, 12)
+    }
+
+    private func timeString(_ t: TimeInterval) -> String {
+        String(format: "%d:%02d", Int(t) / 60, Int(t) % 60)
+    }
+
+    private func sendRecording() async {
+        guard let data = recorder.stop(), let m = app.currentMember else { recorder.cancel(); return }
+        await model.sendAttachment(AttachmentPrep.audio(data), caption: "", from: m)
     }
 
     private func composeBanner(icon: String, title: String, subtitle: String?, onCancel: @escaping () -> Void) -> some View {
@@ -993,6 +1086,9 @@ enum AttachmentPrep {
     }
     static func video(_ data: Data, ext: String, mime: String) -> OutgoingAttachment {
         OutgoingAttachment(data: data, kind: .video, ext: ext, mime: mime, name: nil)
+    }
+    static func audio(_ data: Data) -> OutgoingAttachment {
+        OutgoingAttachment(data: data, kind: .audio, ext: "m4a", mime: "audio/m4a", name: nil)
     }
     // Files that are really media still render inline.
     static func file(_ data: Data, name: String, ext: String, mime: String) -> OutgoingAttachment {

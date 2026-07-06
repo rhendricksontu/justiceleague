@@ -24,6 +24,8 @@
 	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>Take photos to share in the Command Center chat.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Record voice messages for the Command Center chat.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Choose photos to share in the Command Center chat.</string>
 	<key>UIAppFonts</key>
