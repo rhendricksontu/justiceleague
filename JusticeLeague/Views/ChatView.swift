@@ -1338,7 +1338,7 @@ struct AttachMenuSheet: View {
                 .padding(20)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Attach", size: 20) } }
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Attach Media", size: 20) } }
         }
     }
 
