@@ -250,7 +250,7 @@ struct GradingPanel: View {
     let model: TodayModel
     let member: Member
     let onGraded: () async -> Void
-    @State private var expanded = false
+    @State private var expanded: Bool
     @State private var locked: Bool
 
     init(model: TodayModel, member: Member, startsLocked: Bool, onGraded: @escaping () async -> Void) {
@@ -258,6 +258,9 @@ struct GradingPanel: View {
         self.member = member
         self.onGraded = onGraded
         _locked = State(initialValue: startsLocked)
+        // Unlocked (e.g. a question the master just revealed) opens expanded;
+        // locked past days stay collapsed until opened.
+        _expanded = State(initialValue: !startsLocked)
     }
 
     var body: some View {
