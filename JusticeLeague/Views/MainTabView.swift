@@ -3,7 +3,7 @@ import Supabase
 
 struct MainTabView: View {
     @Environment(AppState.self) private var app
-    @State private var selection = 0
+    @State private var selection = 4   // Comms
 
     var body: some View {
         TabView(selection: $selection) {
