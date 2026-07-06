@@ -342,6 +342,7 @@ struct AnsweredPanel: View {
 struct ResultsPanel: View {
     let model: TodayModel
     let member: Member
+    @State private var showAllAnswers = false
 
     private var mine: ResponseWithName? { model.responses.first { $0.memberId == member.id } }
 
@@ -359,19 +360,33 @@ struct ResultsPanel: View {
                     }
                 }
             }
-            StencilTitle("ALL ANSWERS", size: 16)
-            ForEach(model.responses) { r in
-                HStack(spacing: 12) {
-                    LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
-                    (Text("\(r.name): ").font(Theme.label(16, weight: .semibold)).foregroundColor(.black)
-                        + Text(r.answer).font(Theme.label(16, weight: .regular)).foregroundColor(.black))
-                    Spacer(minLength: 0)
+            Button { withAnimation(.easeInOut(duration: 0.2)) { showAllAnswers.toggle() } } label: {
+                ZStack {
+                    StencilTitle("ALL ANSWERS", size: 16)
+                        .frame(maxWidth: .infinity)
+                    HStack {
+                        Spacer()
+                        Image(systemName: showAllAnswers ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 14, weight: .bold)).foregroundStyle(.black)
+                    }
                 }
-                .padding(14)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(answerCardColor(r.isCorrect))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.line, lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+
+            if showAllAnswers {
+                ForEach(model.responses) { r in
+                    HStack(spacing: 12) {
+                        LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
+                        (Text("\(r.name): ").font(Theme.label(16, weight: .semibold)).foregroundColor(.black)
+                            + Text(r.answer).font(Theme.label(16, weight: .regular)).foregroundColor(.black))
+                        Spacer(minLength: 0)
+                    }
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(answerCardColor(r.isCorrect))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.line, lineWidth: 1))
+                }
             }
         }
     }
