@@ -233,8 +233,6 @@ struct EditMemberView: View {
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
                             Toggle("Trivia Master", isOn: $member.isTriviaMaster).tint(Theme.cyan)
                                 .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
-                            Toggle("Active (can sign in)", isOn: $member.isActive).tint(Theme.cyan)
-                                .font(Theme.label(15)).foregroundStyle(Theme.textPrimary)
                         }
                     }
 
@@ -273,7 +271,7 @@ struct EditMemberView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Edit Member", size: 20) } }
+        .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Edit Soldier", size: 20) } }
         .onAppear { phoneText = PhoneUtil.pretty(member.phone) }
         .alert("Delete \(member.displayName)?", isPresented: $confirmDelete) {
             Button("Cancel", role: .cancel) {}
