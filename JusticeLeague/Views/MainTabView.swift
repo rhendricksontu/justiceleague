@@ -66,28 +66,27 @@ struct ProfileView: View {
 
                     if let m = app.currentMember {
                         FieldPanel {
-                            VStack(alignment: .leading, spacing: 12) {
-                                HStack(alignment: .top, spacing: 14) {
-                                    LabeledAvatar(avatarId: m.avatar, size: 64, nameSize: 12)
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        StencilTitle(m.displayName, size: 20, solid: true)
-                                        Text(PhoneUtil.pretty(m.phone))
-                                            .font(Theme.label(15))
-                                            .foregroundStyle(.black)
+                            HStack(alignment: .top, spacing: 14) {
+                                LabeledAvatar(avatarId: m.avatar, size: 64, nameSize: 12)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    StencilTitle(m.displayName, size: 20, solid: true)
+                                    Text(PhoneUtil.pretty(m.phone))
+                                        .font(Theme.label(15))
+                                        .foregroundStyle(.black)
+                                    HStack(spacing: 8) {
+                                        if m.isAdmin { RoleTag(text: "ADMIN") }
+                                        if m.isTriviaMaster { RoleTag(text: "TRIVIA") }
+                                        if !m.isAdmin && !m.isTriviaMaster { RoleTag(text: "MEMBER") }
                                     }
-                                    Spacer()
-                                    Button { showEdit = true } label: {
-                                        Image(systemName: "pencil")
-                                            .font(.system(size: 20, weight: .bold))
-                                            .foregroundStyle(.black)
-                                    }
-                                    .accessibilityLabel("Edit profile")
+                                    .padding(.top, 2)
                                 }
-                                HStack(spacing: 8) {
-                                    if m.isAdmin { RoleTag(text: "ADMIN") }
-                                    if m.isTriviaMaster { RoleTag(text: "TRIVIA") }
-                                    if !m.isAdmin && !m.isTriviaMaster { RoleTag(text: "MEMBER") }
+                                Spacer()
+                                Button { showEdit = true } label: {
+                                    Image(systemName: "pencil")
+                                        .font(.system(size: 20, weight: .bold))
+                                        .foregroundStyle(.black)
                                 }
+                                .accessibilityLabel("Edit profile")
                             }
                         }
                     }
