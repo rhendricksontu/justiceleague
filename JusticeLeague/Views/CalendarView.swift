@@ -214,23 +214,30 @@ struct CalendarView: View {
         }
     }
 
-    private var monthEventDays: Set<String> {
+    // Single-day events show a dot on their day; multi-day events show a line
+    // spanning every day they cover.
+    private var monthMarks: (dots: Set<String>, spans: Set<String>) {
         let cal = CalFmt.central
         let comps = cal.dateComponents([.year, .month], from: monthAnchor)
         guard let start = cal.date(from: comps),
-              let end = cal.date(byAdding: DateComponents(month: 1, day: 1), to: start) else { return [] }
-        var days = Set<String>()
+              let end = cal.date(byAdding: DateComponents(month: 1, day: 1), to: start) else { return ([], []) }
+        var dots = Set<String>()
+        var spans = Set<String>()
         for o in model.occurrences(from: start, to: end) {
-            var day = cal.startOfDay(for: o.start)
-            let endDay = cal.startOfDay(for: o.end)
-            var n = 0
-            while day <= endDay && n < 90 {
-                days.insert(CalFmt.dayKey(day))
-                day = cal.date(byAdding: .day, value: 1, to: day) ?? day.addingTimeInterval(86400)
-                n += 1
+            if o.isMultiDay {
+                var day = cal.startOfDay(for: o.start)
+                let endDay = cal.startOfDay(for: o.end)
+                var n = 0
+                while day <= endDay && n < 90 {
+                    spans.insert(CalFmt.dayKey(day))
+                    day = cal.date(byAdding: .day, value: 1, to: day) ?? day.addingTimeInterval(86400)
+                    n += 1
+                }
+            } else {
+                dots.insert(CalFmt.dayKey(o.start))
             }
         }
-        return days
+        return (dots, spans)
     }
 
     var body: some View {
@@ -241,7 +248,7 @@ struct CalendarView: View {
                     ScrollView {
                         VStack(spacing: 14) {
                             MonthGrid(monthAnchor: $monthAnchor, selectedDay: $selectedDay,
-                                      eventDays: monthEventDays) { day in
+                                      dotDays: monthMarks.dots, spanDays: monthMarks.spans) { day in
                                 selectedDay = day
                                 withAnimation { proxy.scrollTo("day-\(CalFmt.dayKey(day))", anchor: .top) }
                             }
@@ -308,7 +315,8 @@ struct CalendarView: View {
 struct MonthGrid: View {
     @Binding var monthAnchor: Date
     @Binding var selectedDay: Date
-    let eventDays: Set<String>
+    let dotDays: Set<String>
+    let spanDays: Set<String>
     let onSelect: (Date) -> Void
 
     private let cal = CalFmt.central
@@ -341,14 +349,35 @@ struct MonthGrid: View {
         let key = CalFmt.dayKey(day)
         let isSelected = cal.isDate(day, inSameDayAs: selectedDay)
         let isToday = cal.isDateInToday(day)
-        let hasEvent = eventDays.contains(key)
+        let markColor = isSelected ? Theme.onPrimary : Theme.cyan
+        let weekday = cal.component(.weekday, from: day)   // 1 = Sun … 7 = Sat
+        let covered = spanDays.contains(key)
+        let hasDot = dotDays.contains(key)
+        // The span line connects to a neighbor only within the same week row.
+        let contLeft = covered && weekday != 1 &&
+            (cal.date(byAdding: .day, value: -1, to: day).map { spanDays.contains(CalFmt.dayKey($0)) } ?? false)
+        let contRight = covered && weekday != 7 &&
+            (cal.date(byAdding: .day, value: 1, to: day).map { spanDays.contains(CalFmt.dayKey($0)) } ?? false)
         return Button { onSelect(day) } label: {
             VStack(spacing: 2) {
                 Text("\(cal.component(.day, from: day))")
                     .font(Theme.label(14, weight: isToday ? .bold : .regular))
                     .foregroundStyle(isSelected ? Theme.onPrimary : .black)
-                Circle().fill(hasEvent ? (isSelected ? Theme.onPrimary : Theme.cyan) : .clear)
-                    .frame(width: 5, height: 5)
+                ZStack {
+                    if covered {
+                        UnevenRoundedRectangle(
+                            topLeadingRadius: contLeft ? 0 : 2, bottomLeadingRadius: contLeft ? 0 : 2,
+                            bottomTrailingRadius: contRight ? 0 : 2, topTrailingRadius: contRight ? 0 : 2)
+                            .fill(markColor)
+                            .frame(height: 4)
+                            .padding(.leading, contLeft ? 0 : 6)
+                            .padding(.trailing, contRight ? 0 : 6)
+                    }
+                    if hasDot {
+                        Circle().fill(markColor).frame(width: 5, height: 5)
+                    }
+                }
+                .frame(maxWidth: .infinity).frame(height: 5)
             }
             .frame(maxWidth: .infinity).frame(height: 38)
             .background(isSelected ? Theme.cyan : (isToday ? Theme.surfaceHi : .clear))
