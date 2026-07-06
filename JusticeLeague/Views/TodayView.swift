@@ -450,19 +450,25 @@ struct ParticipationPanel: View {
         FieldPanel {
             VStack(alignment: .leading, spacing: 8) {
                 StencilTitle("ROLL CALL  \(model.answeredCount)/\(model.totalCount)", size: 15, solid: true)
-                FlowRow(items: model.participation) { p in
-                    HStack(spacing: 5) {
-                        if p.hasAnswered {
-                            ZStack {
-                                Circle().fill(Avatars.badgeGreen)
-                                Image(systemName: "checkmark").font(.system(size: 8, weight: .bold)).foregroundStyle(.white)
+                LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading),
+                                    GridItem(.flexible(), alignment: .leading)],
+                          alignment: .leading, spacing: 8) {
+                    ForEach(model.participation.sorted {
+                        $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+                    }) { p in
+                        HStack(spacing: 5) {
+                            if p.hasAnswered {
+                                ZStack {
+                                    Circle().fill(Avatars.badgeGreen)
+                                    Image(systemName: "checkmark").font(.system(size: 8, weight: .bold)).foregroundStyle(.white)
+                                }
+                                .frame(width: 16, height: 16)
+                            } else {
+                                Image(systemName: "circle").font(.system(size: 15)).foregroundStyle(.black)
                             }
-                            .frame(width: 16, height: 16)
-                        } else {
-                            Image(systemName: "circle").font(.system(size: 15)).foregroundStyle(.black)
+                            Text(p.displayName).font(Theme.label(13, weight: .medium))
+                                .foregroundStyle(.black)
                         }
-                        Text(p.displayName).font(Theme.label(13, weight: .medium))
-                            .foregroundStyle(.black)
                     }
                 }
             }
