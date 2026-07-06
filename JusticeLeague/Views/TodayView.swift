@@ -327,11 +327,20 @@ struct GradingPanel: View {
                                 }
                                 HStack(spacing: 10) {
                                     Button {
-                                        Task { await model.grade(r, correct: true, member: member); await onGraded() }
+                                        Task {
+                                            // Tapping the active grade clears it back to ungraded.
+                                            if r.isCorrect == true { await model.ungrade(r, member: member) }
+                                            else { await model.grade(r, correct: true, member: member) }
+                                            await onGraded()
+                                        }
                                     } label: { Label("Correct", systemImage: "checkmark") }
                                         .buttonStyle(GradeButtonStyle(active: r.isCorrect == true, color: Avatars.badgeGreen))
                                     Button {
-                                        Task { await model.grade(r, correct: false, member: member); await onGraded() }
+                                        Task {
+                                            if r.isCorrect == false { await model.ungrade(r, member: member) }
+                                            else { await model.grade(r, correct: false, member: member) }
+                                            await onGraded()
+                                        }
                                     } label: { Label("Wrong", systemImage: "xmark") }
                                         .buttonStyle(GradeButtonStyle(active: r.isCorrect == false, color: Theme.red))
                                 }

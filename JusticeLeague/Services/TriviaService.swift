@@ -150,6 +150,23 @@ enum TriviaService {
             .execute()
     }
 
+    // Clear a grade back to ungraded (tapping the active grade again).
+    static func ungrade(responseId: UUID) async throws {
+        struct UngradePatch: Encodable {
+            func encode(to encoder: Encoder) throws {
+                var c = encoder.container(keyedBy: CodingKeys.self)
+                try c.encodeNil(forKey: .is_correct)
+                try c.encodeNil(forKey: .graded_at)
+            }
+            enum CodingKeys: String, CodingKey { case is_correct, graded_at }
+        }
+        try await db
+            .from("trivia_responses")
+            .update(UngradePatch())
+            .eq("id", value: responseId)
+            .execute()
+    }
+
     // Who has answered (names only, no answers) — safe to show before reveal.
     static func participation(questionId: UUID) async throws -> [Participation] {
         try await db

@@ -127,6 +127,15 @@ final class TodayModel {
         }
     }
 
+    func ungrade(_ response: ResponseWithName, member: Member) async {
+        do {
+            try await TriviaService.ungrade(responseId: response.id)
+            responses = try await TriviaService.responses(questionId: response.questionId)
+        } catch {
+            errorText = friendly(error)
+        }
+    }
+
     private func friendly(_ error: Error) -> String {
         "Couldn't reach HQ. Pull to refresh and try again."
     }
