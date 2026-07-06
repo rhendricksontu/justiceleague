@@ -205,7 +205,7 @@ struct GradingPanel: View {
                             Button {
                                 Task { await model.grade(r, correct: true, member: member) }
                             } label: { Label("Correct", systemImage: "checkmark") }
-                                .buttonStyle(GradeButtonStyle(active: r.isCorrect == true, color: Theme.oliveDrab))
+                                .buttonStyle(GradeButtonStyle(active: r.isCorrect == true, color: Avatars.badgeGreen))
                             Button {
                                 Task { await model.grade(r, correct: false, member: member) }
                             } label: { Label("Wrong", systemImage: "xmark") }
@@ -366,10 +366,18 @@ struct ParticipationPanel: View {
 @ViewBuilder
 func gradeBadge(_ isCorrect: Bool?) -> some View {
     switch isCorrect {
-    case .some(true):  RoleTag(text: "CORRECT", color: Theme.oliveDrab)
-    case .some(false): RoleTag(text: "WRONG", color: Theme.red)
-    case .none:        RoleTag(text: "UNGRADED", color: Theme.surfaceHi)
+    case .some(true):  gradePill("CORRECT", Avatars.badgeGreen)
+    case .some(false): gradePill("WRONG", Theme.red)
+    case .none:        gradePill("UNGRADED", Theme.cyan)
     }
+}
+
+func gradePill(_ text: String, _ color: Color) -> some View {
+    Text(text)
+        .font(Theme.label(11, weight: .bold)).tracking(1)
+        .foregroundStyle(Theme.onPrimary)
+        .padding(.horizontal, 10).padding(.vertical, 5)
+        .background(color).clipShape(Capsule())
 }
 
 func fieldLabel(_ t: String) -> some View {
@@ -385,7 +393,7 @@ struct GradeButtonStyle: ButtonStyle {
             .padding(.horizontal, 16).padding(.vertical, 9)
             .frame(maxWidth: .infinity)
             .background(active ? color : Theme.background)
-            .foregroundStyle(active ? Theme.textPrimary : Theme.textDim)
+            .foregroundStyle(active ? Theme.onPrimary : Theme.textDim)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(color.opacity(active ? 1 : 0.4)))
     }
