@@ -349,9 +349,6 @@ struct EventCard: View {
                             Label(occ.event.location ?? "", systemImage: "mappin.and.ellipse")
                                 .font(Theme.label(13)).foregroundStyle(.black).lineLimit(1)
                         }
-                        if let desc = occ.event.description, !desc.isEmpty {
-                            Text(desc).font(Theme.label(13)).foregroundStyle(.black).lineLimit(2)
-                        }
                         HStack(spacing: 10) {
                             if occ.event.recurrence != .none {
                                 Label(occ.event.recurrence.shortLabel, systemImage: "repeat")
