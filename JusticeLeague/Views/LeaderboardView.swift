@@ -95,7 +95,7 @@ struct LeaderboardSection: View {
         // Current month is still in progress — no champion until it ends.
         championGroup(month: currentMonthDate()) {
             Text("In Progress")
-                .font(Theme.label(17, weight: .bold)).foregroundStyle(Theme.textDim)
+                .font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 14).padding(.vertical, 18)
                 .background(Theme.surface)
