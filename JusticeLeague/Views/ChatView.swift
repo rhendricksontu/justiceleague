@@ -212,7 +212,7 @@ struct MessageRow: View {
                 if !isMine {
                     Text(message.senderName)
                         .font(Theme.label(12, weight: .bold))
-                        .foregroundStyle(Theme.tan)
+                        .foregroundStyle(.black)
                 }
                 Text(message.body)
                     .font(Theme.label(16, weight: .regular))
@@ -223,7 +223,7 @@ struct MessageRow: View {
                     .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line, lineWidth: isMine ? 0 : 1))
                 Text(timeLabel(message.createdAt))
                     .font(Theme.label(10, weight: .regular))
-                    .foregroundStyle(Theme.textDim)
+                    .foregroundStyle(.black)
             }
             if !isMine { Spacer(minLength: 40) }
         }
