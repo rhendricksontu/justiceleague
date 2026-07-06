@@ -208,27 +208,45 @@ enum TriviaService {
 
     // MARK: Group chat
 
+    static let chatSelect = "id, member_id, body, image_path, created_at, member:members(display_name, avatar)"
+
     // Most recent messages (joined with sender name + avatar), oldest-first for display.
     static func messages(limit: Int = 200) async throws -> [ChatMessage] {
         let rows: [ChatMessage] = try await db
             .from("messages")
-            .select("id, member_id, body, created_at, member:members(display_name, avatar)")
+            .select(chatSelect)
             .order("created_at", ascending: false)
             .limit(limit)
             .execute().value
         return rows.reversed()
     }
 
-    struct NewChatMessage: Encodable { let member_id: UUID; let body: String }
+    struct NewChatMessage: Encodable { let member_id: UUID; let body: String?; let image_path: String? }
 
     @discardableResult
-    static func sendMessage(memberId: UUID, body: String) async throws -> ChatMessage {
-        try await db
+    static func sendMessage(memberId: UUID, body: String?, imagePath: String? = nil) async throws -> ChatMessage {
+        let trimmed = body?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return try await db
             .from("messages")
-            .insert(NewChatMessage(member_id: memberId, body: body))
-            .select("id, member_id, body, created_at, member:members(display_name, avatar)")
+            .insert(NewChatMessage(member_id: memberId,
+                                   body: (trimmed?.isEmpty ?? true) ? nil : trimmed,
+                                   image_path: imagePath))
+            .select(chatSelect)
             .single()
             .execute().value
+    }
+
+    // Upload a JPEG to the private chat-media bucket, returning its storage path.
+    static func uploadChatImage(_ data: Data, memberId: UUID) async throws -> String {
+        let path = "\(memberId.uuidString.lowercased())/\(UUID().uuidString).jpg"
+        try await db.storage.from("chat-media")
+            .upload(path, data: data, options: FileOptions(contentType: "image/jpeg"))
+        return path
+    }
+
+    // A short-lived signed URL for displaying a chat image.
+    static func signedChatURL(_ path: String) async throws -> URL {
+        try await db.storage.from("chat-media").createSignedURL(path: path, expiresIn: 3600)
     }
 
     static func deleteMessage(id: UUID) async throws {

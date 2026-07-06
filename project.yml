@@ -30,6 +30,8 @@ targets:
           - Anton-Regular.ttf
         UILaunchScreen:
           UIColorName: JoeBackground
+        NSCameraUsageDescription: Take photos to share in the Command Center chat.
+        NSPhotoLibraryUsageDescription: Choose photos to share in the Command Center chat.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UIStatusBarStyle: UIStatusBarStyleLightContent

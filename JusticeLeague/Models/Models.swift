@@ -103,7 +103,8 @@ struct Participation: Codable, Identifiable, Hashable {
 struct ChatMessage: Codable, Identifiable, Hashable {
     let id: UUID
     let memberId: UUID
-    var body: String
+    var body: String?
+    var imagePath: String?
     var createdAt: Date
     var member: Sender?
 
@@ -117,10 +118,13 @@ struct ChatMessage: Codable, Identifiable, Hashable {
     }
 
     var senderName: String { member?.displayName ?? "Unknown" }
+    var text: String { body ?? "" }
+    var hasText: Bool { !(body ?? "").isEmpty }
 
     enum CodingKeys: String, CodingKey {
         case id, body, member
         case memberId = "member_id"
+        case imagePath = "image_path"
         case createdAt = "created_at"
     }
 }
@@ -129,7 +133,8 @@ struct ChatMessage: Codable, Identifiable, Hashable {
 struct RealtimeMessageRow: Decodable {
     let id: UUID
     let member_id: UUID
-    let body: String
+    let body: String?
+    let image_path: String?
     let created_at: String
 }
 

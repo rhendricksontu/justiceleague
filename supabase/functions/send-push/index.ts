@@ -85,12 +85,14 @@ Deno.serve(async (req) => {
   // Load the message + sender name.
   const { data: msg } = await admin
     .from("messages")
-    .select("id, body, member_id, members(display_name)")
+    .select("id, body, image_path, member_id, members(display_name)")
     .eq("id", messageId)
     .maybeSingle();
   if (!msg) return new Response("message_not_found", { status: 404 });
 
   const senderName = (msg.members as { display_name?: string } | null)?.display_name ?? "Someone";
+  const bodyText = (msg.body ?? "").trim();
+  const preview = bodyText.length ? bodyText.slice(0, 180) : (msg.image_path ? "📷 Photo" : "");
 
   // Everyone else's devices.
   const { data: tokens } = await admin
@@ -108,7 +110,7 @@ Deno.serve(async (req) => {
 
   const payload = JSON.stringify({
     aps: {
-      alert: { title: `${senderName} · The League`, body: String(msg.body).slice(0, 180) },
+      alert: { title: `${senderName} · The League`, body: preview },
       sound: "default",
       badge: 1,
       "thread-id": "league-comms",
