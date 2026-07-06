@@ -462,10 +462,8 @@ struct ParticipationPanel: View {
                             Image(systemName: "circle").font(.system(size: 15)).foregroundStyle(.black)
                         }
                         Text(p.displayName).font(Theme.label(13, weight: .medium))
-                            .foregroundStyle(p.hasAnswered ? Theme.textPrimary : Theme.textDim)
+                            .foregroundStyle(.black)
                     }
-                    .padding(.horizontal, 9).padding(.vertical, 5)
-                    .background(Theme.surfaceHi).clipShape(Capsule())
                 }
             }
         }
