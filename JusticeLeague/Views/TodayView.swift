@@ -155,7 +155,11 @@ struct TodayView: View {
                 }
             }
         } else {
-            GradingPanel(model: model, member: m)
+            // Days lock automatically once they end; the master can override.
+            let locked = q.gradingLocked ?? (selectedDay < startOfToday)
+            GradingPanel(model: model, member: m, locked: locked) {
+                Task { await model.setGradingLock(!locked, member: m) }
+            }
         }
     }
 
@@ -225,21 +229,31 @@ struct PostQuestionForm: View {
 struct GradingPanel: View {
     let model: TodayModel
     let member: Member
+    let locked: Bool
+    let onToggleLock: () -> Void
     @State private var expanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Button { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } } label: {
-                ZStack {
-                    StencilTitle("GRADE RESPONSES", size: 18).frame(maxWidth: .infinity)
-                    HStack {
-                        Spacer()
-                        Image(systemName: expanded ? "chevron.up" : "chevron.down")
-                            .font(.system(size: 14, weight: .bold)).foregroundStyle(.black)
+            ZStack {
+                Button { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } } label: {
+                    StencilTitle(locked ? "VIEW RESPONSES" : "GRADE RESPONSES", size: 18)
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                HStack {
+                    Button(action: onToggleLock) {
+                        Image(systemName: locked ? "lock.fill" : "lock.open.fill")
+                            .font(.system(size: 18, weight: .bold)).foregroundStyle(.black)
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(locked ? "Unlock grading" : "Lock grading")
+                    Spacer()
+                    Image(systemName: expanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 14, weight: .bold)).foregroundStyle(.black)
                 }
             }
-            .buttonStyle(.plain)
 
             if expanded {
                 if model.responses.isEmpty {
@@ -247,23 +261,37 @@ struct GradingPanel: View {
                 }
 
                 ForEach(model.responses) { r in
-                    FieldPanel {
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack(spacing: 12) {
-                                LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
-                                (Text("\(r.name): ").font(Theme.label(16, weight: .semibold)).foregroundColor(.black)
-                                    + Text(r.answer).font(Theme.label(16, weight: .regular)).foregroundColor(.black))
-                                Spacer(minLength: 0)
-                            }
-                            HStack(spacing: 10) {
-                                Button {
-                                    Task { await model.grade(r, correct: true, member: member) }
-                                } label: { Label("Correct", systemImage: "checkmark") }
-                                    .buttonStyle(GradeButtonStyle(active: r.isCorrect == true, color: Avatars.badgeGreen))
-                                Button {
-                                    Task { await model.grade(r, correct: false, member: member) }
-                                } label: { Label("Wrong", systemImage: "xmark") }
-                                    .buttonStyle(GradeButtonStyle(active: r.isCorrect == false, color: Theme.red))
+                    if locked {
+                        HStack(spacing: 12) {
+                            LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
+                            (Text("\(r.name): ").font(Theme.label(16, weight: .semibold)).foregroundColor(.black)
+                                + Text(r.answer).font(Theme.label(16, weight: .regular)).foregroundColor(.black))
+                            Spacer(minLength: 0)
+                        }
+                        .padding(14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(answerCardColor(r.isCorrect))
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.line, lineWidth: 1))
+                    } else {
+                        FieldPanel {
+                            VStack(alignment: .leading, spacing: 10) {
+                                HStack(spacing: 12) {
+                                    LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
+                                    (Text("\(r.name): ").font(Theme.label(16, weight: .semibold)).foregroundColor(.black)
+                                        + Text(r.answer).font(Theme.label(16, weight: .regular)).foregroundColor(.black))
+                                    Spacer(minLength: 0)
+                                }
+                                HStack(spacing: 10) {
+                                    Button {
+                                        Task { await model.grade(r, correct: true, member: member) }
+                                    } label: { Label("Correct", systemImage: "checkmark") }
+                                        .buttonStyle(GradeButtonStyle(active: r.isCorrect == true, color: Avatars.badgeGreen))
+                                    Button {
+                                        Task { await model.grade(r, correct: false, member: member) }
+                                    } label: { Label("Wrong", systemImage: "xmark") }
+                                        .buttonStyle(GradeButtonStyle(active: r.isCorrect == false, color: Theme.red))
+                                }
                             }
                         }
                     }

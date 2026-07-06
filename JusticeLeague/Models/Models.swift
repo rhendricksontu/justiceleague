@@ -25,12 +25,14 @@ struct TriviaQuestion: Codable, Identifiable, Hashable {
     var createdBy: UUID
     var revealed: Bool
     var revealedAt: Date?
+    var gradingLocked: Bool?   // nil = auto (locked once the day ends)
 
     enum CodingKeys: String, CodingKey {
         case id, prompt, revealed
         case questionDate = "question_date"
         case createdBy = "created_by"
         case revealedAt = "revealed_at"
+        case gradingLocked = "grading_locked"
     }
 }
 
