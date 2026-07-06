@@ -12,7 +12,7 @@ struct MainTabView: View {
                 .badge(app.chatUnread)
 
             CalendarView()
-                .tabItem { Label("Calendar", systemImage: "calendar") }.tag(5)
+                .tabItem { Label("Ops", systemImage: "calendar") }.tag(5)
 
             TodayView()
                 .tabItem { Label("Trivia", systemImage: "target") }.tag(0)

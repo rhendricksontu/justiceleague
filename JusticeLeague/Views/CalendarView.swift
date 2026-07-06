@@ -233,7 +233,7 @@ struct CalendarView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) { StencilTitle("Calendar", size: 20) }
+                ToolbarItem(placement: .principal) { StencilTitle("Special Ops", size: 20) }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showCreate = true } label: { Image(systemName: "calendar.badge.plus").foregroundStyle(.black) }
                 }
