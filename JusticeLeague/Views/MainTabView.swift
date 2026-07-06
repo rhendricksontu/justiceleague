@@ -17,10 +17,8 @@ struct MainTabView: View {
             TodayView()
                 .tabItem { Label("Intel", systemImage: "target") }.tag(0)
 
-            if app.currentMember?.isAdmin == true {
-                AdminView()
-                    .tabItem { Label("Soldiers", systemImage: "person.3.fill") }.tag(2)
-            }
+            AdminView()
+                .tabItem { Label("Soldiers", systemImage: "person.3.fill") }.tag(2)
 
             ProfileView()
                 .tabItem { Label("Me", systemImage: "person.crop.circle") }.tag(3)

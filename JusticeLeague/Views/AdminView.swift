@@ -80,8 +80,11 @@ final class AdminModel {
 }
 
 struct AdminView: View {
+    @Environment(AppState.self) private var app
     @State private var model = AdminModel()
     @State private var showAdd = false
+
+    private var isAdmin: Bool { app.currentMember?.isAdmin == true }
 
     var body: some View {
         NavigationStack {
@@ -93,10 +96,14 @@ struct AdminView: View {
                             ProgressView().tint(Theme.cyan).frame(maxWidth: .infinity).padding(.top, 40)
                         } else {
                             ForEach(model.members) { m in
-                                NavigationLink { EditMemberView(model: model, member: m) } label: {
-                                    MemberRow(member: m)
+                                if isAdmin {
+                                    NavigationLink { EditMemberView(model: model, member: m) } label: {
+                                        MemberRow(member: m, showEdit: true)
+                                    }
+                                    .buttonStyle(.plain)
+                                } else {
+                                    MemberRow(member: m, showEdit: false)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                         if let e = model.errorText {
@@ -110,8 +117,10 @@ struct AdminView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) { StencilTitle("Special Forces", size: 20) }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(.black) }
+                if isAdmin {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { showAdd = true } label: { Image(systemName: "person.badge.plus").foregroundStyle(.black) }
+                    }
                 }
             }
             .sheet(isPresented: $showAdd) { AddMemberView(model: model).flyUpSheet() }
@@ -122,6 +131,7 @@ struct AdminView: View {
 
 struct MemberRow: View {
     let member: Member
+    var showEdit: Bool = true
     var body: some View {
         FieldPanel {
             HStack(spacing: 12) {
@@ -137,7 +147,9 @@ struct MemberRow: View {
                     }
                 }
                 Spacer()
-                Image(systemName: "pencil").font(.system(size: 18, weight: .bold)).foregroundStyle(.black)
+                if showEdit {
+                    Image(systemName: "pencil").font(.system(size: 18, weight: .bold)).foregroundStyle(.black)
+                }
             }
         }
     }
