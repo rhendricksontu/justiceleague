@@ -320,7 +320,7 @@ struct MonthGrid: View {
     let onSelect: (Date) -> Void
 
     private let cal = CalFmt.central
-    private let cols = Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
+    private let cols = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
 
     var body: some View {
         VStack(spacing: 8) {
@@ -366,18 +366,19 @@ struct MonthGrid: View {
                 ZStack {
                     if covered {
                         UnevenRoundedRectangle(
-                            topLeadingRadius: contLeft ? 0 : 2, bottomLeadingRadius: contLeft ? 0 : 2,
-                            bottomTrailingRadius: contRight ? 0 : 2, topTrailingRadius: contRight ? 0 : 2)
+                            topLeadingRadius: contLeft ? 0 : 3, bottomLeadingRadius: contLeft ? 0 : 3,
+                            bottomTrailingRadius: contRight ? 0 : 3, topTrailingRadius: contRight ? 0 : 3)
                             .fill(markColor)
                             .frame(height: 4)
                             .padding(.leading, contLeft ? 0 : 6)
                             .padding(.trailing, contRight ? 0 : 6)
                     }
-                    if hasDot {
-                        Circle().fill(markColor).frame(width: 5, height: 5)
+                    // A node dot at each day makes the span read as connected.
+                    if covered || hasDot {
+                        Circle().fill(markColor).frame(width: 6, height: 6)
                     }
                 }
-                .frame(maxWidth: .infinity).frame(height: 5)
+                .frame(maxWidth: .infinity).frame(height: 6)
             }
             .frame(maxWidth: .infinity).frame(height: 38)
             .background(isSelected ? Theme.cyan : (isToday ? Theme.surfaceHi : .clear))
