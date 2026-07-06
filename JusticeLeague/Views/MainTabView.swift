@@ -85,7 +85,7 @@ struct ProfileView: View {
                                 }
                                 HStack(spacing: 8) {
                                     if m.isAdmin { RoleTag(text: "ADMIN") }
-                                    if m.isTriviaMaster { RoleTag(text: "TRIVIA MASTER") }
+                                    if m.isTriviaMaster { RoleTag(text: "TRIVIA") }
                                     if !m.isAdmin && !m.isTriviaMaster { RoleTag(text: "MEMBER") }
                                 }
                             }

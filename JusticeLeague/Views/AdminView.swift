@@ -132,7 +132,7 @@ struct MemberRow: View {
                     Text(PhoneUtil.pretty(member.phone)).font(Theme.label(13)).foregroundStyle(.black)
                     HStack(spacing: 6) {
                         if member.isAdmin { RoleTag(text: "ADMIN", color: Theme.red) }
-                        if member.isTriviaMaster { RoleTag(text: "MASTER", color: Theme.cyan) }
+                        if member.isTriviaMaster { RoleTag(text: "TRIVIA", color: Theme.cyan) }
                         if !member.isActive { RoleTag(text: "INACTIVE", color: Theme.surfaceHi) }
                     }
                 }
