@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
   if (eventId) {
     const { data: ev } = await admin
       .from("events")
-      .select("id, title, location, starts_at, created_by, members(display_name)")
+      .select("id, title, location, starts_at, created_by, members!events_created_by_fkey(display_name)")
       .eq("id", eventId)
       .maybeSingle();
     if (!ev) return new Response("event_not_found", { status: 404 });
@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
   } else {
     const { data: msg } = await admin
       .from("messages")
-      .select("id, body, attachment_kind, member_id, members(display_name)")
+      .select("id, body, attachment_kind, member_id, members!messages_member_id_fkey(display_name)")
       .eq("id", messageId)
       .maybeSingle();
     if (!msg) return new Response("message_not_found", { status: 404 });
