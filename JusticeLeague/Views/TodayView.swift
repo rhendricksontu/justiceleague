@@ -100,7 +100,7 @@ struct TodayView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     StencilTitle("MISSION BRIEFING", size: 15, solid: true)
                     Text(q.prompt)
-                        .font(Theme.label(19, weight: .semibold))
+                        .font(Theme.label(19, weight: .regular))
                         .foregroundStyle(Theme.textPrimary)
                     if q.revealed, let key = model.answerKey {
                         Divider().overlay(Theme.oliveDrab)
