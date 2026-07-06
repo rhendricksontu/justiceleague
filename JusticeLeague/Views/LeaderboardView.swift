@@ -92,18 +92,32 @@ struct LeaderboardSection: View {
 
     @ViewBuilder
     private var hallOfFame: some View {
-        if model.winnersByMonth.isEmpty {
-            emptyNote("No champions crowned yet. The first month's winner will appear here.")
-        } else {
-            ForEach(model.winnersByMonth, id: \.month) { entry in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("\(MonthFmt.label(entry.month)) Champion")
-                        .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
-                    ForEach(entry.winners) { w in
-                        LeaderRow(avatarId: model.avatars[w.memberId], name: w.displayName, count: w.correctCount, showAvatarName: true)
-                    }
+        // Current month is still in progress — no champion until it ends.
+        championGroup(month: currentMonthDate()) {
+            Text("In Progress")
+                .font(Theme.label(17, weight: .bold)).foregroundStyle(Theme.textDim)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 14).padding(.vertical, 18)
+                .background(Theme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Theme.line, lineWidth: 1))
+        }
+        // Completed months — every tied winner is listed.
+        ForEach(model.winnersByMonth, id: \.month) { entry in
+            championGroup(month: entry.month) {
+                ForEach(entry.winners) { w in
+                    LeaderRow(avatarId: model.avatars[w.memberId], name: w.displayName, count: w.correctCount, showAvatarName: true)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func championGroup<Content: View>(month: Date, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("\(MonthFmt.label(month)) Champion")
+                .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
+            content()
         }
     }
 
@@ -128,8 +142,10 @@ struct LeaderRow: View {
             } else {
                 AvatarBadge(avatar: Avatars.find(avatarId), size: 40)
             }
-            Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
-            if isTriviaMaster { RoleTag(text: "TRIVIA") }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
+                if isTriviaMaster { RoleTag(text: "TRIVIA") }
+            }
             Spacer()
             if let count {
                 Text("\(count)").font(Theme.stencil(22)).foregroundStyle(.black)
