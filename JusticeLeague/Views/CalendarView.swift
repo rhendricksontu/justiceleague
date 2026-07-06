@@ -20,6 +20,10 @@ enum CalFmt {
         let f = DateFormatter(); f.timeZone = Config.timeZone; f.dateFormat = "h:mm a"
         return f.string(from: date)
     }
+    static func shortDate(_ date: Date) -> String {
+        let f = DateFormatter(); f.timeZone = Config.timeZone; f.dateFormat = "MMM d"
+        return f.string(from: date)
+    }
     static func dayHeader(_ date: Date) -> String {
         let cal = central
         if cal.isDateInToday(date) { return "TODAY" }
@@ -40,6 +44,16 @@ struct Occurrence: Identifiable, Hashable {
     let end: Date
     let occKey: String
     var id: String { "\(event.id.uuidString)-\(occKey)" }
+    var isMultiDay: Bool { !CalFmt.central.isDate(start, inSameDayAs: end) }
+}
+
+// A single day an occurrence appears on (a multi-day event yields one per day).
+struct DaySlice: Identifiable, Hashable {
+    let occ: Occurrence
+    let day: Date
+    let isStart: Bool
+    let isEnd: Bool
+    var id: String { "\(occ.event.id.uuidString)-\(occ.occKey)-\(CalFmt.dayKey(day))" }
 }
 
 // MARK: - Model
@@ -175,20 +189,48 @@ struct CalendarView: View {
     private var windowStart: Date { CalFmt.central.startOfDay(for: Date()) }
     private var windowEnd: Date { CalFmt.central.date(byAdding: .day, value: 120, to: windowStart) ?? windowStart }
 
-    private var agenda: [(day: Date, items: [Occurrence])] {
-        let occ = model.occurrences(from: windowStart, to: windowEnd)
-        let grouped = Dictionary(grouping: occ) { CalFmt.dayKey($0.start) }
+    // Each occurrence appears on every day it spans (start → end), grouped by day.
+    private var agenda: [(day: Date, items: [DaySlice])] {
+        let cal = CalFmt.central
+        var slices: [DaySlice] = []
+        for o in model.occurrences(from: windowStart, to: windowEnd) {
+            let startDay = cal.startOfDay(for: o.start)
+            let endDay = cal.startOfDay(for: o.end)
+            var day = startDay, n = 0
+            while day <= endDay && n < 90 {
+                if day >= windowStart && day <= windowEnd {
+                    slices.append(DaySlice(occ: o, day: day,
+                                           isStart: cal.isDate(day, inSameDayAs: startDay),
+                                           isEnd: cal.isDate(day, inSameDayAs: endDay)))
+                }
+                day = cal.date(byAdding: .day, value: 1, to: day) ?? day.addingTimeInterval(86400)
+                n += 1
+            }
+        }
+        let grouped = Dictionary(grouping: slices) { CalFmt.dayKey($0.day) }
         return grouped.keys.sorted().compactMap { key in
             guard let items = grouped[key], let first = items.first else { return nil }
-            return (CalFmt.central.startOfDay(for: first.start), items)
+            return (first.day, items.sorted { $0.occ.start < $1.occ.start })
         }
     }
 
     private var monthEventDays: Set<String> {
-        let comps = CalFmt.central.dateComponents([.year, .month], from: monthAnchor)
-        guard let start = CalFmt.central.date(from: comps),
-              let end = CalFmt.central.date(byAdding: DateComponents(month: 1, day: 1), to: start) else { return [] }
-        return Set(model.occurrences(from: start, to: end).map { $0.occKey })
+        let cal = CalFmt.central
+        let comps = cal.dateComponents([.year, .month], from: monthAnchor)
+        guard let start = cal.date(from: comps),
+              let end = cal.date(byAdding: DateComponents(month: 1, day: 1), to: start) else { return [] }
+        var days = Set<String>()
+        for o in model.occurrences(from: start, to: end) {
+            var day = cal.startOfDay(for: o.start)
+            let endDay = cal.startOfDay(for: o.end)
+            var n = 0
+            while day <= endDay && n < 90 {
+                days.insert(CalFmt.dayKey(day))
+                day = cal.date(byAdding: .day, value: 1, to: day) ?? day.addingTimeInterval(86400)
+                n += 1
+            }
+        }
+        return days
     }
 
     var body: some View {
@@ -217,8 +259,8 @@ struct CalendarView: View {
                                         Text(CalFmt.dayHeader(section.day))
                                             .font(Theme.label(12, weight: .bold)).tracking(1).foregroundStyle(.black)
                                             .padding(.horizontal, 16)
-                                        ForEach(section.items) { occ in
-                                            EventCard(occ: occ, model: model, onOpen: { detail = occ })
+                                        ForEach(section.items) { slice in
+                                            EventCard(slice: slice, model: model, onOpen: { detail = slice.occ })
                                                 .padding(.horizontal, 16)
                                         }
                                     }
@@ -333,18 +375,27 @@ struct MonthGrid: View {
 // MARK: - Event card (agenda row)
 
 struct EventCard: View {
-    let occ: Occurrence
+    let slice: DaySlice
     let model: CalendarModel
     let onOpen: () -> Void
     @Environment(\.openURL) private var openURL
+
+    private var occ: Occurrence { slice.occ }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 10) {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(occ.event.title).font(Theme.label(16, weight: .bold)).foregroundStyle(.black)
-                        .lineLimit(1)
-                    Text(timeRange).font(Theme.label(13)).foregroundStyle(.black)
+                    HStack(spacing: 6) {
+                        Text(occ.event.title).font(Theme.label(16, weight: .bold)).foregroundStyle(.black)
+                            .lineLimit(1)
+                        if occ.isMultiDay {
+                            Text("MULTI-DAY").font(Theme.label(9, weight: .bold)).foregroundStyle(Theme.onPrimary)
+                                .padding(.horizontal, 6).padding(.vertical, 2)
+                                .background(Theme.cyan).clipShape(Capsule())
+                        }
+                    }
+                    Text(timeText).font(Theme.label(13)).foregroundStyle(.black)
                     if occ.event.hasLocation, let loc = occ.event.location {
                         Button { openInMaps(loc) } label: {
                             Label(loc, systemImage: "mappin.and.ellipse")
@@ -368,19 +419,22 @@ struct EventCard: View {
             .contentShape(Rectangle())
             .onTapGesture { onOpen() }
 
-            HStack(spacing: 8) {
-                ForEach(RSVPStatus.allCases, id: \.self) { status in
-                    let mine = model.myStatus(occ) == status
-                    Button { Task { await model.setRSVP(occ, status) } } label: {
-                        Text(status.label)
-                            .font(Theme.label(13, weight: .bold))
-                            .frame(maxWidth: .infinity).padding(.vertical, 7)
-                            .background(mine ? color(status) : Theme.surfaceHi)
-                            .foregroundStyle(mine ? Theme.onPrimary : .black)
-                            .clipShape(Capsule())
-                            .overlay(Capsule().strokeBorder(color(status).opacity(mine ? 1 : 0.4)))
+            // RSVP once, on the event's starting day.
+            if slice.isStart {
+                HStack(spacing: 8) {
+                    ForEach(RSVPStatus.allCases, id: \.self) { status in
+                        let mine = model.myStatus(occ) == status
+                        Button { Task { await model.setRSVP(occ, status) } } label: {
+                            Text(status.label)
+                                .font(Theme.label(13, weight: .bold))
+                                .frame(maxWidth: .infinity).padding(.vertical, 7)
+                                .background(mine ? color(status) : Theme.surfaceHi)
+                                .foregroundStyle(mine ? Theme.onPrimary : .black)
+                                .clipShape(Capsule())
+                                .overlay(Capsule().strokeBorder(color(status).opacity(mine ? 1 : 0.4)))
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
@@ -389,10 +443,12 @@ struct EventCard: View {
         .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line))
     }
 
-    private var timeRange: String {
-        let sameDay = CalFmt.central.isDate(occ.start, inSameDayAs: occ.end)
-        return sameDay ? "\(CalFmt.time(occ.start)) – \(CalFmt.time(occ.end))"
-                       : "\(CalFmt.time(occ.start)) – \(CalFmt.dayHeader(occ.end).capitalized) \(CalFmt.time(occ.end))"
+    // "5:00 PM – 8:00 PM" for a single day; for a multi-day event, per-day context.
+    private var timeText: String {
+        if !occ.isMultiDay { return "\(CalFmt.time(occ.start)) – \(CalFmt.time(occ.end))" }
+        if slice.isStart { return "Starts \(CalFmt.time(occ.start)) · ends \(CalFmt.shortDate(occ.end))" }
+        if slice.isEnd { return "Ends \(CalFmt.time(occ.end))" }
+        return "All day"
     }
 
     private func openInMaps(_ location: String) {
@@ -500,7 +556,10 @@ struct EventDetailView: View {
     }
 
     private var dateLine: String {
-        "\(CalFmt.dayHeader(occ.start).capitalized) · \(CalFmt.time(occ.start)) – \(CalFmt.time(occ.end))"
+        if occ.isMultiDay {
+            return "\(CalFmt.shortDate(occ.start)), \(CalFmt.time(occ.start)) → \(CalFmt.shortDate(occ.end)), \(CalFmt.time(occ.end))"
+        }
+        return "\(CalFmt.dayHeader(occ.start).capitalized) · \(CalFmt.time(occ.start)) – \(CalFmt.time(occ.end))"
     }
 
     private func openInMaps(_ location: String) {
