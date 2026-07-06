@@ -24,11 +24,13 @@ final class LeaderboardModel {
         loading = false
     }
 
-    // Group winners by month for the year-long history list.
-    var winnersByMonth: [(month: Date, names: [String], count: Int?)] {
-        let grouped = Dictionary(grouping: winners, by: { $0.month })
-        return grouped
-            .map { (month: $0.key, names: $0.value.map(\.displayName).sorted(), count: $0.value.first?.correctCount ?? nil) }
+    // Group winners by month (newest first) for the Hall of Fame list.
+    var winnersByMonth: [(month: Date, winners: [MonthlyWinner])] {
+        Dictionary(grouping: winners, by: { $0.month })
+            .map { (month: $0.key,
+                    winners: $0.value.sorted {
+                        $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending
+                    }) }
             .sorted { $0.month > $1.month }
     }
 }
@@ -75,27 +77,15 @@ struct LeaderboardSection: View {
 
     @ViewBuilder
     private var hallOfFame: some View {
-        Text("MONTHLY CHAMPIONS")
-            .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
         if model.winnersByMonth.isEmpty {
             emptyNote("No champions crowned yet. The first month's winner will appear here.")
         } else {
             ForEach(model.winnersByMonth, id: \.month) { entry in
-                FieldPanel {
-                    HStack(alignment: .center, spacing: 12) {
-                        Image(systemName: "trophy.fill").font(.title2).foregroundStyle(.black)
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text(MonthFmt.label(entry.month)).font(Theme.label(13, weight: .bold)).foregroundStyle(.black)
-                            Text(entry.names.joined(separator: " & "))
-                                .font(Theme.label(18, weight: .heavy)).foregroundStyle(.black)
-                        }
-                        Spacer()
-                        if let c = entry.count {
-                            VStack {
-                                Text("\(c)").font(Theme.stencil(24)).foregroundStyle(.black)
-                                Text("CORRECT").font(Theme.label(9, weight: .bold)).foregroundStyle(.black)
-                            }
-                        }
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("\(MonthFmt.label(entry.month)) Champion")
+                        .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
+                    ForEach(entry.winners) { w in
+                        LeaderRow(avatarId: model.avatars[w.memberId], name: w.displayName, count: w.correctCount)
                     }
                 }
             }
@@ -112,15 +102,17 @@ struct LeaderboardSection: View {
 struct LeaderRow: View {
     let avatarId: String?
     let name: String
-    let count: Int
+    let count: Int?
 
     var body: some View {
         HStack(spacing: 12) {
             AvatarBadge(avatar: Avatars.find(avatarId), size: 40)
             Text(name).font(Theme.label(17, weight: .bold)).foregroundStyle(.black)
             Spacer()
-            Text("\(count)").font(Theme.stencil(22)).foregroundStyle(.black)
-            Text("pts").font(Theme.label(12)).foregroundStyle(.black)
+            if let count {
+                Text("\(count)").font(Theme.stencil(22)).foregroundStyle(.black)
+                Text("pts").font(Theme.label(12)).foregroundStyle(.black)
+            }
         }
         .padding(.horizontal, 14).padding(.vertical, 10)
         .background(Theme.surface)
