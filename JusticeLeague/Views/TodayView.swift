@@ -158,7 +158,8 @@ struct TodayView: View {
             // Previous days are always locked on arrival; the current day is
             // unlocked. The master can toggle within the session to fix a past
             // day; it re-derives its default each time the day is opened.
-            GradingPanel(model: model, member: m, startsLocked: selectedDay < startOfToday)
+            GradingPanel(model: model, member: m, startsLocked: selectedDay < startOfToday,
+                         onGraded: { await lbModel.load() })
                 .id(q.id)
         }
     }
@@ -229,12 +230,14 @@ struct PostQuestionForm: View {
 struct GradingPanel: View {
     let model: TodayModel
     let member: Member
+    let onGraded: () async -> Void
     @State private var expanded = false
     @State private var locked: Bool
 
-    init(model: TodayModel, member: Member, startsLocked: Bool) {
+    init(model: TodayModel, member: Member, startsLocked: Bool, onGraded: @escaping () async -> Void) {
         self.model = model
         self.member = member
+        self.onGraded = onGraded
         _locked = State(initialValue: startsLocked)
     }
 
@@ -289,11 +292,11 @@ struct GradingPanel: View {
                                 }
                                 HStack(spacing: 10) {
                                     Button {
-                                        Task { await model.grade(r, correct: true, member: member) }
+                                        Task { await model.grade(r, correct: true, member: member); await onGraded() }
                                     } label: { Label("Correct", systemImage: "checkmark") }
                                         .buttonStyle(GradeButtonStyle(active: r.isCorrect == true, color: Avatars.badgeGreen))
                                     Button {
-                                        Task { await model.grade(r, correct: false, member: member) }
+                                        Task { await model.grade(r, correct: false, member: member); await onGraded() }
                                     } label: { Label("Wrong", systemImage: "xmark") }
                                         .buttonStyle(GradeButtonStyle(active: r.isCorrect == false, color: Theme.red))
                                 }
