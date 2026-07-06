@@ -15,7 +15,7 @@ struct MainTabView: View {
                 .tabItem { Label("Ops", systemImage: "calendar") }.tag(5)
 
             TodayView()
-                .tabItem { Label("Trivia", systemImage: "target") }.tag(0)
+                .tabItem { Label("Intel", systemImage: "target") }.tag(0)
 
             if app.currentMember?.isAdmin == true {
                 AdminView()
