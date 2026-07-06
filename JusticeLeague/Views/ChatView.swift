@@ -516,7 +516,7 @@ struct ChatView: View {
             }
             .disabled(model.sending || editingMessage != nil)
 
-            TextField("", text: $draft, prompt: Text("Message the League…").foregroundColor(.black), axis: .vertical)
+            TextField("", text: $draft, axis: .vertical)
                 .lineLimit(1...5)
                 .focused($inputFocused)
                 .padding(.horizontal, 14).padding(.vertical, 10)
@@ -1408,7 +1408,7 @@ struct GifPickerView: View {
                 VStack(spacing: 10) {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass").foregroundStyle(.black)
-                        TextField("", text: $query, prompt: Text("Search GIFs").foregroundColor(.black))
+                        TextField("", text: $query)
                             .foregroundStyle(Theme.textPrimary)
                     }
                     .padding(.horizontal, 14).padding(.vertical, 10)

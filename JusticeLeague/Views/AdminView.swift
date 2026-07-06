@@ -161,9 +161,9 @@ struct AddMemberView: View {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
                                 fieldLabel("NAME")
-                                inputField($name, placeholder: "John Smith")
+                                inputField($name)
                                 fieldLabel("PHONE")
-                                inputField($phone, placeholder: "(405) 555-0123", keyboard: .phonePad)
+                                inputField($phone, keyboard: .phonePad)
                                     .onChange(of: phone) { _, v in
                                         let f = PhoneUtil.format(v); if f != v { phone = f }
                                     }
@@ -222,9 +222,9 @@ struct EditMemberView: View {
                     FieldPanel {
                         VStack(alignment: .leading, spacing: 12) {
                             fieldLabel("NAME")
-                            inputField($member.displayName, placeholder: "Name")
+                            inputField($member.displayName)
                             fieldLabel("PHONE")
-                            inputField($phoneText, placeholder: "(405) 555-0123", keyboard: .phonePad)
+                            inputField($phoneText, keyboard: .phonePad)
                                 .onChange(of: phoneText) { _, v in
                                     let f = PhoneUtil.format(v); if f != v { phoneText = f }
                                 }
@@ -289,8 +289,8 @@ struct EditMemberView: View {
 }
 
 // Shared styled text field.
-func inputField(_ text: Binding<String>, placeholder: String, keyboard: UIKeyboardType = .default) -> some View {
-    TextField("", text: text, prompt: Text(placeholder).foregroundColor(.black))
+func inputField(_ text: Binding<String>, keyboard: UIKeyboardType = .default) -> some View {
+    TextField("", text: text)
         .keyboardType(keyboard)
         .padding(12).background(Theme.surfaceHi)
         .foregroundStyle(Theme.textPrimary)

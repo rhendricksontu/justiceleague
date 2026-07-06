@@ -670,9 +670,9 @@ struct EventEditView: View {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
                                 fieldLabel("TITLE")
-                                inputField($title, placeholder: "Your Event Title")
+                                inputField($title)
                                 fieldLabel("LOCATION")
-                                inputField($location, placeholder: "Event Location")
+                                inputField($location)
                                 fieldLabel("EVENT NOTES")
                                 Text("Start a line with “- ” for bullet points.")
                                     .font(Theme.label(11)).foregroundStyle(Theme.textDim)

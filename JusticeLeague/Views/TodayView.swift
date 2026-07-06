@@ -155,7 +155,7 @@ struct PostQuestionForm: View {
                     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
 
                 fieldLabel("CORRECT ANSWER (only you see this)")
-                TextField("", text: $answer, prompt: Text("e.g. Conrad Hauser").foregroundColor(.black))
+                TextField("", text: $answer)
                     .padding(10).background(Theme.surfaceHi)
                     .foregroundStyle(Theme.textPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -232,7 +232,7 @@ struct AnswerForm: View {
                 StencilTitle("YOUR ANSWER", size: 17, solid: true)
                 Text("No one sees your answer until the trivia master reveals.")
                     .font(Theme.label(13, weight: .regular)).foregroundStyle(.black)
-                TextField("", text: $answer, prompt: Text("Type your answer…").foregroundColor(.black))
+                TextField("", text: $answer)
                     .padding(12).background(Theme.surfaceHi)
                     .foregroundStyle(Theme.textPrimary)
                     .font(Theme.label(18, weight: .medium))

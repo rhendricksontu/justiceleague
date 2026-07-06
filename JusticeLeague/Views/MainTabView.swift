@@ -124,9 +124,9 @@ struct EditProfileView: View {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
                                 fieldLabel("NAME")
-                                inputField($name, placeholder: "John Smith")
+                                inputField($name)
                                 fieldLabel("PHONE")
-                                inputField($phoneText, placeholder: "(405) 555-0123", keyboard: .phonePad)
+                                inputField($phoneText, keyboard: .phonePad)
                                     .onChange(of: phoneText) { _, v in
                                         let f = PhoneUtil.format(v); if f != v { phoneText = f }
                                     }
