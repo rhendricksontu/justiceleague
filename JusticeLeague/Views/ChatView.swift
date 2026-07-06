@@ -206,7 +206,7 @@ struct MessageRow: View {
         HStack(alignment: .bottom, spacing: 8) {
             if isMine { Spacer(minLength: 40) }
             if !isMine {
-                AvatarBadge(avatar: Avatars.find(message.member?.avatar), size: 32)
+                LabeledAvatar(avatarId: message.member?.avatar, size: 32, nameSize: 9)
             }
             VStack(alignment: isMine ? .trailing : .leading, spacing: 3) {
                 if !isMine {

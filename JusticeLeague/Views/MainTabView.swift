@@ -65,7 +65,7 @@ struct ProfileView: View {
                         FieldPanel {
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack(alignment: .top, spacing: 14) {
-                                    AvatarBadge(avatar: Avatars.find(m.avatar), size: 64)
+                                    LabeledAvatar(avatarId: m.avatar, size: 64, nameSize: 12)
                                     VStack(alignment: .leading, spacing: 6) {
                                         StencilTitle(m.displayName, size: 20, solid: true)
                                         Text(PhoneUtil.pretty(m.phone))

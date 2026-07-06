@@ -71,6 +71,27 @@ struct AvatarBadge: View {
     }
 }
 
+// Avatar badge with the chosen G.I. Joe's codename beneath it. Shows nothing
+// under the badge when the member hasn't picked an avatar yet.
+struct LabeledAvatar: View {
+    let avatarId: String?
+    var size: CGFloat = 56
+    var nameSize: CGFloat = 11
+
+    var body: some View {
+        VStack(spacing: 4) {
+            AvatarBadge(avatar: Avatars.find(avatarId), size: size)
+            if let joe = Avatars.find(avatarId) {
+                Text(joe.name)
+                    .font(Theme.label(nameSize, weight: .bold))
+                    .foregroundStyle(.black)
+                    .lineLimit(1).minimumScaleFactor(0.7)
+                    .frame(maxWidth: size + 16)
+            }
+        }
+    }
+}
+
 struct AvatarPickerView: View {
     @Environment(AppState.self) private var app
     @Environment(\.dismiss) private var dismiss
