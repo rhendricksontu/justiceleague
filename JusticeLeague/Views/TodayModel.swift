@@ -107,6 +107,17 @@ final class TodayModel {
         }
     }
 
+    func unreveal(member: Member) async {
+        guard let q = question else { return }
+        errorText = nil
+        do {
+            try await TriviaService.unreveal(question: q)
+            await load(member: member)
+        } catch {
+            errorText = friendly(error)
+        }
+    }
+
     func grade(_ response: ResponseWithName, correct: Bool, member: Member) async {
         do {
             try await TriviaService.grade(responseId: response.id, correct: correct)

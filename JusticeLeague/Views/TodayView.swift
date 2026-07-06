@@ -180,6 +180,17 @@ struct TodayView: View {
             GradingPanel(model: model, member: m, startsLocked: selectedDay < startOfToday,
                          onGraded: { await lbModel.load() })
                 .id(q.id)
+
+            // Escape hatch for an accidental reveal on the current day.
+            if isToday {
+                Button { Task { await model.unreveal(member: m) } } label: {
+                    Text("Unreveal Answers")
+                        .font(Theme.label(14, weight: .bold))
+                        .foregroundStyle(Theme.red)
+                        .frame(maxWidth: .infinity)
+                }
+                .padding(.top, 4)
+            }
         }
     }
 

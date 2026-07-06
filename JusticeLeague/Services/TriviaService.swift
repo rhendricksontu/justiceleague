@@ -76,6 +76,17 @@ enum TriviaService {
             .execute()
     }
 
+    // Undo an accidental reveal — hides answers from members again. Grades are
+    // preserved; re-revealing restores everything.
+    static func unreveal(question: TriviaQuestion) async throws {
+        struct UnrevealPatch: Encodable { let revealed = false }
+        try await db
+            .from("trivia_questions")
+            .update(UnrevealPatch())
+            .eq("id", value: question.id)
+            .execute()
+    }
+
     // MARK: Answer key (visible to master anytime, everyone after reveal)
 
     static func answerKey(for questionId: UUID) async throws -> AnswerKey? {
