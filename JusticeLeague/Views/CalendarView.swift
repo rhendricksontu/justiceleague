@@ -461,6 +461,50 @@ struct EventCard: View {
     }
 }
 
+// Renders event notes: bullet lines (- / * / •) get a hanging bullet, blank
+// lines become spacing, everything else is a readable paragraph.
+struct EventNotesView: View {
+    let text: String
+
+    private struct Line: Identifiable { let id: Int; let raw: String }
+    private var lines: [Line] {
+        text.replacingOccurrences(of: "\r\n", with: "\n")
+            .components(separatedBy: "\n")
+            .enumerated().map { Line(id: $0.offset, raw: $0.element) }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            ForEach(lines) { line in
+                let trimmed = line.raw.trimmingCharacters(in: .whitespaces)
+                if trimmed.isEmpty {
+                    Color.clear.frame(height: 2)
+                } else if let bullet = bulletBody(trimmed) {
+                    HStack(alignment: .top, spacing: 8) {
+                        Text("•").font(Theme.label(15, weight: .bold)).foregroundStyle(Theme.cyan)
+                        Text(bullet).font(Theme.label(15)).foregroundStyle(.black)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineSpacing(2)
+                        Spacer(minLength: 0)
+                    }
+                } else {
+                    Text(line.raw).font(Theme.label(15)).foregroundStyle(.black)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineSpacing(2)
+                }
+            }
+        }
+    }
+
+    // Returns the text after a leading bullet marker, or nil if the line isn't a bullet.
+    private func bulletBody(_ line: String) -> String? {
+        for marker in ["- ", "* ", "• ", "– "] where line.hasPrefix(marker) {
+            return String(line.dropFirst(marker.count))
+        }
+        return nil
+    }
+}
+
 // MARK: - Event detail
 
 struct EventDetailView: View {
@@ -502,9 +546,14 @@ struct EventDetailView: View {
                                     }
                                 }
                                 Text("Added by \(occ.event.creatorName)").font(Theme.label(12)).foregroundStyle(Theme.textDim)
-                                if let desc = occ.event.description, !desc.isEmpty {
-                                    Divider().overlay(Theme.oliveDrab)
-                                    Text(desc).font(Theme.label(15)).foregroundStyle(.black)
+                            }
+                        }
+
+                        if let desc = occ.event.description, !desc.isEmpty {
+                            FieldPanel {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    Text("EVENT NOTES").font(Theme.label(12, weight: .bold)).tracking(1).foregroundStyle(.black)
+                                    EventNotesView(text: desc)
                                 }
                             }
                         }
@@ -625,10 +674,13 @@ struct EventEditView: View {
                                 fieldLabel("LOCATION")
                                 inputField($location, placeholder: "Warren Theatre")
                                 fieldLabel("EVENT NOTES")
+                                Text("Start a line with “- ” for bullet points.")
+                                    .font(Theme.label(11)).foregroundStyle(Theme.textDim)
                                 TextEditor(text: $description)
-                                    .frame(minHeight: 70).scrollContentBackground(.hidden)
+                                    .frame(minHeight: 160).scrollContentBackground(.hidden)
                                     .padding(8).background(Theme.surfaceHi)
                                     .foregroundStyle(Theme.textPrimary)
+                                    .font(Theme.label(15))
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                     .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(Theme.line))
                             }
