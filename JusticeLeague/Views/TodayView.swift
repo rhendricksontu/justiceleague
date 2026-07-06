@@ -393,7 +393,7 @@ struct GradeButtonStyle: ButtonStyle {
             .padding(.horizontal, 16).padding(.vertical, 9)
             .frame(maxWidth: .infinity)
             .background(active ? color : Theme.background)
-            .foregroundStyle(active ? Theme.onPrimary : Theme.textDim)
+            .foregroundStyle(active ? Theme.onPrimary : .black)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(color.opacity(active ? 1 : 0.4)))
     }
