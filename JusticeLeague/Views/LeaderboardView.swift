@@ -40,24 +40,37 @@ final class LeaderboardModel {
 struct LeaderboardSection: View {
     let model: LeaderboardModel
     @State private var tab = 0
+    @State private var expanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            StencilTitle("Current Leaderboard", size: 18)
-                .frame(maxWidth: .infinity)
-
-            Picker("", selection: $tab) {
-                Text("THIS MONTH").tag(0)
-                Text("HALL OF FAME").tag(1)
+            Button { withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() } } label: {
+                ZStack {
+                    StencilTitle("Current Leaderboard", size: 18)
+                        .frame(maxWidth: .infinity)
+                    HStack {
+                        Spacer()
+                        Image(systemName: expanded ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 14, weight: .bold)).foregroundStyle(.black)
+                    }
+                }
             }
-            .pickerStyle(.segmented)
+            .buttonStyle(.plain)
 
-            if model.loading {
-                ProgressView().tint(Theme.cyan).frame(maxWidth: .infinity).padding(.top, 20)
-            } else if tab == 0 {
-                monthlyBoard
-            } else {
-                hallOfFame
+            if expanded {
+                Picker("", selection: $tab) {
+                    Text("THIS MONTH").tag(0)
+                    Text("HALL OF FAME").tag(1)
+                }
+                .pickerStyle(.segmented)
+
+                if model.loading {
+                    ProgressView().tint(Theme.cyan).frame(maxWidth: .infinity).padding(.top, 20)
+                } else if tab == 0 {
+                    monthlyBoard
+                } else {
+                    hallOfFame
+                }
             }
         }
     }
@@ -70,7 +83,7 @@ struct LeaderboardSection: View {
             emptyNote("No correct answers logged yet this month. Get in the game!")
         } else {
             ForEach(model.monthlyScores) { score in
-                LeaderRow(avatarId: model.avatars[score.memberId], name: score.displayName, count: score.correctCount)
+                LeaderRow(avatarId: model.avatars[score.memberId], name: score.displayName, count: score.correctCount, showAvatarName: true)
             }
         }
     }
