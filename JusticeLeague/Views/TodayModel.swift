@@ -34,8 +34,10 @@ final class TodayModel {
             answerKey = nil
             guard let q else { loading = false; return }
 
-            // Everyone can see who has answered.
-            participation = (try? await TriviaService.participation(questionId: q.id)) ?? []
+            // Everyone can see who has answered. The master who posted the
+            // question doesn't answer it, so keep them off the roll call.
+            participation = ((try? await TriviaService.participation(questionId: q.id)) ?? [])
+                .filter { $0.memberId != q.createdBy }
 
             // Master sees the answer key anytime; members only after reveal.
             answerKey = try? await TriviaService.answerKey(for: q.id)
