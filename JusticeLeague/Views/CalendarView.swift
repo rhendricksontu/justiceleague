@@ -529,6 +529,7 @@ struct EventDetailView: View {
                                 }
                                 if !model.rsvps(for: occ).isEmpty {
                                     Divider().overlay(Theme.oliveDrab)
+                                    Text("ALL RSVPS").font(Theme.label(12, weight: .bold)).tracking(1).foregroundStyle(.black)
                                     rsvpList
                                 }
                             }
