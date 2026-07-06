@@ -108,7 +108,7 @@ enum TriviaService {
     static func responses(questionId: UUID) async throws -> [ResponseWithName] {
         try await db
             .from("trivia_responses")
-            .select("id, question_id, member_id, answer, is_correct, submitted_at, member:members(display_name)")
+            .select("id, question_id, member_id, answer, is_correct, submitted_at, member:members(display_name, avatar)")
             .eq("question_id", value: questionId)
             .order("submitted_at", ascending: true)
             .execute().value

@@ -43,6 +43,14 @@ struct TodayView: View {
             .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Daily Intel", size: 20) } }
             .task { await refreshAll() }
             .onChange(of: selectedDay) { _, _ in Task { await reloadDay() } }
+            #if DEBUG
+            .onAppear {
+                if let s = ProcessInfo.processInfo.environment["START_DAY"] {
+                    let f = DateFormatter(); f.timeZone = Config.timeZone; f.dateFormat = "yyyy-MM-dd"
+                    if let d = f.date(from: s) { selectedDay = CalFmt.central.startOfDay(for: d) }
+                }
+            }
+            #endif
         }
     }
 
@@ -353,16 +361,18 @@ struct ResultsPanel: View {
             }
             StencilTitle("ALL ANSWERS", size: 16)
             ForEach(model.responses) { r in
-                FieldPanel {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(r.name).font(Theme.label(14, weight: .bold)).foregroundStyle(.black)
-                            Text(r.answer).font(Theme.label(16, weight: .medium)).foregroundStyle(Theme.textPrimary)
-                        }
-                        Spacer()
-                        gradeBadge(r.isCorrect)
-                    }
+                HStack(spacing: 12) {
+                    LabeledAvatar(avatarId: r.avatar, size: 44, nameSize: 10)
+                    Text("\(r.name): \(r.answer)")
+                        .font(Theme.label(16, weight: .semibold))
+                        .foregroundStyle(.black)
+                    Spacer(minLength: 0)
                 }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(answerCardColor(r.isCorrect))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.line, lineWidth: 1))
             }
         }
     }
@@ -404,6 +414,17 @@ func gradeBadge(_ isCorrect: Bool?) -> some View {
     case .some(true):  gradePill("CORRECT", Avatars.badgeGreen)
     case .some(false): gradePill("WRONG", Theme.red)
     case .none:        gradePill("UNGRADED", Theme.cyan)
+    }
+}
+
+// Tinted card background for a graded answer — green when correct, red when
+// wrong, neutral until graded. Tinted (not solid) so the green avatar and text
+// stay readable on top.
+func answerCardColor(_ isCorrect: Bool?) -> Color {
+    switch isCorrect {
+    case .some(true):  return Avatars.badgeGreen.opacity(0.22)
+    case .some(false): return Theme.red.opacity(0.18)
+    case .none:        return Theme.surface
     }
 }
 

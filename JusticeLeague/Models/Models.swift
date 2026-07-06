@@ -72,10 +72,15 @@ struct ResponseWithName: Codable, Identifiable, Hashable {
 
     struct MemberName: Codable, Hashable {
         let displayName: String
-        enum CodingKeys: String, CodingKey { case displayName = "display_name" }
+        let avatar: String?
+        enum CodingKeys: String, CodingKey {
+            case displayName = "display_name"
+            case avatar
+        }
     }
 
     var name: String { member?.displayName ?? "Unknown" }
+    var avatar: String? { member?.avatar }
 
     enum CodingKeys: String, CodingKey {
         case id, answer, member
