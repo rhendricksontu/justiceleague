@@ -4,7 +4,7 @@ _Last updated: July 6, 2026_
 
 Justice League ("the app") is a private, invite‑only app for members of the
 Justice League men's group. This policy explains what we collect, why, and how
-it is handled. If you have questions, contact us at **[your email here]**.
+it is handled. If you have questions, contact us at **ryan.l.hendrickson@gmail.com**.
 
 ## Who can use the app
 The app is available only to members whose phone number has been added to the
@@ -57,7 +57,7 @@ Reported content is reviewed and acted on within 24 hours where warranted.
 ## Data retention and deletion
 Your data is kept while you are a member of the group. You may delete your own
 messages at any time. To have your account and associated data removed, contact
-an administrator or email us at **[your email here]**, and we will delete it.
+an administrator or email us at **ryan.l.hendrickson@gmail.com**, and we will delete it.
 
 ## Children
 The app is intended for adults and is not directed to children under 13.
@@ -67,5 +67,5 @@ We may update this policy; the "last updated" date above will change
 accordingly.
 
 ## Contact
-**[Your Name / Justice League]**
-Email: **[your email here]**
+**Ryan Hendrickson / Justice League**
+Email: **ryan.l.hendrickson@gmail.com**
