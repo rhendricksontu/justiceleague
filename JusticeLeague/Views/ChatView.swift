@@ -332,7 +332,7 @@ struct ChatView: View {
                 ToolbarItem(placement: .principal) { StencilTitle("Command Center", size: 20) }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showArchive = true } label: {
-                        Image(systemName: "folder.fill").foregroundStyle(.black)
+                        Image(systemName: "folder").foregroundStyle(.black)
                     }
                     .accessibilityLabel("Shared media & links")
                 }
