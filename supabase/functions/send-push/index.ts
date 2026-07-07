@@ -72,28 +72,63 @@ Deno.serve(async (req) => {
   let messageId = "";
   let eventId = "";
   let questionId = "";
+  let championMonth = "";
   let kind = "";
+  let evTitle = "";
+  let evStart = "";
+  let evEnd = "";
   try {
     const body = await req.json();
     messageId = String(body?.message_id ?? "");
     eventId = String(body?.event_id ?? "");
     questionId = String(body?.question_id ?? "");
+    championMonth = String(body?.champion_month ?? "");
     kind = String(body?.kind ?? "");
+    evTitle = String(body?.event_title ?? "");
+    evStart = String(body?.starts_at ?? "");
+    evEnd = String(body?.ends_at ?? "");
   } catch {
     return new Response("bad_request", { status: 400 });
   }
-  if (!messageId && !eventId && !questionId) return new Response("no_id", { status: 400 });
+  if (!messageId && !eventId && !questionId && !championMonth && kind !== "deleted") {
+    return new Response("no_id", { status: 400 });
+  }
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
+
+  // Event date line (Central): "Mon D · 6:00 PM", or "Mon D – Mon D" for multi-day.
+  const TZ = "America/Chicago";
+  function eventDates(startISO: string, endISO?: string): string {
+    const start = new Date(startISO);
+    const dayOf = (d: Date) => d.toLocaleString("en-US", { timeZone: TZ, weekday: "short", month: "short", day: "numeric" });
+    const timeOf = (d: Date) => d.toLocaleString("en-US", { timeZone: TZ, hour: "numeric", minute: "2-digit" });
+    if (endISO) {
+      const end = new Date(endISO);
+      const sameDay = start.toLocaleDateString("en-US", { timeZone: TZ }) === end.toLocaleDateString("en-US", { timeZone: TZ });
+      if (!sameDay) return `${dayOf(start)} – ${dayOf(end)}`;
+    }
+    return `${dayOf(start)} · ${timeOf(start)}`;
+  }
 
   let title = "The League";
   let preview = "";
   let excludeMember: string | null = null;
   let threadId = "league-comms";
 
-  if (questionId) {
+  if (championMonth) {
+    const { data: winners } = await admin
+      .from("v_monthly_winners")
+      .select("display_name")
+      .eq("month", championMonth);
+    if (!winners || winners.length === 0) return new Response("no_champion", { status: 200 });
+    const names = (winners as { display_name: string }[]).map((w) => w.display_name).sort().join(" & ");
+    const monthLabel = new Date(`${championMonth}T12:00:00Z`).toLocaleString("en-US", { timeZone: TZ, month: "long", year: "numeric" });
+    title = "Champion Crowned";
+    preview = `${names} — ${monthLabel} champion`;
+    threadId = "league-intel";           // everyone hears, including the champion
+  } else if (questionId) {
     const { data: q } = await admin
       .from("trivia_questions")
       .select("id, prompt, created_by")
@@ -101,45 +136,39 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!q) return new Response("question_not_found", { status: 404 });
     if (kind === "revealed") {
-      title = "🎯 Trivia Revealed";
-      preview = "The answers are in — see how you did.";
+      title = "Trivia Answers Revealed";
+      preview = "See how you did.";
     } else {
-      title = "🎯 New Trivia";
-      preview = ((q.prompt as string) ?? "A new question is up.").slice(0, 180);
+      title = "New Trivia Question";
+      preview = ((q.prompt as string) ?? "").slice(0, 180);
     }
     excludeMember = q.created_by as string | null;   // the master who posted it
     threadId = "league-intel";
+  } else if (kind === "deleted") {
+    // The row is gone, so the trigger passes the details in the payload.
+    title = `Event Cancelled: ${evTitle || "Event"}`;
+    preview = evStart ? eventDates(evStart, evEnd || undefined) : "This event was cancelled.";
+    threadId = "league-events";          // everyone hears, including the creator
   } else if (eventId) {
     const { data: ev } = await admin
       .from("events")
-      .select("id, title, location, starts_at, created_by, members!events_created_by_fkey(display_name)")
+      .select("id, title, starts_at, ends_at, created_by")
       .eq("id", eventId)
       .maybeSingle();
     if (!ev) return new Response("event_not_found", { status: 404 });
-    const creator = (ev.members as { display_name?: string } | null)?.display_name ?? "Someone";
-    const when = new Date(ev.starts_at as string).toLocaleString("en-US", {
-      timeZone: "America/Chicago", weekday: "short", month: "short",
-      day: "numeric", hour: "numeric", minute: "2-digit",
-    });
-    const loc = (ev.location as string | null)?.trim();
-    title = kind === "updated" ? "📅 Event Updated" : "📅 New Event";
-    preview = `${ev.title} — ${when}${loc ? " @ " + loc : ""} (by ${creator})`.slice(0, 180);
+    title = (kind === "updated" ? "Event Updated: " : "New Event: ") + (ev.title as string);
+    preview = eventDates(ev.starts_at as string, ev.ends_at as string | undefined);
     excludeMember = ev.created_by as string | null;
     threadId = "league-events";
   } else {
     const { data: msg } = await admin
       .from("messages")
-      .select("id, body, attachment_kind, member_id, members!messages_member_id_fkey(display_name)")
+      .select("id, member_id, members!messages_member_id_fkey(display_name)")
       .eq("id", messageId)
       .maybeSingle();
     if (!msg) return new Response("message_not_found", { status: 404 });
-    const senderName = (msg.members as { display_name?: string } | null)?.display_name ?? "Someone";
-    const bodyText = (msg.body ?? "").trim();
-    const kindLabel: Record<string, string> = {
-      image: "📷 Photo", gif: "🎬 GIF", video: "🎬 Video", audio: "🎤 Voice message", file: "📎 File",
-    };
-    title = `${senderName} · The League`;
-    preview = bodyText.length ? bodyText.slice(0, 180) : (kindLabel[msg.attachment_kind as string] ?? "New message");
+    title = (msg.members as { display_name?: string } | null)?.display_name ?? "Someone";
+    preview = "New Message";
     excludeMember = msg.member_id as string;
   }
 
