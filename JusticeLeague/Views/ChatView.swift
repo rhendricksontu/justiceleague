@@ -64,6 +64,7 @@ final class ChatModel {
     var reactionMap: [UUID: [MessageReaction]] = [:]
     var typingMembers: [UUID: String] = [:]
     var readTimes: [UUID: Date] = [:]
+    var blocked: Set<UUID> = []
     var currentMemberId: UUID?
     var loading = true
     var sending = false
@@ -77,10 +78,26 @@ final class ChatModel {
 
     func start() async {
         await loadRoster()
+        await reloadBlocked()
         await load()
         await reloadReactions()
         await reloadReadTimes()
         await subscribe()
+    }
+
+    func reloadBlocked() async {
+        blocked = Set((try? await TriviaService.blockedMembers()) ?? [])
+    }
+
+    func block(_ memberId: UUID) async {
+        guard let me = currentMemberId else { return }
+        try? await TriviaService.blockMember(blocker: me, blocked: memberId)
+        blocked.insert(memberId)
+    }
+
+    func report(_ message: ChatMessage) async {
+        guard let me = currentMemberId else { return }
+        try? await TriviaService.reportMessage(messageId: message.id, reporter: me, reason: "Reported from chat")
     }
 
     func reloadReadTimes() async {
@@ -291,6 +308,7 @@ struct ChatView: View {
     @State private var showGifPicker = false
     @State private var showAttachMenu = false
     @State private var showArchive = false
+    @State private var showReportConfirm = false
     @State private var pendingAttach: AttachKind?
     @State private var fullScreenImage: URL?
     @State private var quickLookURL: URL?
@@ -322,6 +340,8 @@ struct ChatView: View {
                         onCopy: { UIPasteboard.general.string = target.text; reactionTarget = nil },
                         onEdit: { startEdit(target); reactionTarget = nil },
                         onDelete: { Task { await model.delete(target) }; reactionTarget = nil },
+                        onReport: { Task { await model.report(target) }; reactionTarget = nil; showReportConfirm = true },
+                        onBlock: { Task { await model.block(target.memberId) }; reactionTarget = nil },
                         onDismiss: { reactionTarget = nil }
                     )
                     .transition(.opacity.combined(with: .scale(scale: 0.92)))
@@ -365,6 +385,11 @@ struct ChatView: View {
             }
             .sheet(isPresented: $showArchive) {
                 ChatArchiveView(messages: model.messages).flyUpSheet()
+            }
+            .alert("Message reported", isPresented: $showReportConfirm) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Thanks — we'll review it within 24 hours and take action if needed.")
             }
             .photosPicker(isPresented: $showPhotoPicker, selection: $pickedItems,
                           maxSelectionCount: 10, matching: .any(of: [.images, .videos]))
@@ -459,7 +484,7 @@ struct ChatView: View {
     private var rows: [ChatRowItem] {
         var result: [ChatRowItem] = []
         var lastDay: String?
-        let msgs = model.messages
+        let msgs = model.messages.filter { !model.blocked.contains($0.memberId) }
         for (i, msg) in msgs.enumerated() {
             let day = Self.dayKey(msg.createdAt)
             if day != lastDay { result.append(.date(msg.createdAt)); lastDay = day }
@@ -958,6 +983,8 @@ struct ReactionOverlay: View {
     let onCopy: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
+    let onReport: () -> Void
+    let onBlock: () -> Void
     let onDismiss: () -> Void
 
     @State private var showEmojiPicker = false
@@ -1005,6 +1032,12 @@ struct ReactionOverlay: View {
                         if isMine {
                             Divider()
                             actionRow("Delete", "trash", role: .destructive, action: onDelete)
+                        }
+                        if !isMine {
+                            Divider()
+                            actionRow("Report Message", "flag", action: onReport)
+                            Divider()
+                            actionRow("Block \(message.senderName)", "hand.raised", role: .destructive, action: onBlock)
                         }
                     }
                     .background(Theme.surface)

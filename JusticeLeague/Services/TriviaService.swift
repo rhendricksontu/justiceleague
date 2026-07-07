@@ -448,6 +448,26 @@ enum TriviaService {
         try await db.from("members").select("id, chat_last_read_at").execute().value
     }
 
+    // MARK: Moderation (block / report)
+
+    struct BlockedRow: Decodable { let blocked_id: UUID }
+    static func blockedMembers() async throws -> [UUID] {
+        let rows: [BlockedRow] = try await db.from("blocked_members").select("blocked_id").execute().value
+        return rows.map(\.blocked_id)
+    }
+    static func blockMember(blocker: UUID, blocked: UUID) async throws {
+        struct Row: Encodable { let blocker_id: UUID; let blocked_id: UUID }
+        try await db.from("blocked_members").insert(Row(blocker_id: blocker, blocked_id: blocked)).execute()
+    }
+    static func unblockMember(blocker: UUID, blocked: UUID) async throws {
+        try await db.from("blocked_members").delete()
+            .eq("blocker_id", value: blocker).eq("blocked_id", value: blocked).execute()
+    }
+    static func reportMessage(messageId: UUID, reporter: UUID, reason: String) async throws {
+        struct Row: Encodable { let message_id: UUID; let reporter_id: UUID; let reason: String }
+        try await db.from("message_reports").insert(Row(message_id: messageId, reporter_id: reporter, reason: reason)).execute()
+    }
+
     // MARK: Push tokens
 
     struct DeviceTokenParam: Encodable { let p_token: String; let p_platform: String }
