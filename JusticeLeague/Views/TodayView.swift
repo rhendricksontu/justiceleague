@@ -188,8 +188,13 @@ struct TodayView: View {
                 .buttonStyle(JoeButtonStyle())
             }
 
-            GradingPanel(model: model, member: m, startsLocked: selectedDay < startOfToday,
-                         onGraded: { await lbModel.load() })
+            // Past days always open locked (temporary unlock only). The current
+            // day defaults unlocked but the master's lock choice is persisted, so
+            // it survives navigating away and back.
+            GradingPanel(model: model, member: m,
+                         startsLocked: isPast ? true : (q.gradingLocked ?? false),
+                         onGraded: { await lbModel.load() },
+                         onLockChange: isPast ? nil : { locked in await model.setGradingLock(locked, member: m) })
                 .id(q.id)
         }
     }
@@ -261,13 +266,16 @@ struct GradingPanel: View {
     let model: TodayModel
     let member: Member
     let onGraded: () async -> Void
+    let onLockChange: ((Bool) async -> Void)?   // persist the lock (current day only)
     @State private var expanded: Bool
     @State private var locked: Bool
 
-    init(model: TodayModel, member: Member, startsLocked: Bool, onGraded: @escaping () async -> Void) {
+    init(model: TodayModel, member: Member, startsLocked: Bool,
+         onGraded: @escaping () async -> Void, onLockChange: ((Bool) async -> Void)? = nil) {
         self.model = model
         self.member = member
         self.onGraded = onGraded
+        self.onLockChange = onLockChange
         _locked = State(initialValue: startsLocked)
         // Unlocked (e.g. a question the master just revealed) opens expanded;
         // locked past days stay collapsed until opened.
@@ -289,6 +297,7 @@ struct GradingPanel: View {
                             locked.toggle()
                             if !locked { expanded = true }   // unlocking opens grading
                         }
+                        if let onLockChange { Task { await onLockChange(locked) } }
                     } label: {
                         Image(systemName: locked ? "lock.fill" : "lock.open.fill")
                             .font(.system(size: 18, weight: .bold)).foregroundStyle(.black)

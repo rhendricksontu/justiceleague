@@ -78,6 +78,16 @@ enum TriviaService {
 
     // Undo an accidental reveal — hides answers from members again. Grades are
     // preserved; re-revealing restores everything.
+    // Persist the master's grading-lock choice for a question (current day).
+    static func setGradingLock(questionId: UUID, locked: Bool) async throws {
+        struct LockPatch: Encodable { let grading_locked: Bool }
+        try await db
+            .from("trivia_questions")
+            .update(LockPatch(grading_locked: locked))
+            .eq("id", value: questionId)
+            .execute()
+    }
+
     static func unreveal(question: TriviaQuestion) async throws {
         struct UnrevealPatch: Encodable { let revealed = false }
         try await db
