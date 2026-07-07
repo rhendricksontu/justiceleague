@@ -290,6 +290,7 @@ struct ChatView: View {
     @State private var showFiles = false
     @State private var showGifPicker = false
     @State private var showAttachMenu = false
+    @State private var showArchive = false
     @State private var pendingAttach: AttachKind?
     @State private var fullScreenImage: URL?
     @State private var quickLookURL: URL?
@@ -326,7 +327,15 @@ struct ChatView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Command Center", size: 20) } }
+            .toolbar {
+                ToolbarItem(placement: .principal) { StencilTitle("Command Center", size: 20) }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showArchive = true } label: {
+                        Image(systemName: "folder.fill").foregroundStyle(.black)
+                    }
+                    .accessibilityLabel("Shared media & links")
+                }
+            }
             .task { model.currentMemberId = app.currentMember?.id; await model.start(); await markRead() }
             .onChange(of: draft) { _, v in
                 guard !v.trimmed.isEmpty, let m = app.currentMember else { return }
@@ -352,6 +361,9 @@ struct ChatView: View {
                     Task { await sendGif(data) }
                 }
                 .flyUpSheet()
+            }
+            .sheet(isPresented: $showArchive) {
+                ChatArchiveView(messages: model.messages).flyUpSheet()
             }
             .photosPicker(isPresented: $showPhotoPicker, selection: $pickedItems,
                           maxSelectionCount: 10, matching: .any(of: [.images, .videos]))
@@ -1513,6 +1525,203 @@ struct MovieFile: Transferable {
             try? FileManager.default.removeItem(at: temp)
             try FileManager.default.copyItem(at: received.file, to: temp)
             return MovieFile(url: temp)
+        }
+    }
+}
+
+// MARK: - Shared media & links archive
+
+// A link found in a message body.
+struct ChatLink: Identifiable, Hashable {
+    let id = UUID()
+    let url: URL
+    let message: ChatMessage
+}
+
+struct ChatArchiveView: View {
+    let messages: [ChatMessage]
+    @Environment(\.openURL) private var openURL
+    @State private var fullScreenImage: URL?
+    @State private var videoURL: URL?
+    @State private var quickLookURL: URL?
+
+    // Newest first for easy recall.
+    private var ordered: [ChatMessage] { messages.sorted { $0.createdAt > $1.createdAt } }
+    private func media(_ kind: AttachmentKind) -> [ChatMessage] {
+        ordered.filter { $0.attachmentKind == kind && $0.attachmentPath != nil }
+    }
+    private var gifs: [ChatMessage] { media(.gif) }
+    private var photos: [ChatMessage] { media(.image) }
+    private var videos: [ChatMessage] { media(.video) }
+    private var files: [ChatMessage] { media(.file) }
+    private var links: [ChatLink] {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return [] }
+        var out: [ChatLink] = []
+        var seen = Set<String>()
+        for m in ordered {
+            let text = m.body ?? ""
+            let range = NSRange(text.startIndex..., in: text)
+            for match in detector.matches(in: text, range: range) {
+                guard let u = match.url, (u.scheme == "http" || u.scheme == "https"),
+                      !seen.contains(u.absoluteString) else { continue }
+                seen.insert(u.absoluteString)
+                out.append(ChatLink(url: u, message: m))
+            }
+        }
+        return out
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        linksSection
+                        mediaSection("Attached Gifs", gifs)
+                        mediaSection("Attached Photos", photos)
+                        mediaSection("Attached Videos", videos)
+                        filesSection
+                    }
+                    .padding(20)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Archive", size: 20) } }
+            .fullScreenCover(item: $fullScreenImage) { url in
+                ImageViewer(url: url) { fullScreenImage = nil }
+            }
+            .sheet(item: $videoURL) { url in
+                VideoPlayer(player: AVPlayer(url: url)).ignoresSafeArea()
+            }
+            .quickLookPreview($quickLookURL)
+        }
+    }
+
+    private func header(_ title: String, _ count: Int) -> some View {
+        HStack {
+            Text(title.uppercased()).font(Theme.label(13, weight: .bold)).tracking(1.5).foregroundStyle(.black)
+            Spacer()
+            Text("\(count)").font(Theme.label(13, weight: .bold)).foregroundStyle(Theme.textDim)
+        }
+    }
+
+    private func emptyNote() -> some View {
+        Text("Nothing here yet").font(Theme.label(13)).foregroundStyle(Theme.textDim)
+    }
+
+    // Grid of thumbnails for gifs / photos / videos.
+    private func mediaSection(_ title: String, _ items: [ChatMessage]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            header(title, items.count)
+            if items.isEmpty { emptyNote() }
+            else {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 8)], spacing: 8) {
+                    ForEach(items) { m in
+                        ArchiveThumb(message: m,
+                                     onTapImage: { fullScreenImage = $0 },
+                                     onTapVideo: { videoURL = $0 })
+                    }
+                }
+            }
+        }
+    }
+
+    private var filesSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            header("Attached Files", files.count)
+            if files.isEmpty { emptyNote() }
+            else {
+                ForEach(files) { m in
+                    Button { openFile(m) } label: {
+                        archiveRow(icon: "doc.fill",
+                                   title: m.attachmentName ?? "File",
+                                   subtitle: "\(m.senderName) · \(CalFmt.time(m.createdAt))")
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var linksSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            header("Linked Pages", links.count)
+            if links.isEmpty { emptyNote() }
+            else {
+                ForEach(links) { link in
+                    Button { openURL(link.url) } label: {
+                        archiveRow(icon: "link",
+                                   title: link.url.host.map { $0.replacingOccurrences(of: "www.", with: "") } ?? link.url.absoluteString,
+                                   subtitle: link.url.absoluteString,
+                                   tint: Theme.cyan)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func archiveRow(icon: String, title: String, subtitle: String, tint: Color = .black) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon).font(.system(size: 18)).foregroundStyle(tint).frame(width: 24)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(Theme.label(15, weight: .semibold)).foregroundStyle(.black).lineLimit(1)
+                Text(subtitle).font(Theme.label(12)).foregroundStyle(Theme.textDim).lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(Theme.line))
+    }
+
+    private func openFile(_ message: ChatMessage) {
+        guard let path = message.attachmentPath else { return }
+        Task {
+            guard let url = try? await TriviaService.signedChatURL(path),
+                  let (data, _) = try? await URLSession.shared.data(from: url) else { return }
+            let name = message.attachmentName ?? url.lastPathComponent
+            let temp = FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString + "-" + name)
+            try? data.write(to: temp)
+            quickLookURL = temp
+        }
+    }
+}
+
+// A square thumbnail for a media attachment in the archive grid.
+struct ArchiveThumb: View {
+    let message: ChatMessage
+    let onTapImage: (URL) -> Void
+    let onTapVideo: (URL) -> Void
+    @State private var url: URL?
+
+    var body: some View {
+        ZStack {
+            Rectangle().fill(Theme.surfaceHi)
+            if message.attachmentKind == .video {
+                Image(systemName: "play.circle.fill").font(.system(size: 30)).foregroundStyle(.white)
+            } else if let url {
+                AsyncImage(url: url) { phase in
+                    if let img = phase.image { img.resizable().scaledToFill() }
+                    else if phase.error != nil { Image(systemName: "photo").foregroundStyle(Theme.textDim) }
+                    else { ProgressView().tint(Theme.cyan) }
+                }
+            }
+        }
+        .frame(minWidth: 0, maxWidth: .infinity)
+        .aspectRatio(1, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Theme.line))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard let url else { return }
+            if message.attachmentKind == .video { onTapVideo(url) } else { onTapImage(url) }
+        }
+        .task(id: message.attachmentPath) {
+            if let path = message.attachmentPath { url = await ChatImageCache.shared.url(for: path) }
         }
     }
 }
