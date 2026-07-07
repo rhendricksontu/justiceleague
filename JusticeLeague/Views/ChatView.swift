@@ -933,7 +933,7 @@ struct ReactionOverlay: View {
         ZStack {
             Rectangle().fill(.ultraThinMaterial).ignoresSafeArea()
                 .onTapGesture { onDismiss() }
-            VStack(spacing: 14) {
+            VStack(alignment: isMine ? .trailing : .leading, spacing: 14) {
                 if showEmojiPicker {
                     emojiPicker
                 } else {
@@ -947,7 +947,7 @@ struct ReactionOverlay: View {
                     .padding(.horizontal, 14).padding(.vertical, 10)
                     .background(isMine ? Theme.cyan : Theme.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .frame(maxWidth: 300)
+                    .frame(maxWidth: 300, alignment: isMine ? .trailing : .leading)
 
                 if !showEmojiPicker {
                     // Actions
@@ -972,7 +972,8 @@ struct ReactionOverlay: View {
                     .frame(maxWidth: 260)
                 }
             }
-            .padding(24)
+            .frame(maxWidth: .infinity, alignment: isMine ? .trailing : .leading)
+            .padding(.horizontal, 20)
         }
     }
 
