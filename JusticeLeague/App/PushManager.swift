@@ -29,6 +29,9 @@ final class PushManager: NSObject {
     }
 
     private func requestAuthorizationAndRegister() async {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["NO_PUSH_PROMPT"] != nil { return }
+        #endif
         let center = UNUserNotificationCenter.current()
         let granted = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
         guard granted else { return }
