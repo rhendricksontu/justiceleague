@@ -85,8 +85,9 @@ struct TodayView: View {
                 Image(systemName: "chevron.left").font(.system(size: 16, weight: .bold)).foregroundStyle(.black)
             }
             Spacer()
-            Text(dayLabel.uppercased())
-                .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
+            Text(dayLabel)
+                .font(Theme.label(14, weight: .bold)).foregroundStyle(.black)
+                .lineLimit(1).minimumScaleFactor(0.7)
             Spacer()
             Button { shiftDay(1) } label: {
                 Image(systemName: "chevron.right").font(.system(size: 16, weight: .bold)).foregroundStyle(.black)
@@ -97,9 +98,17 @@ struct TodayView: View {
     }
 
     private var dayLabel: String {
-        let f = DateFormatter(); f.timeZone = Config.timeZone; f.dateFormat = "EEEE, MMMM d"
-        let base = f.string(from: selectedDay)
-        return isToday ? "TODAY · \(base)" : base
+        let cal = CalFmt.central
+        let f = DateFormatter(); f.timeZone = Config.timeZone; f.dateFormat = "EEEE, MMMM d, yyyy"
+        let base = f.string(from: selectedDay)   // e.g. "Monday, July 6, 2026"
+        if isToday { return "Today, \(base)" }
+        if let y = cal.date(byAdding: .day, value: -1, to: startOfToday), cal.isDate(selectedDay, inSameDayAs: y) {
+            return "Yesterday, \(base)"
+        }
+        if let t = cal.date(byAdding: .day, value: 1, to: startOfToday), cal.isDate(selectedDay, inSameDayAs: t) {
+            return "Tomorrow, \(base)"
+        }
+        return base
     }
 
     @ViewBuilder
