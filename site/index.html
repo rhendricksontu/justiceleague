@@ -27,7 +27,8 @@
     font-family:"Arial Narrow","Helvetica Neue",system-ui,sans-serif;
     font-weight:800; font-style:italic; text-transform:uppercase;
     font-size:clamp(30px,8vw,54px); letter-spacing:.02em;
-    -webkit-text-stroke:1px var(--ink);
+    color:#fff; -webkit-text-stroke:2px var(--ink);
+    paint-order:stroke fill;   /* black outline behind white fill, like the app */
   }
   .star{width:.9em; height:.9em; flex:0 0 auto}
   .tagline{
@@ -59,10 +60,6 @@
     color:var(--dim); font-size:13px;
   }
   footer a{color:var(--dim)}
-  @media (prefers-color-scheme: dark){
-    :root{--sand:#141414; --ink:#f2efe6; --dim:#9a9384; --card:#1e1e1e; --line:#2e2b25}
-    .wordmark{-webkit-text-stroke:1px var(--ink)}
-  }
 </style>
 </head>
 <body>
