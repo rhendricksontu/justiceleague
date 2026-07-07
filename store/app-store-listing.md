@@ -1,4 +1,4 @@
-# App Store Connect — listing content
+# App Store Connect listing content
 
 Copy/paste these into the matching fields. Anything in **[brackets]** you fill in.
 
@@ -7,7 +7,7 @@ Copy/paste these into the matching fields. Anything in **[brackets]** you fill i
 ## App Information
 
 - **Name:** Justice League
-  - _(If "Justice League" is taken on the App Store, try: "Justice League — Men's Group", "Justice League OK", or "JL Command Center".)_
+  - _(If "Justice League" is taken on the App Store, try: "Justice League Men's Group", "Justice League OK", or "JL Command Center".)_
 - **Subtitle (30 char max):** `Your men's group HQ`
 - **Category:** Primary = **Social Networking**; Secondary (optional) = **Lifestyle**
 - **Content Rights:** You own or have rights to all content (check the box).
@@ -15,11 +15,11 @@ Copy/paste these into the matching fields. Anything in **[brackets]** you fill i
 
 ---
 
-## Version 1.0 — "Prepare for Submission"
+## Version 1.0, "Prepare for Submission"
 
 ### Promotional Text (170 char, editable anytime)
 ```
-Rally the crew: group chat, daily trivia with a live leaderboard, a shared ops calendar, and a Hall of Fame — all in one command center for your men's group.
+Rally the crew: group chat, daily trivia with a live leaderboard, a shared ops calendar, and a Hall of Fame, all in one command center for your men's group.
 ```
 
 ### Description
@@ -47,7 +47,7 @@ SPECIAL FORCES (ROSTER)
 - The full member roster with G.I. Joe codenames
 - Tap a phone number to text a teammate
 
-Justice League is invite-only — members are added by an administrator, so it
+Justice League is invite-only. Members are added by an administrator, so it
 stays your group and only your group.
 ```
 
@@ -73,7 +73,7 @@ https://justiceleagueok.com
 
 ---
 
-## App Review Information (CRITICAL — prevents rejection)
+## App Review Information (CRITICAL, prevents rejection)
 
 The app is phone-gated, so the reviewer needs a working login.
 
@@ -81,8 +81,8 @@ The app is phone-gated, so the reviewer needs a working login.
    `+1 405-555-0100` (or any number you control that's on the roster).
 2. In this section:
    - **Sign-in required:** Yes
-   - **Demo account — User name:** `4055550100`
-   - **Demo account — Password:** `n/a`
+   - **Demo account, User name:** `4055550100`
+   - **Demo account, Password:** `n/a`
    - **Notes:**
      ```
      This is a private, invite-only group app. To sign in, open the app and
@@ -126,5 +126,5 @@ Answer "Yes, we collect data," then declare:
 ## Age Rating
 Run the questionnaire. Because the app has unmoderated-in-real-time
 user-generated chat, expect a **12+** rating (select "Infrequent/Mild" for
-"Unrestricted Web Access" = No; for user-generated content, answer honestly —
+"Unrestricted Web Access" = No; for user-generated content, answer honestly,
 this typically yields 12+). 4+ is unlikely for a chat app.

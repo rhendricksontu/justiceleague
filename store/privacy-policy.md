@@ -1,4 +1,4 @@
-# Justice League — Privacy Policy
+# Justice League Privacy Policy
 
 _Last updated: July 6, 2026_
 
@@ -13,14 +13,14 @@ group roster by an administrator. There is no public sign‑up.
 ## Information we collect
 We collect only what's needed to run the group app:
 
-- **Phone number** — used to sign you in and identify your account. It is the
+- **Phone number:** used to sign you in and identify your account. It is the
   only login credential.
-- **Name and profile** — your display name and the G.I. Joe codename/avatar you
+- **Name and profile:** your display name and the G.I. Joe codename/avatar you
   choose.
-- **Content you create** — messages, photos, videos, voice messages, files, and
+- **Content you create:** messages, photos, videos, voice messages, files, and
   links you share in the Command Center chat; trivia answers; event details and
   RSVPs you create.
-- **Device push token** — if you enable notifications, so we can send you alerts
+- **Device push token:** if you enable notifications, so we can send you alerts
   about new messages, events, and trivia.
 
 We do **not** collect location, contacts, browsing history, advertising
@@ -30,7 +30,7 @@ identifiers, or any data for advertising or cross‑app tracking.
 - To provide core features: group chat, daily trivia, the group calendar, the
   roster, and the leaderboard.
 - To deliver push notifications you opt into.
-- To keep the group safe (handling reports and blocks — see below).
+- To keep the group safe (handling reports and blocks, described below).
 
 We do **not** sell your information, and we do **not** use it for advertising or
 tracking. We do **not** use third‑party analytics or ad networks.
