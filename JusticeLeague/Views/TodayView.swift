@@ -85,9 +85,9 @@ struct TodayView: View {
                 Image(systemName: "chevron.left").font(.system(size: 16, weight: .bold)).foregroundStyle(.black)
             }
             Spacer()
-            Text(dayLabel)
-                .font(Theme.label(14, weight: .bold)).foregroundStyle(.black)
-                .lineLimit(1).minimumScaleFactor(0.7)
+            Text(dayLabel.uppercased())
+                .font(Theme.label(13, weight: .bold)).tracking(2).foregroundStyle(.black)
+                .lineLimit(1).minimumScaleFactor(0.6)
             Spacer()
             Button { shiftDay(1) } label: {
                 Image(systemName: "chevron.right").font(.system(size: 16, weight: .bold)).foregroundStyle(.black)
