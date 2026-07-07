@@ -23,17 +23,19 @@
   .rule{display:flex; align-items:center; justify-content:center; gap:14px}
   .rule::before,.rule::after{content:""; height:3px; width:34px; background:var(--red); border-radius:2px}
   .wordmark{
-    display:inline-flex; align-items:center; gap:10px;
+    display:flex; align-items:center; justify-content:center; gap:.28em;
     font-family:"Arial Narrow","Helvetica Neue",system-ui,sans-serif;
     font-weight:800; font-style:italic; text-transform:uppercase;
-    font-size:clamp(30px,8vw,54px); letter-spacing:.02em;
-    color:#fff; -webkit-text-stroke:2px var(--ink);
+    font-size:clamp(32px,8.5vw,58px); letter-spacing:.06em;
+    color:#fff; -webkit-text-stroke:1.6px var(--ink);
     paint-order:stroke fill;   /* black outline behind white fill, like the app */
   }
-  .star{width:.9em; height:.9em; flex:0 0 auto}
+  .wordmark span{display:inline-block}
+  .star{width:.86em; height:.86em; flex:0 0 auto; margin-bottom:.06em}
+  .rule{margin-top:12px}
   .tagline{
-    margin-top:10px; font-weight:800; font-style:italic; letter-spacing:.22em;
-    text-transform:uppercase; font-size:13px; color:var(--ink);
+    font-weight:800; font-style:italic; letter-spacing:.22em;
+    text-transform:uppercase; font-size:13px; color:var(--ink); white-space:nowrap;
   }
   main{flex:1 0 auto; padding:26px 0 40px}
   .lead{font-size:18px; text-align:center; color:var(--ink); margin:8px auto 30px; max-width:560px}
@@ -65,8 +67,12 @@
 <body>
   <div class="wrap">
     <header>
-      <div class="rule"><span class="wordmark">Justice<svg class="star" viewBox="0 0 100 100" aria-hidden="true"><polygon points="52,6 66,38 100,40 73,62 82,96 50,76 18,96 27,62 0,40 34,38" fill="#009FCB" stroke="#141414" stroke-width="6" stroke-linejoin="miter" transform="skewX(-11)"/></svg>League</span></div>
-      <div class="tagline">Founding Father</div>
+      <div class="wordmark">
+        <span>Justice</span>
+        <svg class="star" viewBox="0 0 100 100" aria-hidden="true"><polygon points="57.2,12.0 61.3,37.7 88.4,38.3 63.6,54.7 66.5,80.7 47.1,65.2 21.8,80.7 34.7,54.7 16.1,38.3 43.4,37.7" fill="#009FCB" stroke="#141414" stroke-width="7" stroke-linejoin="miter" stroke-miterlimit="12"/></svg>
+        <span>League</span>
+      </div>
+      <div class="rule"><span class="tagline">Real American Men</span></div>
     </header>
 
     <main>
