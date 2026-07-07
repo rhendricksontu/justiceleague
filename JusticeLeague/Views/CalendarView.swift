@@ -511,7 +511,7 @@ struct EventNotesView: View {
                     Color.clear.frame(height: 2)
                 } else if let bullet = bulletBody(trimmed) {
                     HStack(alignment: .top, spacing: 8) {
-                        Text("•").font(Theme.label(15, weight: .bold)).foregroundStyle(Theme.cyan)
+                        Text("•").font(Theme.label(15, weight: .bold)).foregroundStyle(.black)
                         Text(bullet).font(Theme.label(15)).foregroundStyle(.black)
                             .fixedSize(horizontal: false, vertical: true)
                             .lineSpacing(2)
