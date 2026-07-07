@@ -1587,7 +1587,7 @@ struct ChatArchiveView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Archive", size: 20) } }
+            .toolbar { ToolbarItem(placement: .principal) { StencilTitle("Archived Media", size: 20) } }
             .fullScreenCover(item: $fullScreenImage) { url in
                 ImageViewer(url: url) { fullScreenImage = nil }
             }
