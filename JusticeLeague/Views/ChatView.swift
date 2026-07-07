@@ -743,6 +743,47 @@ struct DateSeparator: View {
     }
 }
 
+// A chat bubble with a tail on the sender's side (bottom-trailing for mine,
+// bottom-leading for others), like iMessage.
+struct BubbleShape: Shape {
+    let isMine: Bool
+    var radius: CGFloat = 16
+    static let tail: CGFloat = 7
+
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        let r = radius, t = BubbleShape.tail
+        let top = rect.minY, bot = rect.maxY
+        if isMine {
+            let left = rect.minX, right = rect.maxX - t
+            p.move(to: CGPoint(x: left + r, y: top))
+            p.addLine(to: CGPoint(x: right - r, y: top))
+            p.addQuadCurve(to: CGPoint(x: right, y: top + r), control: CGPoint(x: right, y: top))
+            p.addLine(to: CGPoint(x: right, y: bot - r))
+            p.addQuadCurve(to: CGPoint(x: rect.maxX, y: bot), control: CGPoint(x: right, y: bot))   // tail out
+            p.addQuadCurve(to: CGPoint(x: right - r, y: bot), control: CGPoint(x: right, y: bot))   // tail back
+            p.addLine(to: CGPoint(x: left + r, y: bot))
+            p.addQuadCurve(to: CGPoint(x: left, y: bot - r), control: CGPoint(x: left, y: bot))
+            p.addLine(to: CGPoint(x: left, y: top + r))
+            p.addQuadCurve(to: CGPoint(x: left + r, y: top), control: CGPoint(x: left, y: top))
+        } else {
+            let left = rect.minX + t, right = rect.maxX
+            p.move(to: CGPoint(x: left + r, y: top))
+            p.addLine(to: CGPoint(x: right - r, y: top))
+            p.addQuadCurve(to: CGPoint(x: right, y: top + r), control: CGPoint(x: right, y: top))
+            p.addLine(to: CGPoint(x: right, y: bot - r))
+            p.addQuadCurve(to: CGPoint(x: right - r, y: bot), control: CGPoint(x: right, y: bot))
+            p.addLine(to: CGPoint(x: left + r, y: bot))
+            p.addQuadCurve(to: CGPoint(x: rect.minX, y: bot), control: CGPoint(x: left, y: bot))    // tail out
+            p.addQuadCurve(to: CGPoint(x: left, y: bot - r), control: CGPoint(x: left, y: bot))     // tail back
+            p.addLine(to: CGPoint(x: left, y: top + r))
+            p.addQuadCurve(to: CGPoint(x: left + r, y: top), control: CGPoint(x: left, y: top))
+        }
+        p.closeSubpath()
+        return p
+    }
+}
+
 struct MessageRow: View {
     let message: ChatMessage
     let isMine: Bool
@@ -809,9 +850,9 @@ struct MessageRow: View {
                     .font(Theme.label(16, weight: .regular))
                     .foregroundStyle(isMine ? .black : Theme.textPrimary)
                     .padding(.horizontal, 12).padding(.vertical, 8)
-                    .background(isMine ? Theme.cyan : Theme.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line, lineWidth: isMine ? 0 : 1))
+                    .padding(isMine ? .trailing : .leading, BubbleShape.tail)
+                    .background(BubbleShape(isMine: isMine).fill(isMine ? Theme.cyan : Theme.surface))
+                    .overlay(BubbleShape(isMine: isMine).stroke(Theme.line, lineWidth: isMine ? 0 : 1))
             }
         }
         .onLongPressGesture { onLongPress() }
