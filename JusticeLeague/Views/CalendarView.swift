@@ -575,7 +575,7 @@ struct EventDetailView: View {
                                             .multilineTextAlignment(.leading)
                                     }
                                 }
-                                Text("Added by \(occ.event.creatorName)").font(Theme.label(12)).foregroundStyle(Theme.textDim)
+                                Text("Added by \(occ.event.creatorName)").font(Theme.label(12)).foregroundStyle(.black)
                             }
                         }
 
