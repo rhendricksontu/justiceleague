@@ -71,14 +71,18 @@ Deno.serve(async (req) => {
 
   let messageId = "";
   let eventId = "";
+  let questionId = "";
+  let kind = "";
   try {
     const body = await req.json();
     messageId = String(body?.message_id ?? "");
     eventId = String(body?.event_id ?? "");
+    questionId = String(body?.question_id ?? "");
+    kind = String(body?.kind ?? "");
   } catch {
     return new Response("bad_request", { status: 400 });
   }
-  if (!messageId && !eventId) return new Response("no_id", { status: 400 });
+  if (!messageId && !eventId && !questionId) return new Response("no_id", { status: 400 });
 
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -89,7 +93,23 @@ Deno.serve(async (req) => {
   let excludeMember: string | null = null;
   let threadId = "league-comms";
 
-  if (eventId) {
+  if (questionId) {
+    const { data: q } = await admin
+      .from("trivia_questions")
+      .select("id, prompt, created_by")
+      .eq("id", questionId)
+      .maybeSingle();
+    if (!q) return new Response("question_not_found", { status: 404 });
+    if (kind === "revealed") {
+      title = "🎯 Trivia Revealed";
+      preview = "The answers are in — see how you did.";
+    } else {
+      title = "🎯 New Trivia";
+      preview = ((q.prompt as string) ?? "A new question is up.").slice(0, 180);
+    }
+    excludeMember = q.created_by as string | null;   // the master who posted it
+    threadId = "league-intel";
+  } else if (eventId) {
     const { data: ev } = await admin
       .from("events")
       .select("id, title, location, starts_at, created_by, members!events_created_by_fkey(display_name)")
@@ -102,7 +122,7 @@ Deno.serve(async (req) => {
       day: "numeric", hour: "numeric", minute: "2-digit",
     });
     const loc = (ev.location as string | null)?.trim();
-    title = "📅 New Event";
+    title = kind === "updated" ? "📅 Event Updated" : "📅 New Event";
     preview = `${ev.title} — ${when}${loc ? " @ " + loc : ""} (by ${creator})`.slice(0, 180);
     excludeMember = ev.created_by as string | null;
     threadId = "league-events";
