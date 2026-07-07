@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Justice League</title>
+<meta name="description" content="Justice League — the private command center for your men's group.">
+<style>
+  :root{
+    --sand:#ECE7DA; --ink:#141414; --dim:#6b6459;
+    --cyan:#009FCB; --red:#E4002B; --card:#ffffff; --line:#e2ddd0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--sand); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  .wrap{width:100%; max-width:720px; margin:0 auto; padding:0 22px}
+  header{padding:56px 0 8px; text-align:center}
+  .rule{display:flex; align-items:center; justify-content:center; gap:14px}
+  .rule::before,.rule::after{content:""; height:3px; width:34px; background:var(--red); border-radius:2px}
+  .wordmark{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:"Arial Narrow","Helvetica Neue",system-ui,sans-serif;
+    font-weight:800; font-style:italic; text-transform:uppercase;
+    font-size:clamp(30px,8vw,54px); letter-spacing:.02em;
+    -webkit-text-stroke:1px var(--ink);
+  }
+  .star{width:.9em; height:.9em; flex:0 0 auto}
+  .tagline{
+    margin-top:10px; font-weight:800; font-style:italic; letter-spacing:.22em;
+    text-transform:uppercase; font-size:13px; color:var(--ink);
+  }
+  main{flex:1 0 auto; padding:26px 0 40px}
+  .lead{font-size:18px; text-align:center; color:var(--ink); margin:8px auto 30px; max-width:560px}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:22px 22px; margin:16px 0;
+  }
+  .card h2{margin:0 0 6px; font-size:16px; letter-spacing:.12em; text-transform:uppercase}
+  .card p{margin:6px 0; color:#2a2620}
+  ul.feat{list-style:none; padding:0; margin:6px 0}
+  ul.feat li{padding:5px 0 5px 26px; position:relative}
+  ul.feat li::before{content:"★"; color:var(--cyan); position:absolute; left:0; font-style:italic}
+  a{color:var(--cyan); text-decoration:none; font-weight:600}
+  a:hover{text-decoration:underline}
+  .btnrow{display:flex; gap:12px; flex-wrap:wrap; margin-top:8px}
+  .btn{
+    display:inline-block; background:var(--cyan); color:#fff; font-weight:800;
+    padding:11px 18px; border-radius:12px; text-transform:uppercase; letter-spacing:.04em; font-size:14px;
+  }
+  .btn.ghost{background:transparent; color:var(--ink); border:1px solid var(--line)}
+  .btn:hover{text-decoration:none; opacity:.92}
+  footer{
+    border-top:1px solid var(--line); padding:22px 0 40px; text-align:center;
+    color:var(--dim); font-size:13px;
+  }
+  footer a{color:var(--dim)}
+  @media (prefers-color-scheme: dark){
+    :root{--sand:#141414; --ink:#f2efe6; --dim:#9a9384; --card:#1e1e1e; --line:#2e2b25}
+    .wordmark{-webkit-text-stroke:1px var(--ink)}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="rule"><span class="wordmark">Justice<svg class="star" viewBox="0 0 100 100" aria-hidden="true"><polygon points="52,6 66,38 100,40 73,62 82,96 50,76 18,96 27,62 0,40 34,38" fill="#009FCB" stroke="#141414" stroke-width="6" stroke-linejoin="miter" transform="skewX(-11)"/></svg>League</span></div>
+      <div class="tagline">Founding Father</div>
+    </header>
+
+    <main>
+      <p class="lead">The private command center for your men's group — chat, daily trivia, a shared calendar, and a Hall of Fame, all in one place.</p>
+
+      <div class="card">
+        <h2>What it does</h2>
+        <ul class="feat">
+          <li>Group messaging with photos, videos, GIFs, files and voice</li>
+          <li>A new trivia question every day with a live leaderboard</li>
+          <li>A shared group calendar with RSVPs</li>
+          <li>The full member roster — invite-only</li>
+        </ul>
+      </div>
+
+      <div class="card" id="support">
+        <h2>Support</h2>
+        <p>Questions, help, or account requests? Email us and we'll get back to you.</p>
+        <div class="btnrow">
+          <a class="btn" href="mailto:ryan.l.hendrickson@gmail.com">Email Support</a>
+          <a class="btn ghost" href="/privacy.html">Privacy Policy</a>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      &copy; 2026 Ryan Hendrickson · Justice League ·
+      <a href="mailto:ryan.l.hendrickson@gmail.com">ryan.l.hendrickson@gmail.com</a> ·
+      <a href="/privacy.html">Privacy</a>
+    </footer>
+  </div>
+</body>
+</html>
