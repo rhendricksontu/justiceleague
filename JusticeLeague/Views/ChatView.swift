@@ -324,6 +324,7 @@ struct ChatView: View {
                         onDelete: { Task { await model.delete(target) }; reactionTarget = nil },
                         onDismiss: { reactionTarget = nil }
                     )
+                    .transition(.opacity.combined(with: .scale(scale: 0.92)))
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -417,7 +418,10 @@ struct ChatView: View {
                                        onDelete: { Task { await model.delete(msg) } },
                                        onTapImage: { fullScreenImage = $0 },
                                        onOpenFile: { openFile($0) },
-                                       onLongPress: { reactionTarget = msg },
+                                       onLongPress: {
+                                           UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                           withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) { reactionTarget = msg }
+                                       },
                                        onTapReply: { scrollTo($0, proxy: proxy) })
                             .padding(.top, firstInGroup ? 8 : 0)
                             .id(msg.id)
@@ -915,26 +919,26 @@ struct ReactionOverlay: View {
     let onDelete: () -> Void
     let onDismiss: () -> Void
 
+    @State private var showEmojiPicker = false
+
     private let tapbacks = ["❤️", "👍", "👎", "😂", "‼️", "❓"]
+    private let palette = [
+        "❤️","🩶","🔥","🎯","💯","👏","🙌","🤝","💪","🫡","🎉","⭐️","😂","🤣","😅","😊",
+        "😎","😍","🥳","😮","😯","🤯","🥶","😤","🤔","🙄","😬","😢","😭","😡","👍","👎",
+        "👌","🤙","✊","👊","🙏","🫶","👀","🧠","🏈","🏀","⚾️","⛳️","🍺","🥃","☕️","🇺🇸",
+        "✅","❌","‼️","❓","💥","🚀","🫢","🤷","🫠","😴","🤠","🦅","⚡️","🏆","📸","🎬"
+    ]
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.35).ignoresSafeArea().onTapGesture { onDismiss() }
+            Rectangle().fill(.ultraThinMaterial).ignoresSafeArea()
+                .onTapGesture { onDismiss() }
             VStack(spacing: 14) {
-                // Reaction bar
-                HStack(spacing: 10) {
-                    ForEach(tapbacks, id: \.self) { emoji in
-                        Button { onReact(emoji) } label: {
-                            Text(emoji).font(.system(size: 30))
-                                .padding(6)
-                                .background(myReaction == emoji ? Theme.cyan.opacity(0.3) : .clear)
-                                .clipShape(Circle())
-                        }
-                    }
+                if showEmojiPicker {
+                    emojiPicker
+                } else {
+                    reactionBar
                 }
-                .padding(.horizontal, 14).padding(.vertical, 10)
-                .background(Theme.surface).clipShape(Capsule())
-                .overlay(Capsule().strokeBorder(Theme.line))
 
                 // Message preview
                 Text(message.preview.isEmpty ? "Attachment" : message.preview)
@@ -945,29 +949,86 @@ struct ReactionOverlay: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                     .frame(maxWidth: 300)
 
-                // Actions
-                VStack(spacing: 0) {
-                    actionRow("Reply", "arrowshape.turn.up.left", action: onReply)
-                    if message.hasText {
-                        Divider()
-                        actionRow("Copy", "doc.on.doc", action: onCopy)
+                if !showEmojiPicker {
+                    // Actions
+                    VStack(spacing: 0) {
+                        actionRow("Reply", "arrowshape.turn.up.left", action: onReply)
+                        if message.hasText {
+                            Divider()
+                            actionRow("Copy", "doc.on.doc", action: onCopy)
+                        }
+                        if isMine && message.hasText {
+                            Divider()
+                            actionRow("Edit", "pencil", action: onEdit)
+                        }
+                        if isMine {
+                            Divider()
+                            actionRow("Delete", "trash", role: .destructive, action: onDelete)
+                        }
                     }
-                    if isMine && message.hasText {
-                        Divider()
-                        actionRow("Edit", "pencil", action: onEdit)
-                    }
-                    if isMine {
-                        Divider()
-                        actionRow("Delete", "trash", role: .destructive, action: onDelete)
-                    }
+                    .background(Theme.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line))
+                    .frame(maxWidth: 260)
                 }
-                .background(Theme.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Theme.line))
-                .frame(maxWidth: 260)
             }
             .padding(24)
         }
+    }
+
+    // The quick tapbacks plus a "+" to pick any emoji.
+    private var reactionBar: some View {
+        HStack(spacing: 8) {
+            ForEach(tapbacks, id: \.self) { emoji in
+                Button { onReact(emoji) } label: {
+                    Text(emoji).font(.system(size: 30))
+                        .padding(6)
+                        .background(myReaction == emoji ? Theme.cyan.opacity(0.3) : .clear)
+                        .clipShape(Circle())
+                }
+            }
+            Button { withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { showEmojiPicker = true } } label: {
+                Image(systemName: "plus").font(.system(size: 20, weight: .bold)).foregroundStyle(.black)
+                    .frame(width: 38, height: 38)
+                    .background(Theme.surfaceHi).clipShape(Circle())
+            }
+        }
+        .padding(.horizontal, 12).padding(.vertical, 10)
+        .background(Theme.surface).clipShape(Capsule())
+        .overlay(Capsule().strokeBorder(Theme.line))
+    }
+
+    // Full emoji grid opened from the "+".
+    private var emojiPicker: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Button { withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) { showEmojiPicker = false } } label: {
+                    Image(systemName: "chevron.left").font(.system(size: 15, weight: .bold)).foregroundStyle(.black)
+                }
+                Spacer()
+                Text("REACT").font(Theme.label(12, weight: .bold)).tracking(1.5).foregroundStyle(Theme.textDim)
+                Spacer()
+                Image(systemName: "chevron.left").opacity(0)   // balance
+            }
+            .padding(.horizontal, 14).padding(.top, 12).padding(.bottom, 8)
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 44), spacing: 6)], spacing: 6) {
+                    ForEach(palette, id: \.self) { emoji in
+                        Button { onReact(emoji) } label: {
+                            Text(emoji).font(.system(size: 28))
+                                .frame(width: 44, height: 44)
+                                .background(myReaction == emoji ? Theme.cyan.opacity(0.3) : .clear)
+                                .clipShape(Circle())
+                        }
+                    }
+                }
+                .padding(.horizontal, 12).padding(.bottom, 12)
+            }
+            .frame(height: 240)
+        }
+        .frame(maxWidth: 320)
+        .background(Theme.surface).clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Theme.line))
     }
 
     private func actionRow(_ title: String, _ icon: String, role: ButtonRole? = nil, action: @escaping () -> Void) -> some View {
